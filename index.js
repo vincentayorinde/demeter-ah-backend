@@ -1,10 +1,16 @@
 import express from 'express';
-import { PORT } from './config';
+import env from './config';
+import db from './db/models';
 
 const app = express();
-
-const server = app.listen(PORT, () => {
-  console.log(`server start at port ${PORT}`);
+const dbconnection = db.sequelize;
+dbconnection
+  .authenticate()
+  .then(() => console.log('connection to database successful'))
+  .catch(e => {
+    throw e.message;
+  });
+const server = app.listen(env.PORT, () => {
+  console.log(`server start at port ${env.PORT}`);
 });
-
-module.exports = server;
+export default { server, dbconnection };
