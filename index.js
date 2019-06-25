@@ -1,3 +1,10 @@
-import path from 'path'
+import express from 'express';
+import { PORT } from './config';
 
-console.log(path.join(__dirname, 'src'));
+const app = express();
+
+const server = app.listen(PORT, () => {
+  console.log(`server start at port ${PORT}`);
+});
+
+module.exports = server;
