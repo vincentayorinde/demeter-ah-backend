@@ -1,0 +1,7 @@
+{
+  "name": "Aurthor's Haven",
+  "description": "A Social platform for the creative at heart",
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
