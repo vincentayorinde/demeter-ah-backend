@@ -1,28 +1,32 @@
 {
-  "name": "express-authorshaven",
-  "version": "1.0.0",
-  "description": "A Social platform for the creative at heart",
-  "entry": "index.js",
-  "scripts": {
-    "test": "echo \"no test specified\"",
-    "dev": "nodemon --exec babel-node index"
-  },
-  "author": "Andela Simulations Programme",
-  "license": "MIT",
-  "devDependencies": {
-    "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.4.5",
-    "@babel/node": "^7.4.5",
-    "@babel/preset-env": "^7.4.5",
-    "nodemon": "^1.19.1"
-  },
-  "dependencies": {
-    "body-parser": "^1.19.0",
-    "dotenv": "^8.0.0",
-    "express": "^4.17.1",
-    "parse-database-url": "^0.3.0",
-    "pg": "^7.11.0",
-    "pg-hstore": "^2.3.3",
-    "sequelize": "^5.8.12"
-  }
+	"name": "express-authorshaven",
+	"version": "1.0.0",
+	"description": "A Social platform for the creative at heart",
+	"entry": "index.js",
+	"author": "Andela Simulations Programme",
+	"license": "MIT",
+	"main": "index.js",
+	"scripts": {
+		"test": "mocha --require @babel/register tests/*.spec.js --exit",
+		"dev": "nodemon --exec babel-node index"
+	},
+	"devDependencies": {
+		"@babel/cli": "^7.4.4",
+		"@babel/core": "^7.4.5",
+		"@babel/node": "^7.4.5",
+		"@babel/preset-env": "^7.4.5",
+		"chai": "^4.2.0",
+		"chai-http": "^4.3.0",
+		"mocha": "^6.1.4",
+		"nodemon": "^1.19.1"
+	},
+	"dependencies": {
+		"body-parser": "^1.19.0",
+		"dotenv": "^8.0.0",
+		"express": "^4.17.1",
+		"parse-database-url": "^0.3.0",
+		"pg": "^7.11.0",
+		"pg-hstore": "^2.3.3",
+		"sequelize": "^5.8.12"
+	}
 }

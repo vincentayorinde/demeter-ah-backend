@@ -6,13 +6,23 @@ dotenv.config();
 
 const app = express();
 const dbconnection = db.sequelize;
-dbconnection
-  .authenticate()
-  .then(() => console.log('connection to database successful'))
-  .catch(e => {
-    throw e.message;
-  });
-const server = app.listen(process.env.PORT, () => {
-  console.log(`server start at port ${process.env.PORT}`);
+
+app.use('/', (req, res, next) => {
+	res.send({
+		message: 'receieved'
+	});
 });
-export default { server, dbconnection };
+
+dbconnection
+	.authenticate()
+	.then(() => {
+		console.log('connection to database successful');
+		app.listen(process.env.PORT, () => {
+			console.log(`server start at port ${process.env.PORT}`);
+		});
+	})
+	.catch((e) => {
+		throw e.message;
+	});
+
+export { app, dbconnection };
