@@ -9,12 +9,6 @@
   },
   "author": "Andela Simulations Programme",
   "license": "MIT",
-  "prettier": {
-    "trailingComma": "none",
-    "tabWidth": 2,
-    "semi": true,
-    "singleQuote": true
-  },
   "devDependencies": {
     "@babel/cli": "^7.4.4",
     "@babel/core": "^7.4.5",
