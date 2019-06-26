@@ -2,7 +2,7 @@
   "name": "express-authorshaven",
   "version": "1.0.0",
   "description": "A Social platform for the creative at heart",
-  "main": "index.js",
+  "entry": "index.js",
   "scripts": {
     "test": "echo \"no test specified\"",
     "dev": "nodemon --exec babel-node index"
@@ -17,7 +17,12 @@
     "nodemon": "^1.19.1"
   },
   "dependencies": {
+    "body-parser": "^1.19.0",
     "dotenv": "^8.0.0",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "parse-database-url": "^0.3.0",
+    "pg": "^7.11.0",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^5.8.12"
   }
 }

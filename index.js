@@ -1,10 +1,18 @@
 import express from 'express';
-import { PORT } from './config';
+import dotenv from 'dotenv';
+import db from './db/models';
+
+dotenv.config();
 
 const app = express();
-
-const server = app.listen(PORT, () => {
-  console.log(`server start at port ${PORT}`);
+const dbconnection = db.sequelize;
+dbconnection
+  .authenticate()
+  .then(() => console.log('connection to database successful'))
+  .catch(e => {
+    throw e.message;
+  });
+const server = app.listen(process.env.PORT, () => {
+  console.log(`server start at port ${process.env.PORT}`);
 });
-
-module.exports = server;
+export default { server, dbconnection };
