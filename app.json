@@ -1,7 +1,22 @@
 {
-  "name": "Aurthor's Haven",
-  "description": "A Social platform for the creative at heart",
+  "addons": [
+
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "description": "",
   "env": {
-    "NODE_ENV": "production"
-  }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "name": "demeter-ah-backend",
+  "scripts": {
+  },
+  "stack": "heroku-18"
 }

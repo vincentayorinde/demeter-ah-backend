@@ -11,3 +11,5 @@ before_script:
   - psql -c 'create database haven;' -U postgres
 services:
   - postgresql
+after_script:
+  - npm run coverage
