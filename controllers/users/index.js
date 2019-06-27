@@ -1,5 +1,6 @@
 import db from '../../db/models';
 import { blackListThisToken } from '../../utils';
+import getToken from '../../utils';
 
 export default {
   signUp: async (req, res) => {
@@ -14,6 +15,7 @@ export default {
         email,
         username
       });
+      user.response.token = getToken(user.id, user.email);
       return res.status(201).json({
         message: 'User Registration successful',
         user: user.response()
