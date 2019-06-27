@@ -9,7 +9,8 @@
 	"scripts": {
 		"test": "mocha --require @babel/register tests/*.spec.js --exit",
 		"prettier": "prettier **/**/*.{js,json} --write",
-		"dev": "nodemon --exec babel-node index"
+    "dev": "nodemon --exec babel-node index",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
 	},
 	"husky": {
 		"hooks": {
@@ -39,7 +40,9 @@
 		"husky": "^2.5.0",
 		"lint-staged": "^8.2.1",
 		"nodemon": "^1.19.1",
-		"prettier": "^1.18.2"
+    "prettier": "^1.18.2",
+    "nyc": "^14.1.1",
+    "coveralls": "^3.0.4"
 	},
 	"dependencies": {
 		"body-parser": "^1.19.0",
