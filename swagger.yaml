@@ -3,29 +3,80 @@ info:
   description: "Authors Haven - A Social platform for the creative at heart."
   version: "1.0.0"
   title: "Authors Haven"
-basePath: "/"
-tags:
-- name: "Home"
-  description: "Welcome to authors haven"
-  externalDocs:
-    description: "Find out more"
-    url: "https://github.com/andela/demeter-ah-backend"
+basePath: /api/v1/
 schemes:
-- "https"
-- "http"
+  - http
+  - https
 consumes:
-- application/json
+  - application/json
 produces:
-- application/json 
+  - application/json
 paths:
-  /:
-    get:
+  /users/signup:
+    post:
       tags:
-      - ""
-      summary: "Welcome to authors haven"
-      description: ""
+        - Users
+      summary: Add a new user account
+      operationId: addUser
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
       produces:
-      - "application/json"
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: User object that needs to be added to the app
+          required: true
+          schema:
+            $ref: '#/definitions/NewUser'
       responses:
-        200:
-          description: "Welcome to Authors Haven"
+        '201':
+          description: User Registration successful
+  /users/login:
+    post:
+      tags:
+        - Users
+      summary: log in registered user
+      operationId: login user
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+      - name: username
+        in: query
+        description: The user name for login
+        required: true
+        type: string
+      - name: password
+        in: query
+        description: The password for login in clear text
+        required: true
+        type: string
+      responses:
+        '200':
+          description: User Login in successful
+definitions:
+  NewUser:
+    type: object
+    required:
+      - firstName
+      - lastName
+      - email
+      - password
+      - username
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    xml:
+      name: NewUser
