@@ -1,0 +1,31 @@
+swagger: "2.0"
+info:
+  description: "Authors Haven - A Social platform for the creative at heart."
+  version: "1.0.0"
+  title: "Authors Haven"
+basePath: "/"
+tags:
+- name: "Home"
+  description: "Welcome to authors haven"
+  externalDocs:
+    description: "Find out more"
+    url: "https://github.com/andela/demeter-ah-backend"
+schemes:
+- "https"
+- "http"
+consumes:
+- application/json
+produces:
+- application/json 
+paths:
+  /:
+    get:
+      tags:
+      - ""
+      summary: "Welcome to authors haven"
+      description: ""
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Welcome to Authors Haven"
