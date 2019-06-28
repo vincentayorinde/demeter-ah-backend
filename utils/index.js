@@ -6,24 +6,25 @@ import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import db from '../db/models';
 
-const getToken = (id, email) => jwt.sign({ id, email }, process.env.SECRET, {
-  expiresIn: '5h',
-});
+const getToken = (id, email) =>
+  jwt.sign({ id, email }, process.env.SECRET, {
+    expiresIn: '5h'
+  });
 
-const isBlackListed = async (token) => {
+const isBlackListed = async token => {
   const blockedToken = await db.BlackListedTokens.findOne({
-    where: { token },
+    where: { token }
   });
   return !!blockedToken;
 };
 
 const decodeToken = token => jwt.verify(token, process.env.SECRET);
 
-const blackListThisToken = async (token) => {
+const blackListThisToken = async token => {
   const decoded = decodeToken(token);
   await db.BlackListedTokens.create({
     token,
-    expireAt: decoded.exp,
+    expireAt: decoded.exp
   });
 };
 
@@ -34,7 +35,7 @@ const messages = {
   unique: '{{ field }} already existed',
   email: 'The value provided is not an email',
   alpha: 'Only letters allowed as {{ field }}',
-  alphaNumeric: 'Only letters and numbers are allowed as {{ field }}',
+  alphaNumeric: 'Only letters and numbers are allowed as {{ field }}'
 };
 
 const sanitizeRules = {
@@ -42,7 +43,7 @@ const sanitizeRules = {
   lastName: 'trim',
   username: 'trim',
   email: 'trim',
-  password: 'trim',
+  password: 'trim'
 };
 
 validations.unique = async (data, field, message, args, get) => {
@@ -57,17 +58,15 @@ validations.unique = async (data, field, message, args, get) => {
 
 const validatorInstance = Validator(validations, Vanilla);
 
-const createUser = async (user) => {
-  const {
-    firstName, lastName, username, email, password
-  } = user;
+const createUser = async user => {
+  const { firstName, lastName, username, email, password } = user;
 
   const newUser = await db.User.create({
     firstName,
     lastName,
     username,
     email,
-    password,
+    password
   });
 
   return newUser;
@@ -87,5 +86,5 @@ export {
   sanitizeRules,
   createUser,
   randomString,
-  hashPassword,
+  hashPassword
 };
