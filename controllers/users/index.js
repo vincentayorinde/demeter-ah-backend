@@ -1,4 +1,5 @@
 import db from '../../db/models';
+import { blackListThisToken } from '../../utils';
 
 export default {
   signUp: async (req, res) => {
@@ -50,5 +51,13 @@ export default {
         message: 'Something went wrong'
       });
     }
+  },
+
+  signOut: async (req, res) => {
+    const token = req.headers['x-access-token'];
+    await blackListThisToken(token);
+    return res.status(200).send({
+      message: 'Thank you'
+    });
   }
 };
