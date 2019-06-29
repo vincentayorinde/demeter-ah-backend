@@ -1,6 +1,5 @@
 import db from '../../db/models';
-import { blackListThisToken } from '../../utils';
-import getToken from '../../utils';
+import { blackListThisToken, getToken } from '../../utils';
 
 export default {
   signUp: async (req, res) => {

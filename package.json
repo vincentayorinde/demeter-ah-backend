@@ -6,10 +6,11 @@
   "license": "MIT",
   "entry": "server/index.js",
   "scripts": {
-    "test": "NODE_ENV=test npm run migrate && mocha \"tests/**/*.spec.js\" --require @babel/register --timeout 20000  --recursive --exit",
+    "test": "NODE_ENV=test npm run migrate && nyc --reporter=html --reporter=text mocha \"tests/**/*.spec.js\" --require @babel/register --timeout 20000  --recursive --exit",
     "prettier": "prettier **/**/*.{js,json} --write",
     "dev": "NODE_ENV=development nodemon --exec babel-node server/index",
     "migrate": "node_modules/.bin/sequelize db:migrate",
+    "seed": "node_modules/.bin/sequelize db:seed:all",
     "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "husky": {
@@ -45,14 +46,15 @@
     "sequelize-cli": "^5.5.0"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "dotenv": "^8.0.0",
     "express": "^4.17.1",
+    "indicative": "^5.0.8",
+    "jsonwebtoken": "^8.5.1",
     "pg": "^7.11.0",
     "pg-hstore": "^2.3.3",
     "sequelize": "^5.8.12",
-    "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^8.5.1",
     "swagger-ui-express": "^4.0.6",
     "consola": "^2.9.0",
     "parse-database-url": "^0.3.0",
