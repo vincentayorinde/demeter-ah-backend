@@ -21,11 +21,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
   res.status(200).send({
-    message: 'Welcome to Authors Haven'
+    message: 'Welcome to Authors Haven',
   });
 });
 app.post('/signup', auth.signup);
 app.put('/activate/:token', auth.activate);
+app.post('/reset-password', auth.sendResetLink);
+app.put('/change-password', auth.changePassword);
 dbconnection
   .authenticate()
   .then(() => {

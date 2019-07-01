@@ -13,18 +13,21 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 Routes(app);
 
-app.get('/', (req, res) => res.status(200).json({
-  message: "welcome to Author's Haven"
-}));
-app.use((req, res) => res.status(404).json({
-  status: 404,
-  error: `Route ${req.url} Not found`
-}));
+app.get('/', (req, res) =>
+  res.status(200).json({
+    message: 'welcome to Author\'s Haven',
+  }));
+app.use((req, res) =>
+  res.status(404).json({
+    status: 404,
+    error: `Route ${req.url} Not found`,
+  }));
 
-app.use((error, req, res) => res.status(500).json({
-  status: 500,
-  error
-}));
+app.use((error, req, res) =>
+  res.status(500).json({
+    status: 500,
+    error,
+  }));
 
 const dbconnection = db.sequelize;
 dbconnection
