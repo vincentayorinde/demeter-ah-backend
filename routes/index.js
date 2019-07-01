@@ -1,7 +1,5 @@
-import express from 'express';
+import v1 from './v1';
 
-const router = express.Router();
-
-router.use('/api', require('./api'));
-
-module.exports = router;
+export default (app) => {
+  app.use('/api/v1', v1);
+};

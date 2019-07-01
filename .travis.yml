@@ -8,7 +8,7 @@ env:
   global:
     - NODE_ENV=test
 before_script:
-  - psql -c 'create database haven;' -U postgres
+  - psql -c 'create database haventest;' -U postgres
 services:
   - postgresql
 after_script:
