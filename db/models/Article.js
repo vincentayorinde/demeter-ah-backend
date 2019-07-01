@@ -15,5 +15,6 @@ module.exports = (sequelize, DataTypes) => {
     overwrite: false,
     column: 'slug'
   });
+  Article.associate = models => Article.belongsTo(models.User);
   return Article;
 };
