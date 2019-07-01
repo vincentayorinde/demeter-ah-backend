@@ -1,22 +1,18 @@
 {
-  "addons": [
-
-  ],
+  "addons": [],
   "buildpacks": [
     {
       "url": "heroku/nodejs"
     }
   ],
   "description": "",
-  "env": {
-  },
+  "env": {},
   "formation": {
     "web": {
       "quantity": 1
     }
   },
   "name": "demeter-ah-backend",
-  "scripts": {
-  },
+  "scripts": {},
   "stack": "heroku-18"
 }
