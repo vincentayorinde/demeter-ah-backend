@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { getToken } from '../../utils';
+import { getToken, hashPassword } from '../../utils';
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
@@ -11,14 +11,16 @@ module.exports = (sequelize, DataTypes) => {
       username: DataTypes.STRING,
       firstName: DataTypes.STRING,
       lastName: DataTypes.STRING,
-      password: DataTypes.STRING
+      password: DataTypes.STRING,
+      passwordResetToken: DataTypes.STRING,
+      passwordResetExpire: DataTypes.DATE,
     },
     {
       hooks: {
         beforeCreate: async (user) => {
-          user.password = await bcrypt.hash(user.password, 10);
-        }
-      }
+          user.password = await hashPassword(user.password);
+        },
+      },
     }
   );
   User.associate = models => User.hasMany(models.Article, {
@@ -41,7 +43,7 @@ module.exports = (sequelize, DataTypes) => {
       image: this.image,
       firstName: this.firstName,
       lastName: this.lastName,
-      id: this.id
+      id: this.id,
     };
   };
   return User;

@@ -2,15 +2,17 @@ import jwt from 'jsonwebtoken';
 import { validations } from 'indicative';
 import { Vanilla } from 'indicative/builds/formatters';
 import Validator from 'indicative/builds/validator';
+import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 import db from '../db/models';
 
 const getToken = (id, email) => jwt.sign({ id, email }, process.env.SECRET, {
-  expiresIn: '5h'
+  expiresIn: '5h',
 });
 
 const isBlackListed = async (token) => {
   const blockedToken = await db.BlackListedTokens.findOne({
-    where: { token }
+    where: { token },
   });
   return !!blockedToken;
 };
@@ -21,7 +23,7 @@ const blackListThisToken = async (token) => {
   const decoded = decodeToken(token);
   await db.BlackListedTokens.create({
     token,
-    expireAt: decoded.exp
+    expireAt: decoded.exp,
   });
 };
 
@@ -32,7 +34,7 @@ const messages = {
   unique: '{{ field }} already existed',
   email: 'The value provided is not an email',
   alpha: 'Only letters allowed as {{ field }}',
-  alphaNumeric: 'Only letters and numbers are allowed as {{ field }}'
+  alphaNumeric: 'Only letters and numbers are allowed as {{ field }}',
 };
 
 const sanitizeRules = {
@@ -40,7 +42,7 @@ const sanitizeRules = {
   lastName: 'trim',
   username: 'trim',
   email: 'trim',
-  password: 'trim'
+  password: 'trim',
 };
 
 validations.unique = async (data, field, message, args, get) => {
@@ -65,14 +67,25 @@ const createUser = async (user) => {
     lastName,
     username,
     email,
-    password
+    password,
   });
 
   return newUser;
 };
 
+const randomString = () => crypto.randomBytes(11).toString('hex');
+
+const hashPassword = password => bcrypt.hash(password, 10);
+
 export {
-  getToken, blackListThisToken, decodeToken,
-  isBlackListed, messages, validatorInstance,
-  sanitizeRules, createUser
+  getToken,
+  blackListThisToken,
+  decodeToken,
+  isBlackListed,
+  messages,
+  validatorInstance,
+  sanitizeRules,
+  createUser,
+  randomString,
+  hashPassword,
 };

@@ -58,6 +58,53 @@ paths:
       responses:
         '200':
           description: User Login in successful
+  /users/reset-password:
+    post:
+      tags:
+        - Users
+      summary: Reset password
+      operationId: reset password
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Email needed for password reset
+          required: true
+          schema:
+            $ref: '#/definitions/ResetPassword'
+      responses:
+        '200':
+          description: Password reset successful. Check your email for password reset link!
+  /users/change-password:
+    put:
+      tags:
+        - Users
+      summary: Change password 
+      operationId: change password
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+      - name: resetToken
+        in: query
+        description: reset token
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: Email needed for password reset
+        required: true
+        schema:
+          $ref: '#/definitions/ChangePassword'
+      responses:
+        '200':
+          description: Password has successfully been changed.
 definitions:
   NewUser:
     type: object
@@ -80,3 +127,21 @@ definitions:
         type: string
     xml:
       name: NewUser
+  ResetPassword:
+    type: object
+    required:
+      - email
+    properties:
+      email: 
+        type: string
+    xml:
+      name: resetPassword
+  ChangePassword:
+    type: object
+    required:
+      - password
+    properties:
+      password: 
+        type: string
+    xml:
+      name: changePassword
