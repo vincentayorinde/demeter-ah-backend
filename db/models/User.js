@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import getToken from '../../utils';
+import { getToken } from '../../utils';
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(

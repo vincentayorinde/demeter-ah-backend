@@ -87,4 +87,29 @@ describe('USER AUTHENTICATION', () => {
       expect(res.body.user.email).to.include(login.email);
     });
   });
+
+  describe('Sign Out', () => {
+    it('should sign user out', async () => {
+      const {
+        firstName, lastName, password, email, bio, username, image
+      } = register;
+      const user = await db.User.create({
+        firstName,
+        lastName,
+        password,
+        email,
+        bio,
+        username,
+        image
+      });
+      const { token } = user.response();
+      const res = await chai
+        .request(app)
+        .post('/api/v1/users/signout')
+        .set('x-access-token', token)
+        .send(login);
+      expect(res.body).to.be.an('object');
+      expect(res.status).to.equal(200);
+    });
+  });
 });
