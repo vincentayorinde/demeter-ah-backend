@@ -48,6 +48,7 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
+    "consola": "^2.9.0",
     "dotenv": "^8.0.0",
     "express": "^4.17.1",
     "indicative": "^5.0.8",
@@ -56,9 +57,9 @@
     "pg-hstore": "^2.3.3",
     "sequelize": "^5.8.12",
     "swagger-ui-express": "^4.0.6",
-    "consola": "^2.9.0",
     "parse-database-url": "^0.3.0",
     "sinon": "^7.3.2",
+    "sequelize-slugify": "^0.7.0",
     "yamljs": "^0.3.0"
   }
 }
