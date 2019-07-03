@@ -61,6 +61,10 @@
     "parse-database-url": "^0.3.0",
     "sinon": "^7.3.2",
     "sequelize-slugify": "^0.7.0",
+    "cookie-parser": "^1.4.4",
+    "passport": "^0.4.0",
+    "passport-facebook": "^3.0.0",
+    "passport-twitter": "^1.0.4",
     "yamljs": "^0.3.0"
   }
 }

@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       firstName: DataTypes.STRING,
       lastName: DataTypes.STRING,
       password: DataTypes.STRING,
+      social: DataTypes.BOOLEAN,
       passwordResetToken: DataTypes.STRING,
       passwordResetExpire: DataTypes.DATE,
       emailVerificationToken: DataTypes.STRING,
@@ -24,25 +25,26 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       hooks: {
-        beforeCreate: async user => {
-          user.password = await bcrypt.hash(user.password, 10);
-          user.emailVerificationToken = randomString();
+        beforeCreate: async (user) => {
+          user.password = !user.social ? await bcrypt.hash(user.password, 10) : null;
+          user.emailVerificationToken = !user.social ? randomString() : null;
         },
-        afterCreate: async user => {
-          await sendMail({
-            email: user.email,
-            subject: 'Activate Account',
-            content: activationMessage(user.email, user.emailVerificationToken)
-          });
+        afterCreate: async (user) => {
+          if (!user.social) {
+            await sendMail({
+              email: user.email,
+              subject: 'Activate Account',
+              content: activationMessage(user.email, user.emailVerificationToken)
+            });
+          }
         }
       }
     }
   );
-  User.associate = models =>
-    User.hasMany(models.Article, {
-      foreignKey: 'userId',
-      cascade: true
-    });
+  User.associate = models => User.hasMany(models.Article, {
+    foreignKey: 'userId',
+    cascade: true
+  });
 
   User.prototype.passwordsMatch = function match(password) {
     return bcrypt.compare(password, this.password);
