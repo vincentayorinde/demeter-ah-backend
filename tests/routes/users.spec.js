@@ -1,8 +1,11 @@
 import chai from 'chai';
 import chaiHttp from 'chai-http';
+import sinon from 'sinon';
 import { app, db } from '../../server';
 import { createUser } from '../../utils';
+import { transporter } from '../../utils/mailer';
 
+let mockTransporter;
 const { expect } = chai;
 
 chai.use(chaiHttp);
@@ -16,7 +19,7 @@ describe('USER AUTHENTICATION', () => {
       lastName: 'hamza',
       username: 'kev',
       password: '12345678',
-      email: 'frank@gmail.com'
+      email: 'frank@gmail.com',
     };
 
     user = await createUser(register);
@@ -25,7 +28,7 @@ describe('USER AUTHENTICATION', () => {
   beforeEach(async () => {
     login = {
       password: '12345678',
-      email: 'frank@gmail.com'
+      email: 'frank@gmail.com',
     };
   });
 
@@ -40,7 +43,7 @@ describe('USER AUTHENTICATION', () => {
         .post('/api/v1/users/signup')
         .send({
           ...register,
-          email: 'john@havens.com'
+          email: 'john@havens.com',
         });
       expect(res.body).to.be.an('object');
       expect(res.body).to.include.all.keys('user', 'message');
@@ -59,7 +62,7 @@ describe('USER AUTHENTICATION', () => {
         .send({
           ...register,
           firstName: 9999,
-          email: 'frank.john'
+          email: 'frank.john',
         });
 
       expect(res.status).to.equal(400);
@@ -111,7 +114,7 @@ describe('USER AUTHENTICATION', () => {
         .post('/api/v1/users/login')
         .send({
           ...login,
-          email: 'frank.john'
+          email: 'frank.john',
         });
       expect(res.status).to.equal(400);
       expect(res.body).to.be.an('object');
@@ -129,6 +132,116 @@ describe('USER AUTHENTICATION', () => {
         .send(login);
       expect(res.body).to.be.an('object');
       expect(res.status).to.equal(200);
+    });
+  });
+
+  describe('PASSWORD RESET', () => {
+    beforeEach(async () => {
+      mockTransporter = sinon.stub(transporter, 'sendMail').resolves('something');
+      await db.User.destroy({ truncate: true, cascade: false });
+    });
+    afterEach(() => {
+      mockTransporter.restore();
+    });
+    it('should send reset password link for an existing user', async () => {
+      await db.User.create(register);
+
+      const res = await chai
+        .request(app)
+        .post('/api/v1/users/reset-password')
+        .send({ email: register.email });
+      expect(res.body).to.be.an('object');
+      expect(res).to.have.status(200);
+      expect(res.body).to.include.all.keys('message');
+      expect(res.body.message).to.be.a('string');
+      expect(res.body.message).to.include('Password reset successful. Check your email for password reset link!');
+    });
+    it('should not send a reset password link for a user that does not exist', async () => {
+      await db.User.create(register);
+      const res = await chai
+        .request(app)
+        .post('/api/v1/users/reset-password')
+        .send({ email: 'wrong@gmail.com' });
+      expect(res.body).to.be.an('object');
+      expect(res).to.have.status(400);
+      expect(res.body).to.include.all.keys('message');
+      expect(res.body.message).to.be.a('string');
+      expect(res.body.message).to.include('User does not exist');
+    });
+
+    it('should not send a reset password on a wrong email format', async () => {
+      await db.User.create(register);
+      const res = await chai
+        .request(app)
+        .post('/api/v1/users/reset-password')
+        .send({ email: 'wrong@' });
+      expect(res.body).to.be.an('object');
+      expect(res).to.have.status(400);
+      expect(res.body).to.include.all.keys('message');
+      expect(res.body.message[0].message).to.equal('The value provided is not an email');
+      expect(res.body.message[0].field).to.equal('email');
+    });
+  });
+  describe('should be able to change password', () => {
+    it('should not change the password on invalid token', async () => {
+      const date = new Date();
+      date.setHours(date.getHours() + 2);
+      await db.User.create({
+        ...register,
+        passwordResetToken: 'sample-test-token',
+        passwordResetExpire: date,
+        email: 'kelvinese@gmail.com',
+      });
+      const res = await chai
+        .request(app)
+        .put('/api/v1/users/change-password?resetToken=wrong-test-token')
+        .send({ password: '12345678' });
+      expect(res.body).to.be.an('object');
+      expect(res).to.have.status(400);
+      expect(res.body).to.include.all.keys('message');
+      expect(res.body.message).to.be.a('string');
+      expect(res.body.message).to.include('Bad request');
+    });
+    it('should change the password on valid token', async () => {
+      const date = new Date();
+      date.setHours(date.getHours() + 2);
+      await db.User.create({
+        ...register,
+        email: 'kelvin@gmail.com',
+        passwordResetToken: 'sample-test-token',
+        passwordResetExpire: date,
+      });
+      const res = await chai
+        .request(app)
+        .put('/api/v1/users/change-password?resetToken=sample-test-token')
+        .send({ password: '12345678' });
+      expect(res.body).to.be.an('object');
+      expect(res).to.have.status(200);
+      expect(res.body).to.include.all.keys('message');
+      expect(res.body.message).to.be.a('string');
+      expect(res.body.message).to.include('Password has successfully been changed.');
+    });
+
+    it('should not change the password on an empty field with wrong resetToken', async () => {
+      const date = new Date();
+      date.setHours(date.getHours() + 2);
+      await db.User.create({
+        ...register,
+        email: 'kelvin',
+        passwordResetToken: 'sample-test-token',
+        passwordResetExpire: date,
+      });
+      const res = await chai
+        .request(app)
+        .put('/api/v1/users/change-password')
+        .send({});
+      expect(res.body).to.be.an('object');
+      expect(res).to.have.status(400);
+      expect(res.body).to.include.all.keys('message');
+      expect(res.body.message[0].message).to.equal('Input your password');
+      expect(res.body.message[0].field).to.equal('password');
+      expect(res.body.message[1].message).to.equal('Input your resetToken');
+      expect(res.body.message[1].field).to.equal('resetToken');
     });
   });
 });
