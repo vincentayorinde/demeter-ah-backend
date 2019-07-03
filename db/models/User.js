@@ -21,6 +21,11 @@ module.exports = (sequelize, DataTypes) => {
       }
     }
   );
+  User.associate = models => User.hasMany(models.Article, {
+    foreignKey: 'userId',
+    cascade: true
+  });
+
   User.prototype.passwordsMatch = function match(password) {
     return bcrypt.compare(password, this.password);
   };
