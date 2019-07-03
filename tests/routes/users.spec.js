@@ -61,6 +61,7 @@ describe('USER AUTHENTICATION', () => {
           firstName: 9999,
           email: 'frank.john'
         });
+
       expect(res.status).to.equal(400);
       expect(res.body).to.be.an('object');
       expect(res.body.message[0].message).to.equal('Only letters allowed as firstName');
