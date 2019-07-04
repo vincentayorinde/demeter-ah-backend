@@ -10,5 +10,6 @@ router.post('/login', Validation.logIn, User.logIn);
 router.post('/signout', Middleware.authenticate, Middleware.isblackListedToken, User.signOut);
 router.post('/reset-password', Validation.resetPassword, User.resetPassword);
 router.put('/change-password', Validation.changePassword, User.changePassword);
+router.put('/activate/:token', User.activate);
 
 export default router;

@@ -1,5 +1,7 @@
 import bcrypt from 'bcryptjs';
-import { getToken, hashPassword } from '../../utils';
+import { getToken, randomString, hashPassword } from '../../utils';
+import { sendMail } from '../../utils/mailer';
+import { activationMessage } from '../../utils/mailer/mails';
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
@@ -14,19 +16,33 @@ module.exports = (sequelize, DataTypes) => {
       password: DataTypes.STRING,
       passwordResetToken: DataTypes.STRING,
       passwordResetExpire: DataTypes.DATE,
+      emailVerificationToken: DataTypes.STRING,
+      activated: {
+        type: DataTypes.BOOLEAN,
+        default: false
+      }
     },
     {
       hooks: {
-        beforeCreate: async (user) => {
-          user.password = await hashPassword(user.password);
+        beforeCreate: async user => {
+          user.password = await bcrypt.hash(user.password, 10);
+          user.emailVerificationToken = randomString();
         },
-      },
+        afterCreate: async user => {
+          await sendMail({
+            email: user.email,
+            subject: 'Activate Account',
+            content: activationMessage(user.email, user.emailVerificationToken)
+          });
+        }
+      }
     }
   );
-  User.associate = models => User.hasMany(models.Article, {
-    foreignKey: 'userId',
-    cascade: true
-  });
+  User.associate = models =>
+    User.hasMany(models.Article, {
+      foreignKey: 'userId',
+      cascade: true
+    });
 
   User.prototype.passwordsMatch = function match(password) {
     return bcrypt.compare(password, this.password);
@@ -43,7 +59,7 @@ module.exports = (sequelize, DataTypes) => {
       image: this.image,
       firstName: this.firstName,
       lastName: this.lastName,
-      id: this.id,
+      id: this.id
     };
   };
   return User;
