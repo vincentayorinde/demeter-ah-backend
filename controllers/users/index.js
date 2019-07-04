@@ -142,5 +142,9 @@ export default {
         message: 'Bad request'
       });
     }
-  }
+  },
+
+  home: async (req, res) => res.status(200).send({
+    user: req.user
+  })
 };

@@ -7,6 +7,17 @@ cache:
 env:
   global:
     - NODE_ENV=test
+    - FACEBOOK_APP_ID=414345019166283
+    - FACEBOOK_SECRET=42c013c3adb4617c4d231ca11576fd21
+    - FACEBOOK_CALLBACk=http://localhost:5000/auth/facebook/callback
+    - TWITTER_KEY=zgwMUevHI3lQy8rHEbLnFZ0Xu
+    - TWITTER_SECRET=ZjILyBUlWQh6EjcNZdjuPOTiwGPOUHTBp2IJ4TaUrrQmqX4iGB
+    - TWITTER_CALLBACk=http://localhost:5000/auth/twitter/callback
+    - SESSION_SECRET=secret
+    - GOOGLE_CLIENT_ID=437904595396-ktobr2fr8tuhed3f8ojatg6d0f4h7ibp.apps.googleusercontent.com
+    - GOOGLE_CLIENT_SECRET=mGJz_ZmBNaf6b1gqi95sDVk3
+    - BASE_URL=http://localhost:5000
+    - GOOGLE_CALLBACK=auth/google/callback
 before_script:
   - psql -c 'create database haventest;' -U postgres
 services:
