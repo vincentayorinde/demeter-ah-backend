@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import consola from 'consola';
+import passport from 'passport';
 import Routes from '../routes';
 import db from '../db/models';
 
@@ -17,6 +18,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(passport.initialize());
 Routes(app);
 
 app.get('/', (req, res) => res.status(200).json({

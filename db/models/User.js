@@ -11,12 +11,13 @@ module.exports = (sequelize, DataTypes) => {
       username: DataTypes.STRING,
       firstName: DataTypes.STRING,
       lastName: DataTypes.STRING,
-      password: DataTypes.STRING
+      password: DataTypes.STRING,
+      social: DataTypes.BOOLEAN
     },
     {
       hooks: {
         beforeCreate: async (user) => {
-          user.password = await bcrypt.hash(user.password, 10);
+          user.password = !user.social ? await bcrypt.hash(user.password, 10) : null;
         }
       }
     }
