@@ -7,12 +7,12 @@ import bcrypt from 'bcryptjs';
 import db from '../db/models';
 
 const getToken = (id, email) => jwt.sign({ id, email }, process.env.SECRET, {
-  expiresIn: '5h'
+  expiresIn: '5h',
 });
 
 const isBlackListed = async (token) => {
   const blockedToken = await db.BlackListedTokens.findOne({
-    where: { token }
+    where: { token },
   });
   return !!blockedToken;
 };
@@ -23,7 +23,7 @@ const blackListThisToken = async (token) => {
   const decoded = decodeToken(token);
   await db.BlackListedTokens.create({
     token,
-    expireAt: decoded.exp
+    expireAt: decoded.exp,
   });
 };
 
@@ -32,7 +32,7 @@ const createUserFromSocials = async (data) => {
     email, firstName, lastName, username, image
   } = data;
   let user = await db.User.findOne({
-    where: { email }
+    where: { email },
   });
 
   if (!user) {
@@ -42,7 +42,7 @@ const createUserFromSocials = async (data) => {
       lastName,
       username,
       social: true,
-      image
+      image,
     });
   }
 
@@ -56,7 +56,7 @@ const messages = {
   unique: '{{ field }} already existed',
   email: 'The value provided is not an email',
   alpha: 'Only letters allowed as {{ field }}',
-  alphaNumeric: 'Only letters and numbers are allowed as {{ field }}'
+  alphaNumeric: 'Only letters and numbers are allowed as {{ field }}',
 };
 
 const sanitizeRules = {
@@ -64,36 +64,17 @@ const sanitizeRules = {
   lastName: 'trim',
   username: 'trim',
   email: 'trim',
-  password: 'trim'
+  password: 'trim',
 };
 
 validations.unique = async (data, field, message, args, get) => {
   const fieldValue = get(data, field);
   if (!fieldValue) return;
-  let row;
-  if (args[0] === 'users') {
-    row = await db.User.findOne({ where: { [field]: fieldValue } });
-  }
+  const row = await db[args[0]].findOne({ where: { [field]: fieldValue } });
   if (row) throw message;
 };
 
 const validatorInstance = Validator(validations, Vanilla);
-
-const createUser = async (user) => {
-  const {
-    firstName, lastName, username, email, password
-  } = user;
-
-  const newUser = await db.User.create({
-    firstName,
-    lastName,
-    username,
-    email,
-    password
-  });
-
-  return newUser;
-};
 
 const randomString = () => crypto.randomBytes(11).toString('hex');
 
@@ -107,8 +88,7 @@ export {
   messages,
   validatorInstance,
   sanitizeRules,
-  createUser,
   randomString,
   hashPassword,
-  createUserFromSocials
+  createUserFromSocials,
 };
