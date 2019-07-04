@@ -5,6 +5,8 @@ import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import consola from 'consola';
 import passport from 'passport';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
 import Routes from '../routes';
 import db from '../db/models';
 
@@ -18,7 +20,17 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser(process.env.SESSION_SECRET));
+
+app.use(
+  session({
+    resave: false,
+    saveUninitialized: false,
+    secret: process.env.SESSION_SECRET
+  })
+);
 app.use(passport.initialize());
+app.use(passport.session());
 Routes(app);
 
 app.get('/', (req, res) => res.status(200).json({

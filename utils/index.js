@@ -22,6 +22,28 @@ const blackListThisToken = async (token) => {
   });
 };
 
+export const createUserFromSocialLoginDetails = async (data) => {
+  const {
+    email, firstName, lastName, username, image
+  } = data;
+  let user = await db.User.findOne({
+    where: { email }
+  });
+
+  if (!user) {
+    user = await db.User.create({
+      email,
+      firstName,
+      lastName,
+      username,
+      social: true,
+      image
+    });
+  }
+
+  return user.response();
+};
+
 export {
   getToken, blackListThisToken, decodeToken, isBlackListed
 };
