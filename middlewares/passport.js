@@ -1,7 +1,41 @@
 import passport from 'passport';
+import googleStrategy from 'passport-google-oauth';
+import dotenv from 'dotenv';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
 import { Strategy as TwitterStrategy } from 'passport-twitter';
-import db from '../db/models';
+import { createUserFromSocialLoginDetails } from '../utils';
+
+dotenv.config();
+const GoogleStrategy = googleStrategy.OAuth2Strategy;
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: `${process.env.BASE_URL}/${process.env.GOOGLE_CALLBACK}`
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      const firstName = profile.name.givenName;
+      const lastName = profile.name.familyName;
+      const username = profile.displayName.replace(/ /g, '_').toLowerCase();
+      const email = profile.emails[0].value;
+      const image = profile.photos[0].value;
+
+      const data = {
+        email,
+        firstName,
+        lastName,
+        username,
+        image
+      };
+
+      const result = await createUserFromSocialLoginDetails(data);
+
+      return done(null, result);
+    }
+  )
+);
 
 passport.use(
   new FacebookStrategy(
@@ -18,22 +52,17 @@ passport.use(
       const username = profile.displayName.replace(/ /g, '_').toLocaleLowerCase();
       const image = profile.photos[0].value;
 
-      const exist = await db.User.findOne({
-        where: { email }
-      });
+      const data = {
+        email,
+        firstName,
+        lastName,
+        username,
+        image
+      };
 
-      if (!exist) {
-        const user = await db.User.create({
-          email,
-          firstName,
-          lastName,
-          username,
-          social: true,
-          image
-        });
-        return done(null, user.response());
-      }
-      return done(null, exist.response());
+      const result = await createUserFromSocialLoginDetails(data);
+
+      return done(null, result);
     }
   )
 );
@@ -55,22 +84,17 @@ passport.use(
       const firstName = displayName[0].toLocaleLowerCase();
       const lastName = displayName[1].toLocaleLowerCase();
 
-      const exist = await db.User.findOne({
-        where: { email }
-      });
+      const data = {
+        email,
+        firstName,
+        lastName,
+        username,
+        image
+      };
 
-      if (!exist) {
-        const user = await db.User.create({
-          email,
-          firstName,
-          lastName,
-          username,
-          social: true,
-          image
-        });
-        return done(null, user.response());
-      }
-      return done(null, exist.response());
+      const result = await createUserFromSocialLoginDetails(data);
+
+      return done(null, result);
     }
   )
 );

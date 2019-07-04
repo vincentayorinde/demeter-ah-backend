@@ -13,7 +13,7 @@ describe('Middlewares', () => {
     await db.BlackListedTokens.sync({ truncate: true, cascade: false });
   });
   describe('Testing  blacklisted middleware', () => {
-    it('should call next when blacklisted middleware checks fine', done => {
+    it('should call next when blacklisted middleware checks fine', (done) => {
       const user = {
         name: 'test user'
       };
@@ -36,7 +36,7 @@ describe('Middlewares', () => {
       done();
     });
 
-    it('should return jwt expired when token is expired', async done => {
+    it('should return jwt expired when token is expired', async (done) => {
       const user = {
         name: 'test user'
       };
