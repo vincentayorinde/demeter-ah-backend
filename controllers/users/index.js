@@ -1,5 +1,10 @@
+import Sequelize from 'sequelize';
 import db from '../../db/models';
-import { blackListThisToken } from '../../utils';
+import {
+  blackListThisToken, randomString, hashPassword, getToken
+} from '../../utils';
+import { sendMail } from '../../utils/mailer';
+import { resetPasswordMessage } from '../../utils/mailer/mails';
 
 export default {
   signUp: async (req, res) => {
@@ -14,11 +19,13 @@ export default {
         email,
         username
       });
+      user.response.token = getToken(user.id, user.email);
       return res.status(201).json({
         message: 'User Registration successful',
         user: user.response()
       });
     } catch (e) {
+      console.log('message', e);
       return res.status(500).json({
         message: 'Something went wrong'
       });
@@ -52,12 +59,88 @@ export default {
       });
     }
   },
-
   signOut: async (req, res) => {
     const token = req.headers['x-access-token'];
     await blackListThisToken(token);
     return res.status(200).send({
-      message: 'Thank you'
+      message: 'Signed out successfully'
     });
+  },
+  resetPassword: async (req, res) => {
+    const { email } = req.body;
+    try {
+      const user = await db.User.findOne({ where: { email } });
+      if (user) {
+        const passwordResetToken = randomString();
+        const date = new Date();
+        date.setHours(date.getHours() + 2);
+        user.update({ passwordResetToken, passwordResetExpire: date });
+        await sendMail({
+          email: user.email,
+          subject: 'Password Reset LInk',
+          content: resetPasswordMessage(user.email, passwordResetToken)
+        });
+        return res.status(200).json({
+          message: 'Password reset successful. Check your email for password reset link!'
+        });
+      }
+      throw new Error('User not found');
+    } catch (err) {
+      return res.status(400).json({
+        message: 'User does not exist'
+      });
+    }
+  },
+
+  activate: async (req, res) => {
+    try {
+      const user = await db.User.findOne({
+        where: { emailVerificationToken: req.params.token, activated: false }
+      });
+      if (user) {
+        await user.update({ activated: true, emailVerificationToken: null });
+        return res.status(200).json({
+          message: 'Activation successful, You can now login',
+          user: user.response()
+        });
+      }
+      return res.status(400).json({
+        error: 'Invalid activation Link'
+      });
+    } catch (e) {
+      return res.status(400).json({
+        message: 'Bad request'
+      });
+    }
+  },
+
+  changePassword: async (req, res) => {
+    const { password } = req.body;
+    const { Op } = Sequelize;
+
+    const passwordHash = await hashPassword(password);
+
+    const { resetToken } = req.query;
+    try {
+      const user = await db.User.findOne({
+        where: {
+          passwordResetToken: resetToken,
+          passwordResetExpire: {
+            [Op.gt]: new Date()
+          }
+        }
+      });
+      if (user) {
+        user.update({ password: passwordHash, resetToken: null, resetExpire: null });
+        return res.status(200).json({
+          message: 'Password has successfully been changed.'
+        });
+      }
+      throw new Error('Invalid operation');
+    } catch (err) {
+      return res.status(400).json({
+        message: 'Bad request'
+      });
+    }
   }
 };
