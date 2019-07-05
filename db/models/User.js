@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { getToken, randomString, hashPassword } from '../../utils';
+import { getToken, randomString } from '../../utils';
 import { sendMail } from '../../utils/mailer';
 import { activationMessage } from '../../utils/mailer/mails';
 

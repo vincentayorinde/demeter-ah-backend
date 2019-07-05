@@ -6,8 +6,8 @@ import { app, db } from '../../server';
 import { createUser } from '../../utils';
 
 const { expect } = chai;
-let mockTransporter;
-mockTransporter = sinon.stub(transporter, 'sendMail').resolves({});
+
+const mockTransporter = sinon.stub(transporter, 'sendMail').resolves({});
 
 chai.use(chaiHttp);
 let register = {};
