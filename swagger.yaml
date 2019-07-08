@@ -12,6 +12,28 @@ consumes:
 produces:
   - application/json
 paths:
+  /users:
+    put:
+      tags:
+        - Users
+      summary: Update user profile
+      operationId: updateUserProfile
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: User object that needs to be added to the app
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateProfile'
+      responses:
+        '200':
+          description: User Successfully Updated
+        '400':
+          description: Error message
   /users/signup:
     post:
       tags:
@@ -126,6 +148,30 @@ paths:
       responses:
         '201':
           description: Article created successfully
+  /profiles/{username}:
+    get:
+      tags:
+        - "Profile"
+      summary: Get user profile
+      description: "Gets spqcific user profile info"
+      operationId: getUserProfileByUsername
+      produces:
+        - application/json
+      parameters:
+        - name: "username"
+          in: "path"
+          description: "ID of user to return"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Profile displayed successfully"
+          schema:
+            $ref: "#/definitions/getUserProfile"
+        400:
+          description: "Invalid username supplied"
+        404:
+          description: "User not found"
 definitions:
   NewUser:
     type: object
@@ -166,6 +212,28 @@ definitions:
         type: string
     xml:
       name: NewArticle
+  UpdateProfile:
+    type: object
+    required:
+      - firstName
+      - lastName
+      - bio
+      - image
+      - username
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      bio:
+        type: string
+      image:
+        type: string
+        format: binary
+      username:
+        type: string
+    xml:
+      name: UpdateProfile
   ResetPassword:
     type: object
     required:
@@ -184,3 +252,38 @@ definitions:
         type: string
     xml:
       name: changePassword
+  getUserProfile:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        example: 1
+      email:
+        type: "string"
+        format: "email"
+        example: "user@gmail.com"
+      username:
+        type: "string"
+        example: "Vinay"
+      bio:
+        type: "string"
+        description: "User bio"
+      firtName:
+        type: "string"
+        example: "Larry"
+      lastName:
+        type: "string"
+        example: "Baston"
+      image:
+        type: "string"
+        example: "//temp/up.jpg"
+      createdAt:
+        type: "string"
+        format: "date-time"
+        example: "2019-07-05T12:23:45.130Z"
+      updatedAt:
+        type: "string"
+        format: "date-time"
+        example: "2019-07-05T12:23:45.130Z"      
+    xml:
+      name: "getUserProfile"

@@ -4,7 +4,9 @@ import sinon from 'sinon';
 import { transporter } from '../../utils/mailer';
 import { app, db } from '../../server';
 import { createUser } from '../helpers';
+import * as utils from '../../utils';
 
+let mockUploadImage;
 const { expect } = chai;
 const mockTransporter = sinon.stub(transporter, 'sendMail').resolves({});
 
@@ -21,6 +23,7 @@ describe('USER AUTHENTICATION', () => {
       password: '12345678',
       email: 'frank@gmail.com',
     };
+
     user = await createUser(register);
   });
 
@@ -122,6 +125,66 @@ describe('USER AUTHENTICATION', () => {
       expect(res.body.message[0].message).to.equal(
         'The value provided is not an email'
       );
+    });
+
+    it('Should not login user if not registered', async () => {
+      const res = await chai
+        .request(app)
+        .post('/api/v1/users/login')
+        .send({
+          ...login,
+          email: 'frank.john@gmail.com',
+        });
+      expect(res.body).to.be.an('object');
+      expect(res.body.error).to.include('Invalid email or password');
+    });
+  });
+
+  describe('UPDATE USER PROFILE || PUT api/v1/users', () => {
+    afterEach(() => {
+      mockUploadImage.restore();
+    });
+    it('should update user profile image', async () => {
+      mockUploadImage = sinon.stub(utils, 'uploadImage')
+        .callsFake(() => new Promise(resolve => resolve('//temp/up.jpg')));
+      const { token } = user.response();
+      const res = await chai
+        .request(app)
+        .put('/api/v1/users')
+        .field('Content-Type', 'multipart/form-data')
+        .attach('image', `${__dirname}/test.jpg`)
+        .set('x-access-token', token);
+      expect(res.body).to.be.an('object');
+      expect(res.body).to.include.all.keys('user', 'message');
+      expect(res.body.user).to.be.an('object');
+      expect(res.body.message).to.be.a('string');
+      expect(res.body.user.image).to.include('//temp/up.jpg');
+    });
+    it('should not update if no field is provided for update', async () => {
+      const { token } = user.response();
+      const res = await chai
+        .request(app)
+        .put('/api/v1/users/')
+        .set('x-access-token', token)
+        .send({});
+      expect(res.status).to.equal(200);
+      expect(res.body).to.be.an('object');
+      expect(res.body).to.include.all.keys('user', 'message');
+      expect(res.body.user).to.be.an('object');
+      expect(res.body.message).to.be.a('string');
+    });
+    it('Only current authenticated user should be able to update profile', async () => {
+      const { token } = user.response();
+      const res = await chai
+        .request(app)
+        .put('/api/v1/users/')
+        .set('x-access-token', token)
+        .send({ username: 'john' });
+      expect(res.body).to.be.an('object');
+      expect(res.body).to.include.all.keys('user', 'message');
+      expect(res.body.user).to.be.an('object');
+      expect(res.body.message).to.be.a('string');
+      expect(res.body.user.username).to.include('john');
     });
   });
 
