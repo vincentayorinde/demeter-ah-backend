@@ -13,7 +13,7 @@ router.post(
   Article.createArticle,
 );
 router.post(
-  '/:articleId/rate',
+  '/rate/:slug',
   Middleware.authenticate,
   Middleware.isblackListedToken,
   Validation.rateArticle,

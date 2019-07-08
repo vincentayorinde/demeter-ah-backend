@@ -1,7 +1,7 @@
 import chai from 'chai';
 import chaiHttp from 'chai-http';
 import { app, db } from '../../server';
-import { createUser, createArticle } from '../helpers';
+import { createUser, createArticle, createRate } from '../helpers';
 import { getToken } from '../../utils';
 
 const { expect } = chai;
@@ -9,6 +9,7 @@ const { expect } = chai;
 chai.use(chaiHttp);
 let article = {};
 let register;
+let userResponse;
 
 describe('ARTICLES TEST', () => {
   before(async () => {
@@ -101,15 +102,16 @@ describe('ARTICLES TEST', () => {
     let articleData;
     beforeEach(async () => {
       const user = await createUser(register);
-      const userResponse = user.response();
+      userResponse = user.response();
       const { token } = userResponse;
       userToken = token;
-      articleData = await createArticle({...article, userId: userResponse.id});      
+      articleData = await createArticle({...article, userId: userResponse.id});   
     });
+  
     it('should rate article if user is authenticated', async () => {
       const res = await chai
         .request(app)
-        .post(`/api/v1/articles/${articleData.id}/rate`)
+        .post(`/api/v1/articles/rate/${articleData.slug}`)
         .set('x-access-token', userToken)
         .send({ rate: '4'});
       expect(res.statusCode).to.equal(201);
@@ -122,7 +124,7 @@ describe('ARTICLES TEST', () => {
       const token = await getToken(45345, 'wrong@gmail.com');
       const res = await chai
         .request(app)
-        .post(`/api/v1/articles/4/rate`)
+        .post(`/api/v1/articles/rate/wrong-slug`)
         .set('x-access-token', token)
         .send({ rate: '4' });
       expect(res.statusCode).to.equal(401);
@@ -134,7 +136,7 @@ describe('ARTICLES TEST', () => {
     it('should not rate article if rate is not from 1 to 5', async () => {
       const res = await chai
         .request(app)
-        .post(`/api/v1/articles/${articleData.id}/rate`)
+        .post(`/api/v1/articles/rate/${articleData.slug}`)
         .set('x-access-token', userToken)
         .send({ rate: '8' });
       expect(res.statusCode).to.equal(400);
@@ -146,7 +148,7 @@ describe('ARTICLES TEST', () => {
     it('should not rate article if rate is not provided', async () => {
       const res = await chai
         .request(app)
-        .post(`/api/v1/articles/${articleData.id}/rate`)
+        .post(`/api/v1/articles/rate/${articleData.slug}`)
         .set('x-access-token', userToken)
         .send({ rate: '' });
       expect(res.statusCode).to.equal(400);
@@ -155,5 +157,34 @@ describe('ARTICLES TEST', () => {
       expect(res.body.message).to.be.an('array');
       expect(res.body.message[0].message).to.be.equal('Input your rate');
     });
+    it('should update a rating', async () => {
+      await createRate({
+        userId: userResponse.id,
+        articleId: articleData.id,
+        stars: '4'
+      });
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/rate/${articleData.slug}`)
+        .set('x-access-token', userToken)
+        .send({ rate: '4' });
+      expect(res.statusCode).to.equal(200);
+      expect(res.body).to.be.an('object');
+      expect(res.body).to.include.all.keys('message');
+      expect(res.body.message).to.be.a('string');
+      expect(res.body.message).to.be.equal('Rating updated successfully');
+    });
+    it('it should return 404 if article does not exist',  async () => {
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/rate/wrong-slug`)
+        .set('x-access-token', userToken)
+        .send({ rate: '4' });
+      expect(res.statusCode).to.equal(404);
+      expect(res.body).to.be.an('object');
+      expect(res.body).to.include.all.keys('message');
+      expect(res.body.message).to.be.a('string');
+      expect(res.body.message).to.be.equal('Article does not exist');
+    })
   });
 });

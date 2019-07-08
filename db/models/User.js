@@ -62,11 +62,9 @@ module.exports = (sequelize, DataTypes) => {
   User.prototype.passwordsMatch = function match(password) {
     return bcrypt.compare(password, this.password);
   };
-  User.prototype.response = function response() {
-    const token = getToken(this.id, this.email);
-    return {
+  User.prototype.response = function response(addToken = true) {
+    const userData = {
       email: this.email,
-      token,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       username: this.username,
@@ -76,6 +74,8 @@ module.exports = (sequelize, DataTypes) => {
       lastName: this.lastName,
       id: this.id,
     };
+    if (addToken) userData.token = getToken(this.id, this.email);
+    return userData;
   };
   return User;
 };
