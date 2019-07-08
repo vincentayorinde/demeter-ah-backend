@@ -1,7 +1,6 @@
 {
   "root": true,
   "extends": ["airbnb-base"],
-  "plugins": [ "prettier"],
   "env": {
     "node": true,
     "mocha": true,
@@ -14,6 +13,7 @@
 		"consistent-return": 0,
 		"no-console": "off",
     "no-param-reassign": 0,
+    "class-methods-use-this":"off",
     "comma-dangle": 0,
     "curly": ["error", "multi-line"],
     "import/no-unresolved": [2, { "commonjs": true }],

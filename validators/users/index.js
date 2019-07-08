@@ -7,7 +7,7 @@ export default {
       firstName: 'required|alpha',
       lastName: 'required|alpha',
       username: 'required|alphaNumeric',
-      email: 'required|email|unique:users',
+      email: 'required|email|unique:User',
       password: 'required|min:8|max:30',
     };
 

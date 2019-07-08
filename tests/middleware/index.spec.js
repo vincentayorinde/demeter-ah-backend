@@ -3,7 +3,7 @@ import sinon from 'sinon';
 import jwt from 'jsonwebtoken';
 import db from '../../db/models';
 import Middleware from '../../middlewares';
-import Response from '../helpers';
+import { Response } from '../helpers';
 import { blackListThisToken } from '../../utils';
 
 const { expect } = chai;
@@ -15,17 +15,17 @@ describe('Middlewares', () => {
   describe('Testing  blacklisted middleware', () => {
     it('should call next when blacklisted middleware checks fine', (done) => {
       const user = {
-        name: 'test user'
+        name: 'test user',
       };
 
       const token = jwt.sign(user, process.env.SECRET, {
-        expiresIn: '1h'
+        expiresIn: '1h',
       });
 
       const req = {
         headers: {
-          'x-access-token': token
-        }
+          'x-access-token': token,
+        },
       };
 
       const nextSpy = sinon.spy();
@@ -38,19 +38,20 @@ describe('Middlewares', () => {
 
     it('should return jwt expired when token is expired', async (done) => {
       const user = {
-        name: 'test user'
+        name: 'test user',
       };
 
       const token = jwt.sign(user, process.env.SECRET, {
-        expiresIn: 1
+        expiresIn: 1,
       });
 
       const req = {
         headers: {
-          'x-access-token': token
-        }
+          'x-access-token': token,
+        },
       };
 
+      /* istanbul ignore next */
       setTimeout(async () => {
         const res = new Response();
 
@@ -65,17 +66,17 @@ describe('Middlewares', () => {
 
     it('should return unauthorized if token has been black listed', async () => {
       const user = {
-        name: 'test user'
+        name: 'test user',
       };
 
       const token = jwt.sign(user, process.env.SECRET, {
-        expiresIn: '1h'
+        expiresIn: '1h',
       });
 
       const req = {
         headers: {
-          'x-access-token': token
-        }
+          'x-access-token': token,
+        },
       };
 
       await blackListThisToken(token);
@@ -94,17 +95,17 @@ describe('Middlewares', () => {
   describe('authentication', () => {
     it('call next when jwt passes', async () => {
       const user = {
-        name: 'test user'
+        name: 'test user',
       };
 
       const token = jwt.sign(user, process.env.SECRET, {
-        expiresIn: 1
+        expiresIn: 1,
       });
 
       const req = {
         headers: {
-          'x-access-token': token
-        }
+          'x-access-token': token,
+        },
       };
 
       const res = new Response();
@@ -118,8 +119,8 @@ describe('Middlewares', () => {
     it('should return jwt malformed when token is invalid', async () => {
       const req = {
         headers: {
-          'x-access-token': 'invalid-token'
-        }
+          'x-access-token': 'invalid-token',
+        },
       };
 
       const res = new Response();
@@ -134,8 +135,8 @@ describe('Middlewares', () => {
     it('should return jwt must be provided when no token is provided', async () => {
       const req = {
         headers: {
-          'x-access-token': ''
-        }
+          'x-access-token': '',
+        },
       };
 
       const res = new Response();

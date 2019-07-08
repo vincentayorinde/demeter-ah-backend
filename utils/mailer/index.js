@@ -7,8 +7,8 @@ export const transporter = nodemailer.createTransport({
   port: 2525,
   auth: {
     user: process.env.MAIL_USERNAME,
-    pass: process.env.MAIL_PASSWORD
-  }
+    pass: process.env.MAIL_PASSWORD,
+  },
 });
 
 export const sendMail = async ({ email, subject, content }) => {
@@ -16,11 +16,12 @@ export const sendMail = async ({ email, subject, content }) => {
     from: '"Authors Haven" <support@authorshaven.com>',
     to: email,
     subject,
-    html: content
+    html: content,
   };
   try {
     await transporter.sendMail(data);
   } catch (e) {
+    /* istanbul ignore next */
     throw new Error('mail not sent', e);
   }
 };

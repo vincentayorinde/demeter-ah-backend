@@ -105,6 +105,27 @@ paths:
       responses:
         '200':
           description: Password has successfully been changed.
+  /articles:
+    post:
+      tags:
+        - Articles
+      summary: create a new article
+      operationId: addArticles
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: A new article created by a user
+          required: true
+          schema:
+            $ref: '#/definitions/NewArticle'
+      responses:
+        '201':
+          description: Article created successfully
 definitions:
   NewUser:
     type: object
@@ -127,6 +148,24 @@ definitions:
         type: string
     xml:
       name: NewUser
+  NewArticle:
+    type: object
+    required:
+      - title
+      - description
+      - body
+      - images
+    properties:
+      title:
+        type: string
+      body:
+        type: string
+      description:
+        type: string
+      images:
+        type: string
+    xml:
+      name: NewArticle
   ResetPassword:
     type: object
     required:

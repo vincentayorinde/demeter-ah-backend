@@ -3,10 +3,9 @@ import chaiHttp from 'chai-http';
 import sinon from 'sinon';
 import { transporter } from '../../utils/mailer';
 import { app, db } from '../../server';
-import { createUser } from '../../utils';
+import { createUser } from '../helpers';
 
 const { expect } = chai;
-
 const mockTransporter = sinon.stub(transporter, 'sendMail').resolves({});
 
 chai.use(chaiHttp);
@@ -20,7 +19,7 @@ describe('USER AUTHENTICATION', () => {
       lastName: 'hamza',
       username: 'kev',
       password: '12345678',
-      email: 'frank@gmail.com'
+      email: 'frank@gmail.com',
     };
     user = await createUser(register);
   });
@@ -28,24 +27,21 @@ describe('USER AUTHENTICATION', () => {
   beforeEach(async () => {
     login = {
       password: '12345678',
-      email: 'frank@gmail.com'
+      email: 'frank@gmail.com',
     };
   });
 
   after(async () => {
-    await db.User.destroy({ truncate: true, cascade: false });
+    await db.User.destroy({ truncate: true, cascade: true });
     mockTransporter.restore();
   });
 
   describe('Sign up', () => {
     it('should sign up user if info is valid', async () => {
-      const res = await chai
-        .request(app)
-        .post('/api/v1/users/signup')
-        .send({
-          ...register,
-          email: 'john@havens.com'
-        });
+      const res = await chai.request(app).post('/api/v1/users/signup').send({
+        ...register,
+        email: 'john@havens.com',
+      });
       expect(res.body).to.be.an('object');
       expect(res.body).to.include.all.keys('user', 'message');
       expect(res.body.user).to.be.an('object');
@@ -57,19 +53,20 @@ describe('USER AUTHENTICATION', () => {
     });
 
     it('Should not signup user with invalid data', async () => {
-      const res = await chai
-        .request(app)
-        .post('/api/v1/users/signup')
-        .send({
-          ...register,
-          firstName: 9999,
-          email: 'frank.john'
-        });
+      const res = await chai.request(app).post('/api/v1/users/signup').send({
+        ...register,
+        firstName: 9999,
+        email: 'frank.john',
+      });
 
       expect(res.status).to.equal(400);
       expect(res.body).to.be.an('object');
-      expect(res.body.message[0].message).to.equal('Only letters allowed as firstName');
-      expect(res.body.message[1].message).to.equal('The value provided is not an email');
+      expect(res.body.message[0].message).to.equal(
+        'Only letters allowed as firstName'
+      );
+      expect(res.body.message[1].message).to.equal(
+        'The value provided is not an email'
+      );
     });
 
     it('Should not signup user with already existing email', async () => {
@@ -105,21 +102,26 @@ describe('USER AUTHENTICATION', () => {
       expect(res.body).to.include.all.keys('user', 'message');
       expect(res.body.user).to.be.an('object');
       expect(res.body.message).to.be.a('string');
-      expect(res.body.user).to.include.all.keys('token', 'id', 'firstName', 'lastName', 'username');
+      expect(res.body.user).to.include.all.keys(
+        'token',
+        'id',
+        'firstName',
+        'lastName',
+        'username'
+      );
       expect(res.body.user.email).to.include(login.email);
     });
 
     it('Should not login user with invalid data', async () => {
-      const res = await chai
-        .request(app)
-        .post('/api/v1/users/login')
-        .send({
-          ...login,
-          email: 'frank.john'
-        });
+      const res = await chai.request(app).post('/api/v1/users/login').send({
+        ...login,
+        email: 'frank.john',
+      });
       expect(res.status).to.equal(400);
       expect(res.body).to.be.an('object');
-      expect(res.body.message[0].message).to.equal('The value provided is not an email');
+      expect(res.body.message[0].message).to.equal(
+        'The value provided is not an email'
+      );
     });
   });
 
@@ -137,7 +139,7 @@ describe('USER AUTHENTICATION', () => {
   });
   describe('PASSWORD RESET', () => {
     beforeEach(async () => {
-      await db.User.destroy({ truncate: true, cascade: false });
+      await db.User.destroy({ truncate: true, cascade: true });
     });
 
     it('should send reset password link for an existing user', async () => {
@@ -177,11 +179,13 @@ describe('USER AUTHENTICATION', () => {
       expect(res.body).to.be.an('object');
       expect(res).to.have.status(400);
       expect(res.body).to.include.all.keys('message');
-      expect(res.body.message[0].message).to.equal('The value provided is not an email');
+      expect(res.body.message[0].message).to.equal(
+        'The value provided is not an email'
+      );
       expect(res.body.message[0].field).to.equal('email');
     });
   });
-  describe('should be able to change password', () => {
+  describe('PASSWORD CHANGE', () => {
     it('should not change the password on invalid token', async () => {
       const date = new Date();
       date.setHours(date.getHours() + 2);
@@ -189,17 +193,17 @@ describe('USER AUTHENTICATION', () => {
         ...register,
         passwordResetToken: 'sample-test-token',
         passwordResetExpire: date,
-        email: 'kelvinese@gmail.com'
+        email: 'kelvinese@gmail.com',
       });
       const res = await chai
         .request(app)
         .put('/api/v1/users/change-password?resetToken=wrong-test-token')
         .send({ password: '12345678' });
       expect(res.body).to.be.an('object');
-      expect(res).to.have.status(400);
-      expect(res.body).to.include.all.keys('message');
-      expect(res.body.message).to.be.a('string');
-      expect(res.body.message).to.include('Bad request');
+      expect(res).to.have.status(401);
+      expect(res.body).to.include.all.keys('error');
+      expect(res.body.error).to.be.a('string');
+      expect(res.body.error).to.include('Invalid operation');
     });
     it('should change the password on valid token', async () => {
       const date = new Date();
@@ -208,7 +212,7 @@ describe('USER AUTHENTICATION', () => {
         ...register,
         email: 'kelvin@gmail.com',
         passwordResetToken: 'sample-test-token',
-        passwordResetExpire: date
+        passwordResetExpire: date,
       });
       const res = await chai
         .request(app)
@@ -218,7 +222,9 @@ describe('USER AUTHENTICATION', () => {
       expect(res).to.have.status(200);
       expect(res.body).to.include.all.keys('message');
       expect(res.body.message).to.be.a('string');
-      expect(res.body.message).to.include('Password has successfully been changed.');
+      expect(res.body.message).to.include(
+        'Password has successfully been changed.'
+      );
     });
 
     it('should not change the password on an empty field with wrong resetToken', async () => {
@@ -228,7 +234,7 @@ describe('USER AUTHENTICATION', () => {
         ...register,
         email: 'kelvin',
         passwordResetToken: 'sample-test-token',
-        passwordResetExpire: date
+        passwordResetExpire: date,
       });
       const res = await chai
         .request(app)
@@ -245,7 +251,10 @@ describe('USER AUTHENTICATION', () => {
   });
   describe('Signup Email Activation', () => {
     it('should activate verification mail', async () => {
-      const newUser = await db.User.create({ ...register, email: 'vinay@yahoo.com' });
+      const newUser = await db.User.create({
+        ...register,
+        email: 'vinay@yahoo.com',
+      });
       const activationString = newUser.emailVerificationToken;
       const res = await chai
         .request(app)
@@ -259,7 +268,9 @@ describe('USER AUTHENTICATION', () => {
       expect(res.body.user.lastName).to.include(register.lastName);
       expect(res.body.user.username).to.include(register.username);
       expect(res.body.user.email).to.include('vinay@yahoo.com');
-      expect(res.body.message).to.include('Activation successful, You can now login');
+      expect(res.body.message).to.include(
+        'Activation successful, You can now login'
+      );
     });
     it('should not activate user if token is wrong', async () => {
       register.emailActivationToken = 'wrongtoken';

@@ -20,13 +20,15 @@ module.exports = (sequelize, DataTypes) => {
       emailVerificationToken: DataTypes.STRING,
       activated: {
         type: DataTypes.BOOLEAN,
-        default: false
-      }
+        default: false,
+      },
     },
     {
       hooks: {
         beforeCreate: async (user) => {
-          user.password = !user.social ? await bcrypt.hash(user.password, 10) : null;
+          user.password = !user.social
+            ? await bcrypt.hash(user.password, 10)
+            : null;
           user.emailVerificationToken = !user.social ? randomString() : null;
         },
         afterCreate: async (user) => {
@@ -34,16 +36,20 @@ module.exports = (sequelize, DataTypes) => {
             await sendMail({
               email: user.email,
               subject: 'Activate Account',
-              content: activationMessage(user.email, user.emailVerificationToken)
+              content: activationMessage(
+                user.email,
+                user.emailVerificationToken
+              ),
             });
           }
-        }
-      }
+        },
+      },
     }
   );
   User.associate = models => User.hasMany(models.Article, {
     foreignKey: 'userId',
-    cascade: true
+    as: 'article',
+    cascade: true,
   });
 
   User.prototype.passwordsMatch = function match(password) {
@@ -61,7 +67,7 @@ module.exports = (sequelize, DataTypes) => {
       image: this.image,
       firstName: this.firstName,
       lastName: this.lastName,
-      id: this.id
+      id: this.id,
     };
   };
   return User;

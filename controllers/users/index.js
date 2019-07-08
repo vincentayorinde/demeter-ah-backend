@@ -1,16 +1,12 @@
 import Sequelize from 'sequelize';
 import db from '../../db/models';
-import {
-  blackListThisToken, randomString, hashPassword, getToken
-} from '../../utils';
+import { blackListThisToken, randomString, hashPassword, getToken } from '../../utils';
 import { sendMail } from '../../utils/mailer';
 import { resetPasswordMessage } from '../../utils/mailer/mails';
 
 export default {
   signUp: async (req, res) => {
-    const {
-      firstName, lastName, password, email, username
-    } = req.body;
+    const { firstName, lastName, password, email, username } = req.body;
     try {
       const user = await db.User.create({
         firstName,
@@ -25,7 +21,7 @@ export default {
         user: user.response()
       });
     } catch (e) {
-      console.log('message', e);
+      /* istanbul ignore next */
       return res.status(500).json({
         message: 'Something went wrong'
       });
@@ -54,6 +50,7 @@ export default {
         user: user.response()
       });
     } catch (e) {
+      /* istanbul ignore next */
       return res.status(500).json({
         message: 'Something went wrong'
       });
@@ -74,20 +71,25 @@ export default {
         const passwordResetToken = randomString();
         const date = new Date();
         date.setHours(date.getHours() + 2);
-        user.update({ passwordResetToken, passwordResetExpire: date });
+        await user.update({ passwordResetToken, passwordResetExpire: date });
         await sendMail({
           email: user.email,
           subject: 'Password Reset LInk',
           content: resetPasswordMessage(user.email, passwordResetToken)
         });
+
         return res.status(200).json({
           message: 'Password reset successful. Check your email for password reset link!'
         });
       }
-      throw new Error('User not found');
-    } catch (err) {
+
       return res.status(400).json({
         message: 'User does not exist'
+      });
+    } catch (err) {
+      /* istanbul ignore next */
+      return res.status(400).json({
+        message: 'Something went wrong'
       });
     }
   },
@@ -108,6 +110,7 @@ export default {
         error: 'Invalid activation Link'
       });
     } catch (e) {
+      /* istanbul ignore next */
       return res.status(400).json({
         message: 'Bad request'
       });
@@ -131,15 +134,22 @@ export default {
         }
       });
       if (user) {
-        user.update({ password: passwordHash, resetToken: null, resetExpire: null });
+        user.update({
+          password: passwordHash,
+          resetToken: null,
+          resetExpire: null
+        });
         return res.status(200).json({
           message: 'Password has successfully been changed.'
         });
       }
-      throw new Error('Invalid operation');
+      return res.status(401).json({
+        error: 'Invalid operation'
+      });
     } catch (err) {
-      return res.status(400).json({
-        message: 'Bad request'
+      /* istanbul ignore next */
+      return res.status(500).json({
+        message: 'Something went wrong'
       });
     }
   },

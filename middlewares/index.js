@@ -6,41 +6,35 @@ import db from '../db/models';
  */
 class Middleware {
   /**
-   * checks blacked listed tokens.
-   * @param {request} req .
-   * @param {response} res The second number.
-   * @param {next} next The second number.
-   * @returns {void} calls next on success.
-   * @returns {errror} return error on failure to validate.
-   */
+     * checks blacked listed tokens.
+     * @param {request} req .
+     * @param {response} res The second number.
+     * @param {next} next The second number.
+     * @returns {void} calls next on success.
+     * @returns {errror} return error on failure to validate.
+     */
   static async isblackListedToken(req, res, next) {
     const token = req.headers['x-access-token'];
 
-    try {
-      const isblocked = await isBlackListed(token);
+    const isblocked = await isBlackListed(token);
 
-      if (isblocked) {
-        return res.status(403).send({
-          message: 'unAuthorized'
-        });
-      }
-
-      next();
-    } catch (e) {
+    if (isblocked) {
       return res.status(403).send({
-        message: e.message
+        message: 'unAuthorized',
       });
     }
+
+    next();
   }
 
   /**
-   * checks blacked listed tokens.
-   * @param {request} req .
-   * @param {response} res The second number.
-   * @param {next} next The second number.
-   * @returns {void} calls next on success.
-   * @returns {errror} return error on failure to validate.
-   */
+     * checks blacked listed tokens.
+     * @param {request} req .
+     * @param {response} res The second number.
+     * @param {next} next The second number.
+     * @returns {void} calls next on success.
+     * @returns {errror} return error on failure to validate.
+     */
   static async authenticate(req, res, next) {
     const token = req.headers['x-access-token'];
 
@@ -50,19 +44,19 @@ class Middleware {
       const { email } = decodedToken;
 
       const user = await db.User.findOne({
-        where: { email }
+        where: { email },
       });
 
       if (!user) {
-        return res.status(403).send({
-          message: 'UnAuthorized'
+        return res.status(401).send({
+          message: 'Unauthorized',
         });
       }
-
+      req.user = user;
       next();
     } catch (error) {
       return res.status(400).send({
-        message: error.message
+        message: error.message,
       });
     }
   }
