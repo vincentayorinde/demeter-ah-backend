@@ -5,6 +5,7 @@ import Middleware from '../../middlewares';
 
 const router = express.Router();
 
+router.put('/', Middleware.authenticate, Middleware.isblackListedToken, Validation.updateUser, User.updateUser);
 router.post('/signup', Validation.signUp, User.signUp);
 router.post('/login', Validation.logIn, User.logIn);
 router.post('/signout', Middleware.authenticate, Middleware.isblackListedToken, User.signOut);

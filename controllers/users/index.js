@@ -1,12 +1,16 @@
 import Sequelize from 'sequelize';
 import db from '../../db/models';
-import { blackListThisToken, randomString, hashPassword, getToken } from '../../utils';
+import {
+  blackListThisToken, randomString, hashPassword, uploadImage
+} from '../../utils';
 import { sendMail } from '../../utils/mailer';
 import { resetPasswordMessage } from '../../utils/mailer/mails';
 
 export default {
   signUp: async (req, res) => {
-    const { firstName, lastName, password, email, username } = req.body;
+    const {
+      firstName, lastName, password, email, username
+    } = req.body;
     try {
       const user = await db.User.create({
         firstName,
@@ -15,13 +19,12 @@ export default {
         email,
         username
       });
-      user.response.token = getToken(user.id, user.email);
       return res.status(201).json({
         message: 'User Registration successful',
         user: user.response()
       });
     } catch (e) {
-      /* istanbul ignore next */
+      console.log(e);
       return res.status(500).json({
         message: 'Something went wrong'
       });
@@ -56,6 +59,34 @@ export default {
       });
     }
   },
+
+  updateUser: async (req, res) => {
+    try {
+      const image = req.files
+        ? await uploadImage(req.files.image, `${req.user.username}-profileImg`)
+        : req.user.image;
+
+      const user = await req.user.update(
+        {
+          username: req.body.username || req.user.username,
+          firstName: req.body.firstName || req.user.firstName,
+          lastName: req.body.lastName || req.user.lastName,
+          image,
+          bio: req.body.bio || req.user.bio
+        }
+      );
+      res.status(200).json({
+        message: 'User profile successfully updated',
+        user: user.response()
+      });
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({
+        message: 'Something went wrong'
+      });
+    }
+  },
+
   signOut: async (req, res) => {
     const token = req.headers['x-access-token'];
     await blackListThisToken(token);

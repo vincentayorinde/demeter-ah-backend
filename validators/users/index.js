@@ -73,7 +73,27 @@ export default {
       next();
     } catch (e) {
       return res.status(400).json({
-        message: e,
+        message: e
+      });
+    }
+  },
+
+  updateUser: async (req, res, next) => {
+    const rules = {
+      username: 'string',
+      firstName: 'string',
+      lastName: 'string',
+      bio: 'string',
+      image: 'object'
+    };
+    const data = { ...req.body, ...req.files };
+    sanitize(data, sanitizeRules);
+    try {
+      await validatorInstance.validateAll(data, rules, messages);
+      next();
+    } catch (e) {
+      return res.status(400).json({
+        message: e
       });
     }
   },

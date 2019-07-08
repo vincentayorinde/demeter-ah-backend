@@ -7,6 +7,7 @@ import consola from 'consola';
 import passport from 'passport';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
+import fileupload from 'express-fileupload';
 import Routes from '../routes';
 import db from '../db/models';
 
@@ -15,10 +16,11 @@ const app = express();
 dotenv.config();
 
 const swaggerDocument = YAML.load(`${__dirname}/../swagger.yaml`);
-
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
 app.use(bodyParser.json());
+app.use(fileupload({
+  useTempFiles: true
+}));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser(process.env.SESSION_SECRET));
 
@@ -36,7 +38,6 @@ Routes(app);
 app.get('/', (req, res) => res.status(200).json({
   message: "welcome to Author's Haven"
 }));
-
 app.use((req, res) => res.status(404).json({
   status: 404,
   error: `Route ${req.url} Not found`

@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { v2 as cloudinary } from 'cloudinary';
 import { validations } from 'indicative';
 import { Vanilla } from 'indicative/builds/formatters';
 import Validator from 'indicative/builds/validator';
@@ -6,20 +7,31 @@ import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import db from '../db/models';
 
-const getToken = (id, email) => jwt.sign({ id, email }, process.env.SECRET, {
+cloudinary.config({
+  cloud_name: 'authors-haven-32',
+  api_key: '979697739342818',
+  api_secret: 'lxOznKcGVMS-ZNccjQbjZcogtks'
+});
+
+export const uploadImage = (img, publicId) => new Promise((resolve, reject) => {
+  cloudinary.uploader.upload(img.tempFilePath,
+    { public_id: publicId }, (err, res) => (err ? reject(err) : resolve(res.url)));
+});
+
+export const getToken = (id, email) => jwt.sign({ id, email }, process.env.SECRET, {
   expiresIn: '5h',
 });
 
-const isBlackListed = async (token) => {
+export const isBlackListed = async (token) => {
   const blockedToken = await db.BlackListedTokens.findOne({
     where: { token },
   });
   return !!blockedToken;
 };
 
-const decodeToken = token => jwt.verify(token, process.env.SECRET);
+export const decodeToken = token => jwt.verify(token, process.env.SECRET);
 
-const blackListThisToken = async (token) => {
+export const blackListThisToken = async (token) => {
   const decoded = decodeToken(token);
   await db.BlackListedTokens.create({
     token,
@@ -27,7 +39,7 @@ const blackListThisToken = async (token) => {
   });
 };
 
-const createUserFromSocials = async (data) => {
+export const createUserFromSocials = async (data) => {
   const {
     email, firstName, lastName, username, image
   } = data;
@@ -49,8 +61,9 @@ const createUserFromSocials = async (data) => {
   return user.response();
 };
 
-const messages = {
+export const messages = {
   required: 'Input your {{ field }}',
+  requiredWithoutAll: 'at least one field required',
   min: '{{ field }} should not be less than {{ argument.0 }}',
   max: '{{ field }} should not be more than {{ argument.0 }}',
   unique: '{{ field }} already existed',
@@ -59,7 +72,7 @@ const messages = {
   alphaNumeric: 'Only letters and numbers are allowed as {{ field }}',
 };
 
-const sanitizeRules = {
+export const sanitizeRules = {
   firstName: 'trim',
   lastName: 'trim',
   username: 'trim',
@@ -74,21 +87,24 @@ validations.unique = async (data, field, message, args, get) => {
   if (row) throw message;
 };
 
-const validatorInstance = Validator(validations, Vanilla);
+export const validatorInstance = Validator(validations, Vanilla);
 
-const randomString = () => crypto.randomBytes(11).toString('hex');
+export const createUser = async (user) => {
+  const {
+    firstName, lastName, username, email, password
+  } = user;
 
-const hashPassword = password => bcrypt.hash(password, 10);
+  const newUser = await db.User.create({
+    firstName,
+    lastName,
+    username,
+    email,
+    password
+  });
 
-export {
-  getToken,
-  blackListThisToken,
-  decodeToken,
-  isBlackListed,
-  messages,
-  validatorInstance,
-  sanitizeRules,
-  randomString,
-  hashPassword,
-  createUserFromSocials,
+  return newUser;
 };
+
+export const randomString = () => crypto.randomBytes(11).toString('hex');
+
+export const hashPassword = password => bcrypt.hash(password, 10);
