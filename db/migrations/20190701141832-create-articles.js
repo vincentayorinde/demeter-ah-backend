@@ -18,7 +18,7 @@ module.exports = {
     body: {
       type: Sequelize.TEXT,
     },
-    images: {
+    image: {
       type: Sequelize.STRING,
     },
     userId: {

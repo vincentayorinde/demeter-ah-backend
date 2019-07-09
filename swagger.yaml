@@ -148,6 +148,80 @@ paths:
       responses:
         '201':
           description: Article created successfully
+  /articles/{slug}:
+    get:
+      tags:
+        - Articles
+      summary: Get single article
+      description: "Get single article"
+      operationId: getArticleBySlug
+      produces:
+        - application/json
+      parameters:
+        - name: "slug"
+          in: "path"
+          description: "slug of article to return"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Article displayed successfully"
+          schema:
+            $ref: "#/definitions/getSingleArticle"
+        404:
+          description: "Article slug not found"
+    delete:
+      tags:
+        - Articles
+      summary: Delete single article
+      description: "Delete single article"
+      operationId: deleteArticleBySlug
+      produces:
+        - application/json
+      parameters:
+        - name: "slug"
+          in: "path"
+          description: "slug of article to return"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Article Deleted successfully"
+          schema:
+            $ref: "#/definitions/getSingleArticle"
+        401:
+          description: "User not Authorized to delete article"
+        404:
+          description: "Article slug not found"
+    put:
+      tags:
+        - Articles
+      summary: Update single article
+      description: "Update single article"
+      operationId: updateArticleBySlug
+      produces:
+        - application/json
+      parameters:
+        - name: "slug"
+          in: "path"
+          description: "slug of article to return"
+          required: true
+          type: "string"
+        - name: body
+          in: body
+          description: Email needed for password reset
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateArticle'
+      responses:
+        200:
+          description: "Article Updated successfully"
+          schema:
+            $ref: "#/definitions/getSingleArticle"
+        401:
+          description: "User not Authorized to update article"
+        404:
+          description: "Article slug not found"
   /profiles/{username}:
     get:
       tags:
@@ -191,6 +265,19 @@ definitions:
       password:
         type: string
       username:
+        type: string
+    xml:
+      name: NewUser
+  UpdateArticle:
+    type: object
+    properties:
+      title:
+        type: string
+      description:
+        type: string
+      body:
+        type: string
+      image:
         type: string
     xml:
       name: NewUser
@@ -252,6 +339,17 @@ definitions:
         type: string
     xml:
       name: changePassword
+  Author:
+    type: "object"
+    properties:
+      bio: 
+        type: "string"
+      image: 
+        type: "string"
+      username: 
+        type: "string"
+    xml:
+      name: Author
   getUserProfile:
     type: "object"
     properties:
@@ -287,3 +385,45 @@ definitions:
         example: "2019-07-05T12:23:45.130Z"      
     xml:
       name: "getUserProfile"
+  getSingleArticle:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        example: 1
+      description:
+        type: "string"
+        format: "email"
+        example: "user@gmail.com"
+      body:
+        type: "string"
+        example: "Vinay"
+      title:
+        type: "string"
+        description: "User bio"
+      image:
+        type: "string"
+        example: "Larry"
+      userId:
+        type: "string"
+        example: "Baston"
+      slug:
+        type: "string"
+        example: "//temp/up.jpg"
+      author:
+        type: "object"
+        xml:
+          name: "Author"
+          wrapped: true
+        items:
+          $ref: "#/definitions/Author"
+      createdAt:
+        type: "string"
+        format: "date-time"
+        example: "2019-07-05T12:23:45.130Z"
+      updatedAt:
+        type: "string"
+        format: "date-time"
+        example: "2019-07-05T12:23:45.130Z"      
+    xml:
+      name: "getSingleArticle"

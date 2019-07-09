@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       description: DataTypes.TEXT,
       slug: DataTypes.STRING,
       body: DataTypes.TEXT,
-      images: DataTypes.STRING,
+      image: DataTypes.STRING,
     },
     {}
   );
@@ -21,8 +21,8 @@ module.exports = (sequelize, DataTypes) => {
   });
   Article.associate = (models) => {
     Article.belongsTo(models.User, {
-      foreginKey: 'userId',
-      as: 'user',
+      foreignKey: 'userId',
+      as: 'author',
     });
   };
   return Article;
