@@ -51,11 +51,18 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'userId',
       as: 'article',
       cascade: true,
-    }),
+    });
+
     User.hasMany(models.Ratings, {
       foreignKey: 'userId',
       as: 'rate',
       cascade: true,
+    });
+
+    User.hasMany(models.ArticleVote, {
+      foreignKey: 'userId',
+      as: 'articleVote',
+      cascade: true
     });
   };
 

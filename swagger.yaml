@@ -255,6 +255,35 @@ paths:
           description: "User not Authorized to update article"
         404:
           description: "Article slug not found"
+  /articles/vote/{slug}:
+    post:
+      tags:
+        - "Articles"
+      summary: Vote an Article
+      description: Vote an article
+      operationId: voteArticle
+      produces:
+        - application/json
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of article to vote
+          required: true
+          type: string
+        - name: x-access-token
+          in: header
+          description: Authorization token
+          required: true
+          type: string
+      responses:
+        200:
+          description: You have unvote this article
+        201:
+          description: You upote this article
+        400:
+          description: Pass in the appropriate status (true or false)
+        404:
+          description: This article does not exist
   /profiles/{username}:
     get:
       tags:
