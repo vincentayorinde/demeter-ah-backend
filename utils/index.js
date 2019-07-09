@@ -57,6 +57,8 @@ const messages = {
   email: 'The value provided is not an email',
   alpha: 'Only letters allowed as {{ field }}',
   alphaNumeric: 'Only letters and numbers are allowed as {{ field }}',
+  integer: 'Only integers allowed as {{ field }}',
+  range: 'Only ratings from 1 to 5 are allowed'
 };
 
 const sanitizeRules = {

@@ -126,6 +126,39 @@ paths:
       responses:
         '201':
           description: Article created successfully
+  /articles/{articleId}/rate:
+    post:
+      tags:
+        - Articles
+      summary: rate an article
+      operationId: rateArticle
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: "articleId"
+          in: "path"
+          description: An article id to be rated by a user
+          required: true
+          type: string
+        - name: x-access-token
+          in: header
+          description: Authorization token
+          required: true
+          type: string
+        - name: "rate"
+          in: body
+          description: A user rating
+          required: true
+          schema:
+            $ref: '#/definitions/ratings'
+      responses:
+        '201':
+          description: Article rated successfully
+        '400':
+          description: "Invalid rating supplied"
 definitions:
   NewUser:
     type: object
@@ -166,6 +199,15 @@ definitions:
         type: string
     xml:
       name: NewArticle
+  ratings:
+    type: object
+    required:
+      - rate
+    properties:
+      rate:
+        type: string
+    xml:
+      name: rateArticle
   ResetPassword:
     type: object
     required:

@@ -1,6 +1,7 @@
 /* eslint-disable require-jsdoc */
 import { db } from '../server';
 
+
 /**
  * App Middleware.
  * middleware methods.
@@ -43,3 +44,5 @@ export const createUser = async (user) => {
 
   return newUser;
 };
+
+export const createArticle = async article => db.Article.create(article);

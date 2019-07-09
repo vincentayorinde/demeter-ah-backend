@@ -12,5 +12,12 @@ router.post(
   Validation.createArticle,
   Article.createArticle,
 );
+router.post(
+  '/:articleId/rate',
+  Middleware.authenticate,
+  Middleware.isblackListedToken,
+  Validation.rateArticle,
+  Article.rateArticle,
+);
 
 export default router;

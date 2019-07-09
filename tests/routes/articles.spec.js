@@ -1,7 +1,7 @@
 import chai from 'chai';
 import chaiHttp from 'chai-http';
 import { app, db } from '../../server';
-import { createUser } from '../helpers';
+import { createUser, createArticle } from '../helpers';
 import { getToken } from '../../utils';
 
 const { expect } = chai;
@@ -35,6 +35,7 @@ describe('ARTICLES TEST', () => {
   after(async () => {
     await db.Article.destroy({ truncate: true, cascade: true });
     await db.User.destroy({ truncate: true, cascade: true });
+    await db.Ratings.destroy({ truncate: true, cascade: true });
   });
 
   describe('Create articles', () => {
@@ -93,6 +94,66 @@ describe('ARTICLES TEST', () => {
       expect(res.body).to.be.an('object');
       expect(res.body).to.include.all.keys('message');
       expect(res.body.message).to.be.a('string');
+    });
+  });
+  describe('Rate articles', () => {
+    let userToken;
+    let articleData;
+    beforeEach(async () => {
+      const user = await createUser(register);
+      const userResponse = user.response();
+      const { token } = userResponse;
+      userToken = token;
+      articleData = await createArticle({...article, userId: userResponse.id});      
+    });
+    it('should rate article if user is authenticated', async () => {
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/${articleData.id}/rate`)
+        .set('x-access-token', userToken)
+        .send({ rate: '4'});
+      expect(res.statusCode).to.equal(201);
+      expect(res.body).to.be.an('object');
+      expect(res.body).to.include.all.keys('rating', 'message');
+      expect(res.body.rating).to.be.an('object');
+      expect(res.body.message).to.be.a('string');
+    });
+    it('should not rate article if user is not authenticated', async () => {
+      const token = await getToken(45345, 'wrong@gmail.com');
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/4/rate`)
+        .set('x-access-token', token)
+        .send({ rate: '4' });
+      expect(res.statusCode).to.equal(401);
+      expect(res.body).to.be.an('object');
+      expect(res.body).to.include.all.keys('message');
+      expect(res.body.message).to.be.a('string');
+      expect(res.body.message).to.be.equal('Unauthorized');
+    });
+    it('should not rate article if rate is not from 1 to 5', async () => {
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/${articleData.id}/rate`)
+        .set('x-access-token', userToken)
+        .send({ rate: '8' });
+      expect(res.statusCode).to.equal(400);
+      expect(res.body).to.be.an('object');
+      expect(res.body).to.include.all.keys('message');
+      expect(res.body.message).to.be.an('array');
+      expect(res.body.message[0].message).to.be.equal('Only ratings from 1 to 5 are allowed');
+    });
+    it('should not rate article if rate is not provided', async () => {
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/${articleData.id}/rate`)
+        .set('x-access-token', userToken)
+        .send({ rate: '' });
+      expect(res.statusCode).to.equal(400);
+      expect(res.body).to.be.an('object');
+      expect(res.body).to.include.all.keys('message');
+      expect(res.body.message).to.be.an('array');
+      expect(res.body.message[0].message).to.be.equal('Input your rate');
     });
   });
 });
