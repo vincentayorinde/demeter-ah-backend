@@ -43,3 +43,18 @@ export const createUser = async (user) => {
 
   return newUser;
 };
+
+export const createArticle = async (author, article) => {
+  const newUser = await createUser(author);
+  const {
+    description, body, title
+  } = article;
+  /* console.log(newUser); */
+  const newArticle = await newUser.createArticle({
+    description,
+    body,
+    title
+  });
+
+  return { newUser, newArticle };
+};

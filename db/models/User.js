@@ -51,6 +51,7 @@ module.exports = (sequelize, DataTypes) => {
     as: 'article',
     cascade: true,
   });
+
   User.prototype.passwordsMatch = function match(password) {
     return bcrypt.compare(password, this.password);
   };
