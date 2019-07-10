@@ -58,6 +58,28 @@ export default {
       });
     }
   },
+
+  getArticles: async (req, res, next) => {
+    const rules = {
+      limit: 'integer|required_with_any:offset',
+      offset: 'integer',
+      tag: 'string',
+      author: 'string',
+      favorited: 'string',
+    };
+
+    const data = { ...req.query };
+
+    try {
+      await validatorInstance.validateAll(data, rules, messages);
+      next();
+    } catch (e) {
+      return res.status(400).json({
+        message: e,
+      });
+    }
+  },
+
   rateArticle: async (req, res, next) => {
     const rule = {
       rate: 'required|integer|range:0,6',

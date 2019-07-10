@@ -154,9 +154,6 @@ paths:
         - Articles
       summary: rate an article
       operationId: rateArticle
-      consumes:
-        - application/json
-        - application/x-www-form-urlencoded
       produces:
         - application/json
       parameters:
@@ -224,6 +221,8 @@ paths:
             $ref: "#/definitions/getSingleArticle"
         404:
           description: "Article slug not found"
+        400:
+          description: "Invalid request supplied"
     delete:
       tags:
         - Articles
@@ -247,6 +246,8 @@ paths:
           description: "User not Authorized to delete article"
         404:
           description: "Article slug not found"
+        400:
+          description: "Invalid request supplied"
     put:
       tags:
         - Articles
@@ -276,6 +277,8 @@ paths:
           description: "User not Authorized to update article"
         404:
           description: "Article slug not found"
+        400:
+          description: "Invalid request supplied"
   /articles/vote/{slug}:
     post:
       tags:
@@ -529,17 +532,6 @@ definitions:
         type: string
     xml:
       name: changePassword
-  Author:
-    type: "object"
-    properties:
-      bio: 
-        type: "string"
-      image: 
-        type: "string"
-      username: 
-        type: "string"
-    xml:
-      name: Author
   getUserProfile:
     type: "object"
     properties:
@@ -596,17 +588,19 @@ definitions:
         example: "Larry"
       authorId:
         type: "string"
-        example: "Baston"
+        example: 1
       slug:
         type: "string"
-        example: "//temp/up.jpg"
+        example: "user-bio"
       author:
-        type: "object"
-        xml:
-          name: "Author"
-          wrapped: true
-        items:
-          $ref: "#/definitions/Author"
+        type: object
+        properties:
+          bio: 
+            type: "string"
+          image: 
+            type: "string"
+          username: 
+            type: "string"
       createdAt:
         type: "string"
         format: "date-time"

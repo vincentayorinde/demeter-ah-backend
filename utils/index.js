@@ -67,14 +67,15 @@ export const createUserFromSocials = async (data) => {
 
 export const messages = {
   required: 'Input your {{ field }}',
-  requiredWithoutAll: 'at least one field required',
+  required_with_any: 'You have to provide a {{ field }} for any {{ argument.0 }}',
   min: '{{ field }} should not be less than {{ argument.0 }}',
   max: '{{ field }} should not be more than {{ argument.0 }}',
   unique: '{{ field }} already existed',
   email: 'The value provided is not an email',
+  string: '{{ feild }} must be a string',
+  integer: '{{ feild }} must be an integer',
   alpha: 'Only letters allowed as {{ field }}',
   alphaNumeric: 'Only letters and numbers are allowed as {{ field }}',
-  integer: 'Only integers allowed as {{ field }}',
   range: 'Only ratings from 1 to 5 are allowed'
 };
 
