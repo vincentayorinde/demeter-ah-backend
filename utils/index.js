@@ -8,14 +8,18 @@ import bcrypt from 'bcryptjs';
 import db from '../db/models';
 
 cloudinary.config({
-  cloud_name: 'authors-haven-32',
-  api_key: '979697739342818',
-  api_secret: 'lxOznKcGVMS-ZNccjQbjZcogtks'
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET
 });
 
 export const uploadImage = (img, publicId) => new Promise((resolve, reject) => {
   cloudinary.uploader.upload(img.tempFilePath,
     { public_id: publicId }, (err, res) => (err ? reject(err) : resolve(res.url)));
+});
+
+export const deleteImage = publicId => new Promise((resolve, reject) => {
+  cloudinary.uploader.destroy(publicId, (err, res) => (err ? reject(err) : resolve(res.url)));
 });
 
 export const getToken = (id, email) => jwt.sign({ id, email }, process.env.SECRET, {

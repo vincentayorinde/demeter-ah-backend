@@ -19,5 +19,24 @@ router.post(
   Validation.rateArticle,
   Article.rateArticle,
 );
+router.get(
+  '/:slug',
+  Validation.articleSlug,
+  Article.getArticle,
+);
+router.put(
+  '/:slug',
+  Middleware.authenticate,
+  Middleware.isblackListedToken,
+  Validation.updateArticle,
+  Article.updateArticle,
+);
+router.delete(
+  '/:slug',
+  Middleware.authenticate,
+  Middleware.isblackListedToken,
+  Validation.articleSlug,
+  Article.deleteArticle,
+);
 
 export default router;

@@ -6,8 +6,8 @@ import YAML from 'yamljs';
 import consola from 'consola';
 import passport from 'passport';
 import session from 'express-session';
-import cookieParser from 'cookie-parser';
 import fileupload from 'express-fileupload';
+import cookieParser from 'cookie-parser';
 import Routes from '../routes';
 import db from '../db/models';
 
