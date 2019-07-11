@@ -2,7 +2,7 @@ import chai from 'chai';
 import sinon from 'sinon';
 import chaiHttp from 'chai-http';
 import { app, db } from '../../server';
-import { createUser, createArticle, createRate } from '../helpers';
+import { createUser, createArticle, createRate, createArticleVote  } from '../helpers';
 import * as utils from '../../utils';
 
 const { expect } = chai;
@@ -316,6 +316,7 @@ describe('ARTICLES TEST', () => {
       expect(res.body.message).to.include('Article not found');
     });
   });
+
   describe('Rate articles', () => {
     let userToken;
     let articleData;
@@ -404,6 +405,90 @@ describe('ARTICLES TEST', () => {
       expect(res.body).to.include.all.keys('message');
       expect(res.body.message).to.be.a('string');
       expect(res.body.message).to.be.equal('Article does not exist');
+    });
+  });
+
+  describe('Vote and downvote Article', () => {
+    let userToken;
+    let upvote;
+    let articleSlug;
+
+    beforeEach(async () => {
+      await db.ArticleVote.destroy({ truncate: true, cascade: true });
+      const user = await createUser({ ...register, email: 'man@havens.com' });
+      const userResponse = user.response();
+      const { token } = userResponse;
+      userToken = token;
+      const newArticle = await createArticle({ ...article, userId: userResponse.id });
+      articleSlug = newArticle.slug;
+
+      upvote = {
+        userId: userResponse.id,
+        articleId: newArticle.id,
+        status: true
+      };
+    });
+
+    it('Should upvote an article', async () => {
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/vote/${articleSlug}`)
+        .set('x-access-token', userToken)
+        .send({
+          status: true
+        });
+      expect(res.status).to.equal(201);
+      expect(res.body).to.be.an('object');
+      expect(res.body.message).to.equal('You upvote this article');
+    });
+
+    it('Should change upvote to downvote', async () => {
+      await createArticleVote(upvote);
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/vote/${articleSlug}`)
+        .set('x-access-token', userToken)
+        .send({
+          status: false
+        });
+      expect(res.status).to.equal(200);
+      expect(res.body).to.be.an('object');
+      expect(res.body.message).to.equal('You downvote this article');
+    });
+
+    it('Should unvote an article', async () => {
+      await createArticleVote(upvote);
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/vote/${articleSlug}`)
+        .set('x-access-token', userToken);
+      expect(res.status).to.equal(200);
+      expect(res.body).to.be.an('object');
+      expect(res.body.message).to.equal('You have unvote this article');
+    });
+
+    it('Should downvote an article', async () => {
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/vote/${articleSlug}`)
+        .set('x-access-token', userToken)
+        .send({
+          status: false
+        });
+      expect(res.status).to.equal(201);
+      expect(res.body).to.be.an('object');
+      expect(res.body.message).to.equal('You downvote this article');
+    });
+
+    it('Should return error message when article does not exist', async () => {
+      const wrongSlug = `${articleSlug}-1234`;
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/vote/${wrongSlug}`)
+        .set('x-access-token', userToken);
+      expect(res.status).to.equal(404);
+      expect(res.body).to.be.an('object');
+      expect(res.body.error).to.equal('This article does not exist');
     });
   });
 });

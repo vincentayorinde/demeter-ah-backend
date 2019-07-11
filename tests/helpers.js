@@ -46,4 +46,7 @@ export const createUser = async (user) => {
 };
 
 export const createArticle = async article => db.Article.create(article);
+
 export const createRate = async rating => db.Ratings.create(rating);
+
+export const createArticleVote = async vote => db.ArticleVote.create(vote);

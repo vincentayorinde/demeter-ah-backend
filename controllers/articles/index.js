@@ -196,5 +196,68 @@ export default {
         error: e.message,
       });
     }
-  }
+  },
+
+  voteArticle: async (req, res) => {
+    const { slug } = req.params;
+    let { status } = req.body;
+    status = status === 'true' || status === 'false' ? JSON.parse(status) : status;
+    const article = await db.Article.findOne({
+      where: {
+        slug
+      }
+    });
+
+    try {
+      if (!article) {
+        return res.status(404).json({
+          error: 'This article does not exist'
+        });
+      }
+
+      const articleId = article.id;
+      const userId = req.user.id;
+      const voteDetails = {
+        userId,
+        articleId,
+        status
+      };
+
+      const vote = await db.ArticleVote.findArticleVote(voteDetails);
+
+      let resStatus = 201;
+      let message = status ? 'You upvote this article' : 'You downvote this article';
+
+
+      if (!vote) {
+        await db.ArticleVote.create(voteDetails);
+      } else {
+        switch (status) {
+          case true:
+          case false:
+            await vote.updateArticleVote(status);
+            resStatus = 200;
+            break;
+          default:
+            await vote.deleteArticleVote();
+            message = 'You have unvote this article';
+            resStatus = 200;
+        }
+      }
+
+      const upvotes = await db.ArticleVote.getArticleVotes({ ...voteDetails, status: true });
+      const downvotes = await db.ArticleVote.getArticleVotes({ ...voteDetails, status: false });
+
+      return res.status(resStatus).json({
+        message,
+        upvotes,
+        downvotes
+      });
+    } catch (e) {
+      /* istanbul ignore next */
+      return res.status(500).json({
+        error: e.message,
+      });
+    }
+  },
 };
