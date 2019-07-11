@@ -18,6 +18,14 @@ module.exports = (sequelize, DataTypes) => {
       passwordResetToken: DataTypes.STRING,
       passwordResetExpire: DataTypes.DATE,
       emailVerificationToken: DataTypes.STRING,
+      emailNotify: {
+        type: DataTypes.BOOLEAN,
+        default: true,
+      },
+      inAppNotify: {
+        type: DataTypes.BOOLEAN,
+        default: true,
+      },
       activated: {
         type: DataTypes.BOOLEAN,
         default: false,
@@ -33,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         afterCreate: async (user) => {
           if (!user.social) {
-            await sendMail({
+            sendMail({
               email: user.email,
               subject: 'Activate Account',
               content: activationMessage(
@@ -63,6 +71,11 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'userId',
       as: 'articleVote',
       cascade: true
+    });
+    User.hasMany(models.Notification, {
+      foreignKey: 'receiverId',
+      as: 'notifications',
+      cascade: true,
     });
   };
 

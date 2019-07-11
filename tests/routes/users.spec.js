@@ -8,7 +8,7 @@ import * as utils from '../../utils';
 
 let mockUploadImage;
 const { expect } = chai;
-const mockTransporter = sinon.stub(transporter, 'sendMail').resolves({});
+let mockTransporter;
 
 chai.use(chaiHttp);
 let register = {};
@@ -16,6 +16,7 @@ let login = {};
 let user;
 describe('USER AUTHENTICATION', () => {
   before(async () => {
+    mockTransporter = sinon.stub(transporter, 'sendMail').resolves({});
     register = {
       firstName: 'vincent',
       lastName: 'hamza',
@@ -346,6 +347,14 @@ describe('USER AUTHENTICATION', () => {
       expect(res.body).to.include.all.keys('error');
       expect(res.body.error).to.be.a('string');
       expect(res.body.error).to.include('Invalid activation Link');
+    });
+
+    it('should call home route', async () => {
+      const res = await chai
+        .request(app)
+        .get('/api/v1/users/home')
+        .send();
+      expect(res).to.have.status(200);
     });
   });
 });

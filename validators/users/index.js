@@ -92,6 +92,7 @@ export default {
       await validatorInstance.validateAll(data, rules, messages);
       next();
     } catch (e) {
+      /* istanbul ignore next */
       return res.status(400).json({
         message: e
       });

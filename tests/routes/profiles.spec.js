@@ -1,15 +1,20 @@
 import chai from 'chai';
 import chaiHttp from 'chai-http';
+import sinon from 'sinon';
 import { app, db } from '../../server';
 import { createUser } from '../../utils';
+import { transporter } from '../../utils/mailer';
 
 const { expect } = chai;
+
+let mockTransporter;
 
 chai.use(chaiHttp);
 let profile = {};
 let user = {};
 describe('USER PROFILE', () => {
   before(async () => {
+    mockTransporter = sinon.stub(transporter, 'sendMail').resolves({});
     profile = {
       firstName: 'vincent',
       lastName: 'hamza',
@@ -21,6 +26,7 @@ describe('USER PROFILE', () => {
     user = await createUser(profile);
   });
   after(async () => {
+    mockTransporter.restore();
     await db.User.destroy({ truncate: true, cascade: true });
   });
 

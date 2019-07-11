@@ -6,5 +6,4 @@ module.exports = {
   }),
   down: queryInterface => queryInterface
     .removeColumn('Users', 'social')
-    .then(() => queryInterface.removeColumn('Users', 'social'))
 };

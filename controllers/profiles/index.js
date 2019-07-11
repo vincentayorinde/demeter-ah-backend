@@ -16,6 +16,7 @@ export default {
         profile: data
       });
     } catch (e) {
+      /* istanbul ignore next */
       return res.status(500).json({
         message: 'Something went wrong'
       });
