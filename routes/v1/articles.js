@@ -12,6 +12,13 @@ router.post(
   Validation.createArticle,
   Article.createArticle,
 );
+router.post(
+  '/rate/:slug',
+  Middleware.authenticate,
+  Middleware.isblackListedToken,
+  Validation.rateArticle,
+  Article.rateArticle,
+);
 router.get(
   '/:slug',
   Validation.articleSlug,

@@ -2,7 +2,7 @@ import chai from 'chai';
 import sinon from 'sinon';
 import chaiHttp from 'chai-http';
 import { app, db } from '../../server';
-import { createUser, createArticle } from '../helpers';
+import { createUser, createArticle, createRate } from '../helpers';
 import * as utils from '../../utils';
 
 const { expect } = chai;
@@ -18,8 +18,7 @@ describe('ARTICLES TEST', () => {
     article = {
       title: 'React course by hamza',
       description: 'very good book',
-      body: 'learning react is good for your career...',
-      image: {},
+      body: 'learning react is good for your career...'
     };
     register = {
       firstName: 'vincent',
@@ -35,6 +34,7 @@ describe('ARTICLES TEST', () => {
   after(async () => {
     await db.Article.destroy({ truncate: true, cascade: true });
     await db.User.destroy({ truncate: true, cascade: true });
+    await db.Ratings.destroy({ truncate: true, cascade: true });
   });
 
   describe('Create articles', () => {
@@ -105,7 +105,6 @@ describe('ARTICLES TEST', () => {
       expect(res.body.message).to.be.a('string');
     });
   });
-
   describe('Update articles', () => {
     afterEach(() => {
       mockUploadImage.restore();
@@ -113,7 +112,8 @@ describe('ARTICLES TEST', () => {
     it('should update an article if info is valid', async () => {
       mockUploadImage = sinon.stub(utils, 'uploadImage')
         .callsFake(() => new Promise(resolve => resolve('//temp/up.jpg')));
-      const { newUser, newArticle } = await createArticle(register, article);
+      const newUser = await createUser(register);
+      const newArticle = await createArticle({ ...article, userId: newUser.id });
       const userResponse = newUser.response();
       const { token } = userResponse;
       const res = await chai
@@ -134,7 +134,8 @@ describe('ARTICLES TEST', () => {
       expect(res.body.article.image).to.include('//temp/up.jpg');
     });
     it('should not update an article if no info is provided', async () => {
-      const { newUser, newArticle } = await createArticle(register, article);
+      const newUser = await createUser(register);
+      const newArticle = await createArticle({ ...article, userId: newUser.id });
       const userResponse = newUser.response();
       const { token } = userResponse;
       const res = await chai
@@ -150,10 +151,9 @@ describe('ARTICLES TEST', () => {
       expect(res.body.article.title).to.include(article.title);
       expect(res.body.article.description).to.include(article.description);
       expect(res.body.article.body).to.include(article.body);
-      expect(res.body.article.image).to.include(article.image);
     });
     it('should not update an article does not exist', async () => {
-      const { newUser } = await createArticle(register, article);
+      const newUser = await createUser(register);
       const userResponse = newUser.response();
       const { token } = userResponse;
       const res = await chai
@@ -168,10 +168,11 @@ describe('ARTICLES TEST', () => {
       expect(res.body.message).to.include('Article not found');
     });
     it('Only author of an article should be able to edit an article', async () => {
-      const { newUser } = await createArticle(register, article);
+      const newUser = await createUser(register);
       register.email = 'john@andela.com';
-      const { newArticle } = await createArticle(register, article);
-      const userResponse = newUser.response();
+      const secondUser = await createUser(register);
+      const newArticle = await createArticle({ ...article, userId: newUser.id });
+      const userResponse = secondUser.response();
       const { token } = userResponse;
       const res = await chai
         .request(app)
@@ -185,7 +186,8 @@ describe('ARTICLES TEST', () => {
       expect(res.body.message).to.include('You are not Authorized to edit this Article');
     });
     it('should not update an article if the token does not exist', async () => {
-      const { newArticle } = await createArticle(register, article);
+      const newUser = await createUser(register);
+      const newArticle = await createArticle({ ...article, userId: newUser.id });
       const res = await chai
         .request(app)
         .put(`/api/v1/articles/${newArticle.slug}`)
@@ -196,7 +198,8 @@ describe('ARTICLES TEST', () => {
       expect(res.body.message).to.be.a('string');
     });
     it('should not update an article if the user does not exist', async () => {
-      const { newArticle } = await createArticle(register, article);
+      const newUser = await createUser(register);
+      const newArticle = await createArticle({ ...article, userId: newUser.id });
       const token = await utils.getToken(4999, 'wrong@gmail.com');
       const res = await chai
         .request(app)
@@ -217,7 +220,8 @@ describe('ARTICLES TEST', () => {
     it('Author should be able to delete an article if slug is provided', async () => {
       mockDeleteImage = sinon.stub(utils, 'deleteImage')
         .callsFake(() => new Promise(resolve => resolve('//temp/up.jpg')));
-      const { newUser, newArticle } = await createArticle(register, article);
+      const newUser = await createUser(register);
+      const newArticle = await createArticle({ ...article, userId: newUser.id });
       const userResponse = newUser.response();
       const { token } = userResponse;
       const res = await chai
@@ -232,7 +236,7 @@ describe('ARTICLES TEST', () => {
       expect(res.body.message).to.include('Article Deleted Successfully');
     });
     it('should not delete an article that does not exist', async () => {
-      const { newUser } = await createArticle(register, article);
+      const newUser = await createUser(register);
       const userResponse = newUser.response();
       const { token } = userResponse;
       const res = await chai
@@ -246,10 +250,11 @@ describe('ARTICLES TEST', () => {
       expect(res.body.message).to.include('Article not found');
     });
     it('Only author of an article should be able to delete an article', async () => {
-      const { newUser } = await createArticle(register, article);
+      const newUser = await createUser(register);
       register.email = 'john@andela.com';
-      const { newArticle } = await createArticle(register, article);
-      const userResponse = newUser.response();
+      const secondUser = await createUser(register);
+      const newArticle = await createArticle({ ...article, userId: newUser.id });
+      const userResponse = secondUser.response();
       const { token } = userResponse;
       const res = await chai
         .request(app)
@@ -261,8 +266,9 @@ describe('ARTICLES TEST', () => {
       expect(res.body.message).to.be.a('string');
       expect(res.body.message).to.include('You are not Authorized to delete this Article');
     });
-    it('should not update an article if the token does not exist', async () => {
-      const { newArticle } = await createArticle(register, article);
+    it('should not delete an article if the token does not exist', async () => {
+      const newUser = await createUser(register);
+      const newArticle = await createArticle({ ...article, userId: newUser.id });
       const res = await chai
         .request(app)
         .delete(`/api/v1/articles/${newArticle.slug}`);
@@ -272,7 +278,8 @@ describe('ARTICLES TEST', () => {
       expect(res.body.message).to.be.a('string');
     });
     it('should not delete an article if the user does not exist', async () => {
-      const { newArticle } = await createArticle(register, article);
+      const newUser = await createUser(register);
+      const newArticle = await createArticle({ ...article, userId: newUser.id });
       const token = await utils.getToken(4999, 'wrong@gmail.com');
       const res = await chai
         .request(app)
@@ -288,7 +295,8 @@ describe('ARTICLES TEST', () => {
 
   describe('Get Single article', () => {
     it('Anyone should be able to view an article', async () => {
-      const { newArticle } = await createArticle(register, article);
+      const newUser = await createUser(register);
+      const newArticle = await createArticle({ ...article, userId: newUser.id });
       const res = await chai
         .request(app)
         .get(`/api/v1/articles/${newArticle.slug}`);
@@ -306,6 +314,96 @@ describe('ARTICLES TEST', () => {
       expect(res.body).to.include.all.keys('message');
       expect(res.body.message).to.be.a('string');
       expect(res.body.message).to.include('Article not found');
+    });
+  });
+  describe('Rate articles', () => {
+    let userToken;
+    let articleData;
+    let userResponse;
+    beforeEach(async () => {
+      const user = await createUser(register);
+      userResponse = user.response();
+      const { token } = userResponse;
+      userToken = token;
+      articleData = await createArticle({ ...article, userId: userResponse.id });
+    });
+    it('should rate article if user is authenticated', async () => {
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/rate/${articleData.slug}`)
+        .set('x-access-token', userToken)
+        .send({ rate: '4' });
+      expect(res.statusCode).to.equal(201);
+      expect(res.body).to.be.an('object');
+      expect(res.body).to.include.all.keys('rating', 'message');
+      expect(res.body.rating).to.be.an('object');
+      expect(res.body.message).to.be.a('string');
+    });
+    it('should not rate article if user is not authenticated', async () => {
+      const token = await utils.getToken(45345, 'wrong@gmail.com');
+      const res = await chai
+        .request(app)
+        .post('/api/v1/articles/rate/wrong-slug')
+        .set('x-access-token', token)
+        .send({ rate: '4' });
+      expect(res.statusCode).to.equal(401);
+      expect(res.body).to.be.an('object');
+      expect(res.body).to.include.all.keys('message');
+      expect(res.body.message).to.be.a('string');
+      expect(res.body.message).to.be.equal('Unauthorized');
+    });
+    it('should not rate article if rate is not from 1 to 5', async () => {
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/rate/${articleData.slug}`)
+        .set('x-access-token', userToken)
+        .send({ rate: '8' });
+      expect(res.statusCode).to.equal(400);
+      expect(res.body).to.be.an('object');
+      expect(res.body).to.include.all.keys('message');
+      expect(res.body.message).to.be.an('array');
+      expect(res.body.message[0].message).to.be.equal('Only ratings from 1 to 5 are allowed');
+    });
+    it('should not rate article if rate is not provided', async () => {
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/rate/${articleData.slug}`)
+        .set('x-access-token', userToken)
+        .send({ rate: '' });
+      expect(res.statusCode).to.equal(400);
+      expect(res.body).to.be.an('object');
+      expect(res.body).to.include.all.keys('message');
+      expect(res.body.message).to.be.an('array');
+      expect(res.body.message[0].message).to.be.equal('Input your rate');
+    });
+    it('should update a rating', async () => {
+      await createRate({
+        userId: userResponse.id,
+        articleId: articleData.id,
+        stars: '4'
+      });
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/rate/${articleData.slug}`)
+        .set('x-access-token', userToken)
+        .send({ rate: '4' });
+      expect(res.statusCode).to.equal(200);
+      expect(res.body).to.be.an('object');
+      expect(res.body).to.include.all.keys('message');
+      expect(res.body.message).to.be.a('string');
+      expect(res.body.message).to.be.equal('Rating updated successfully');
+    });
+    it('it should return 404 if article does not exist', async () => {
+      const res = await chai
+        .request(app)
+        .post('/api/v1/articles/rate/wrong-slug')
+        .set('x-access-token', userToken)
+        .send({ rate: '4' });
+      expect(res.statusCode).to.equal(404);
+      expect(res.body).to.be.an('object');
+      expect(res.body).to.include.all.keys('message');
+      expect(res.body.message).to.be.a('string');
+      expect(res.body.message).to.be.equal('Article does not exist');
     });
   });
 });

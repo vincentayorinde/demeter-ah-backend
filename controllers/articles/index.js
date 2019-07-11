@@ -116,7 +116,46 @@ export default {
       });
     }
   },
-
+  rateArticle: async (req, res) => {
+    const { params: { slug }, body: { rate }, user } = req;
+    try {
+      const foundArticle = await db.Article.findOne({
+        where: { slug }
+      });
+      if (!foundArticle) {
+        return res.status(404).json({
+          message: 'Article does not exist'
+        });
+      }
+      const checkRating = await db.Ratings.findOne({
+        where: {
+          userId: user.id,
+          articleId: foundArticle.id
+        }
+      });
+      if (checkRating) {
+        checkRating.update({
+          stars: rate
+        });
+        return res.status(200).json({
+          message: 'Rating updated successfully'
+        });
+      }
+      const rating = await user.createRate({
+        articleId: foundArticle.id,
+        stars: rate
+      });
+      return res.status(201).json({
+        message: 'Article rated successfully',
+        rating,
+      });
+    } catch (e) {
+      return res.status(500).json({
+        message: 'Something went wrong',
+        error: e.message
+      });
+    }
+  },
   deleteArticle: async (req, res) => {
     try {
       const data = { ...req.params };
