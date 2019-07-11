@@ -10,6 +10,7 @@ router.get(
   passport.authenticate('google', {
     failureRedirect: '/api/v1/error'
   }),
+  /* istanbul ignore next */
   (req, res) => res.redirect('/api/v1/users/home')
 );
 
@@ -20,6 +21,7 @@ router.get(
   passport.authenticate('facebook', {
     failureRedirect: '/api/v1/error'
   }),
+  /* istanbul ignore next */
   (req, res) => res.redirect('/api/v1/users/home')
 );
 
@@ -30,6 +32,7 @@ router.get(
   passport.authenticate('twitter', {
     failureRedirect: '/api/v1/error'
   }),
+  /* istanbul ignore next */
   (req, res) => res.redirect('/api/v1/users/home')
 );
 

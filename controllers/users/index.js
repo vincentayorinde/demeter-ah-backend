@@ -24,6 +24,9 @@ export default {
         user: user.response()
       });
     } catch (e) {
+      /* istanbul ignore next */
+      console.log(e);
+      /* istanbul ignore next */
       return res.status(500).json({
         message: 'Something went wrong'
       });
@@ -79,6 +82,9 @@ export default {
         user: user.response()
       });
     } catch (e) {
+      /* istanbul ignore next */
+      console.log(e);
+      /* istanbul ignore next */
       return res.status(500).json({
         message: 'Something went wrong'
       });
@@ -185,5 +191,69 @@ export default {
 
   home: async (req, res) => res.status(200).send({
     user: req.user
-  })
+  }),
+
+  changeEmailNotification: async (req, res) => {
+    const { user } = req;
+    const notifyMe = user.emailNotify;
+    const result = await user.update({
+      emailNotify: !notifyMe,
+    });
+
+    return res.status(200).send({
+      user: result
+    });
+  },
+
+  changeInAppNotification: async (req, res) => {
+    const { user } = req;
+    const notifyMe = user.inAppNotify;
+    const result = await user.update({
+      inAppNotify: !notifyMe,
+    });
+
+    return res.status(200).send({
+      user: result
+    });
+  },
+
+  getNotifications: async (req, res) => {
+    const { id } = req.user;
+
+    const notifications = await db.Notification.findAll({
+      where: {
+        receiverId: id,
+      }
+    });
+
+    return res.status(200).send({
+      notifications
+    });
+  },
+
+  readNotification: async (req, res) => {
+    const { id } = req.user;
+
+    const notifyId = req.params.id;
+    let notification = await db.Notification.findOne({
+      where: {
+        receiverId: id,
+        id: notifyId,
+      }
+    });
+    if (notification) {
+      const { seen } = notification;
+      if (!seen) {
+        notification = await notification.update({
+          seen: true
+        });
+      }
+      return res.status(200).send({
+        notification
+      });
+    }
+    return res.status(404).send({
+      error: 'Notification not Found'
+    });
+  }
 };

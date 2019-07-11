@@ -36,34 +36,6 @@ describe('Middlewares', () => {
       done();
     });
 
-    it('should return jwt expired when token is expired', async (done) => {
-      const user = {
-        name: 'test user',
-      };
-
-      const token = jwt.sign(user, process.env.SECRET, {
-        expiresIn: 1,
-      });
-
-      const req = {
-        headers: {
-          'x-access-token': token,
-        },
-      };
-
-      /* istanbul ignore next */
-      setTimeout(async () => {
-        const res = new Response();
-
-        const nextSpy = sinon.spy();
-        const response = await Middleware.isblackListedToken(req, res, nextSpy);
-        expect(response).to.be.a('object');
-        expect(response).to.have.property('message');
-        expect(response.message).to.include('jwt expired');
-      }, 2000);
-      done();
-    });
-
     it('should return unauthorized if token has been black listed', async () => {
       const user = {
         name: 'test user',

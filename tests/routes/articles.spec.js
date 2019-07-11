@@ -4,8 +4,10 @@ import chaiHttp from 'chai-http';
 import { app, db } from '../../server';
 import { createUser, createArticle, createRate, createArticleVote  } from '../helpers';
 import * as utils from '../../utils';
+import { transporter } from '../../utils/mailer';
 
 const { expect } = chai;
+let mockTransporter;
 
 chai.use(chaiHttp);
 let article = {};
@@ -14,6 +16,9 @@ let mockUploadImage;
 let mockDeleteImage;
 
 describe('ARTICLES TEST', () => {
+  before(async () => {
+    mockTransporter = sinon.stub(transporter, 'sendMail').resolves({});
+  });
   beforeEach(async () => {
     article = {
       title: 'React course by hamza',
@@ -32,6 +37,7 @@ describe('ARTICLES TEST', () => {
   });
 
   after(async () => {
+    mockTransporter.restore();
     await db.Article.destroy({ truncate: true, cascade: true });
     await db.User.destroy({ truncate: true, cascade: true });
     await db.Ratings.destroy({ truncate: true, cascade: true });

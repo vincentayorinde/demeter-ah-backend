@@ -14,13 +14,16 @@ export const transporter = nodemailer.createTransport({
 export const sendMail = async ({ email, subject, content }) => {
   const data = {
     from: '"Authors Haven" <support@authorshaven.com>',
-    to: email,
+    to: 'no-reply@authors-haven.com',
+    bcc: email,
     subject,
     html: content,
   };
   try {
     await transporter.sendMail(data);
   } catch (e) {
+    /* istanbul ignore next */
+    console.log('error', e.message);
     /* istanbul ignore next */
     throw new Error('mail not sent', e);
   }

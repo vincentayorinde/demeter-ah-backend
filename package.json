@@ -1,78 +1,86 @@
 {
-	"name": "express-authorshaven",
-	"version": "1.0.0",
-	"description": "A Social platform for the creative at heart",
-	"author": "Andela Simulations Programme",
-	"license": "MIT",
-	"entry": "server/index.js",
-	"scripts": {
-		"test": "NODE_ENV=test npm run migrate && NODE_ENV=test nyc --reporter=html --reporter=text mocha \"tests/**/*.spec.js\" --require @babel/register --timeout 20000  --recursive --exit",
-		"prettier": "prettier **/**/*.{js,json} --write",
-		"rollback:migration": "NODE_ENV=test sequelize db:migrate:undo:all",
-		"dev": "nodemon --exec babel-node server/index",
-		"migrate": "sequelize db:migrate",
-		"start": "babel-node server/index",
-		"seed": "sequelize db:seed:all",
-		"coverage": "nyc report --reporter=text-lcov | coveralls",
-		"heroku-postbuild": " npm run migrate"
-	},
-	"husky": {
-		"hooks": {
-			"pre-commit": "lint-staged"
-		}
-	},
-	"lint-staged": {
-		"*.js": [
-			"eslint --ext .json --ext .js --fix",
-			"git add"
-		]
-	},
-	"devDependencies": {
-		"chai": "^4.2.0",
-		"chai-http": "^4.3.0",
-		"coveralls": "^3.0.4",
-		"eslint": "^5.3.0",
-		"eslint-config-airbnb-base": "^13.1.0",
-		"eslint-config-prettier": "^6.0.0",
-		"eslint-plugin-import": "^2.18.0",
-		"eslint-plugin-prettier": "^3.1.0",
-		"lint-staged": "^8.2.1",
-		"mocha": "^6.1.4",
-		"nodemon": "^1.19.1",
-		"nyc": "^14.1.1",
-		"prettier": "^1.18.2"
-	},
-	"dependencies": {
-		"@babel/cli": "^7.4.4",
-		"@babel/core": "^7.4.5",
-		"@babel/node": "^7.4.5",
-		"@babel/preset-env": "^7.4.5",
-		"sequelize-cli": "^5.5.0",
-		"husky": "^2.5.0",
-		"bcryptjs": "^2.4.3",
-		"body-parser": "^1.19.0",
-		"consola": "^2.9.0",
-		"cookie-parser": "^1.4.4",
-		"dotenv": "^8.0.0",
-		"express": "^4.17.1",
-		"express-session": "^1.16.2",
-		"indicative": "^5.0.8",
-		"jsonwebtoken": "^8.5.1",
-		"nock": "^10.0.6",
-		"nodemailer": "^6.2.1",
-		"parse-database-url": "^0.3.0",
-		"passport": "^0.4.0",
-		"passport-facebook": "^3.0.0",
-		"passport-google-oauth": "^2.0.0",
-		"passport-twitter": "^1.0.4",
-		"pg": "^7.11.0",
-		"pg-hstore": "^2.3.3",
-		"sequelize": "^5.8.12",
-		"sequelize-slugify": "^0.7.0",
-		"sinon": "^7.3.2",
-		"swagger-ui-express": "^4.0.6",
-		"yamljs": "^0.3.0",
-		"cloudinary": "^1.14.0",
-		"express-fileupload": "^1.1.5"
-	}
+  "name": "express-authorshaven",
+  "version": "1.0.0",
+  "description": "A Social platform for the creative at heart",
+  "author": "Andela Simulations Programme",
+  "license": "MIT",
+  "entry": "server/index.js",
+  "scripts": {
+    "test": "NODE_ENV=test npm run migrate && NODE_ENV=test nyc --reporter=html --reporter=text mocha \"tests/**/*.spec.js\" --require @babel/register --timeout 20000  --recursive --exit",
+    "prettier": "prettier **/**/*.{js,json} --write",
+    "rollback:migration": "NODE_ENV=test sequelize db:migrate:undo:all",
+    "dev": "nodemon --exec babel-node server/index",
+    "migrate": "sequelize db:migrate",
+    "start": "babel-node server/index",
+    "seed": "sequelize db:seed:all",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "heroku-postbuild": " npm run migrate"
+  },
+  "nyc": {
+    "exclude": [
+      "**/*.spec.js",
+      "middlewares/passport.js",
+      "utils/index.js"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --ext .json --ext .js --fix",
+      "git add"
+    ]
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "coveralls": "^3.0.4",
+    "eslint": "^5.3.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-config-prettier": "^6.0.0",
+    "eslint-plugin-import": "^2.18.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "lint-staged": "^8.2.1",
+    "mocha": "^6.1.4",
+    "nodemon": "^1.19.1",
+    "nyc": "^14.1.1",
+    "prettier": "^1.18.2"
+  },
+  "dependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.5",
+    "@babel/node": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cloudinary": "^1.14.0",
+    "consola": "^2.9.0",
+    "cookie-parser": "^1.4.4",
+    "dotenv": "^8.0.0",
+    "express": "^4.17.1",
+    "express-fileupload": "^1.1.5",
+    "express-session": "^1.16.2",
+    "husky": "^2.5.0",
+    "indicative": "^5.0.8",
+    "jsonwebtoken": "^8.5.1",
+    "nock": "^10.0.6",
+    "nodemailer": "^6.2.1",
+    "parse-database-url": "^0.3.0",
+    "passport": "^0.4.0",
+    "passport-facebook": "^3.0.0",
+    "passport-google-oauth": "^2.0.0",
+    "passport-twitter": "^1.0.4",
+    "pg": "^7.11.0",
+    "pg-hstore": "^2.3.3",
+    "pusher": "^2.2.1",
+    "sequelize": "^5.8.12",
+    "sequelize-cli": "^5.5.0",
+    "sequelize-slugify": "^0.7.0",
+    "sinon": "^7.3.2",
+    "swagger-ui-express": "^4.0.6",
+    "yamljs": "^0.3.0"
+  }
 }

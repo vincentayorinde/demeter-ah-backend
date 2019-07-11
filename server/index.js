@@ -58,6 +58,7 @@ dbconnection
     });
   })
   .catch((e) => {
+    /* istanbul ignore next */
     throw e.message;
   });
 

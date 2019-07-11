@@ -1,5 +1,6 @@
 import { uploadImage, deleteImage } from '../../utils';
 import db from '../../db/models';
+import Notification from '../../utils/notifications';
 
 export default {
   getArticle: async (req, res) => {
@@ -53,6 +54,12 @@ export default {
         username: user.username,
         bio: user.bio,
         image: user.image
+      });
+
+      await Notification.articleNotification({
+        userId: req.user.id,
+        articleId: article.id,
+        type: 'publish'
       });
 
       return res.status(201).json({

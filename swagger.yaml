@@ -308,7 +308,103 @@ paths:
           description: "Invalid username supplied"
         404:
           description: "User not found"
+  /notifications/email-notify:
+    patch:
+      tags:
+        - Notifications
+      summary: change email notify
+      operationId: emailNotify
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: update email notify field in users table
+          required: true
+          schema:
+            $ref: '#/definitions/emailNotify'
+      responses:
+        '200':
+          description: update user email notify
+  /notifications/app-notify:
+    patch:
+      tags:
+        - Notifications
+      summary: change app notify
+      operationId: appNotify
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: update app notify field in users table
+          required: true
+          schema:
+            $ref: '#/definitions/appNotify'
+      responses:
+        '200':
+          description: update user email notify
+  /notifications:
+    get:
+      tags:
+        - Notifications
+      summary: get all user notification
+      operationId: getNotification
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: update app notify field in users table
+          required: true
+          schema:
+            $ref: '#/definitions/Notify'
+      responses:
+        '200':
+          description: update user email notify
+  /notifications/{id}:
+    patch:
+      tags:
+        - Notifications
+      summary: get read notifications 
+      operationId: Notify
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "Id of notifcation to alter"
+          required: true
+          type: "integer"
+          format: "int64"
+      responses:
+        '200':
+          description: update user email notify
 definitions:
+  Notify:
+    type: object
+    required: 
+     - "name"
+  emailNotify:
+    type: object
+    required: 
+     - "name"
+  appNotify:
+    type: object
+    required: 
+     - "name"
   NewUser:
     type: object
     required:
