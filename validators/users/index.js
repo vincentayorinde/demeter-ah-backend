@@ -6,7 +6,7 @@ export default {
     const rules = {
       firstName: 'required|alpha',
       lastName: 'required|alpha',
-      username: 'required|alphaNumeric',
+      username: 'required|alphaNumeric|unique:User',
       email: 'required|email|unique:User',
       password: 'required|min:8|max:30',
     };
