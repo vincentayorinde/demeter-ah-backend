@@ -1,3 +1,4 @@
+import readingTime from 'read-time';
 import { isBlackListed, decodeToken } from '../utils';
 import db from '../db/models';
 /**
@@ -59,6 +60,22 @@ class Middleware {
         message: error.message,
       });
     }
+  }
+
+  /**
+     * checks blacked listed tokens.
+     * @param {request} req .
+     * @param {response} res The second number.
+     * @param {next} next The second number.
+     * @returns {void} calls next on success.
+     */
+  static async generateReadTime(req, res, next) {
+    const { body } = req.body;
+    if (body) {
+      const { text } = await readingTime(body);
+      req.body = { ...req.body, readTime: text };
+    }
+    next();
   }
 }
 

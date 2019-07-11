@@ -10,6 +10,7 @@ router.post(
   Middleware.authenticate,
   Middleware.isblackListedToken,
   Validation.createArticle,
+  Middleware.generateReadTime,
   Article.createArticle,
 );
 router.post(
@@ -34,6 +35,7 @@ router.put(
   Middleware.authenticate,
   Middleware.isblackListedToken,
   Validation.updateArticle,
+  Middleware.generateReadTime,
   Article.updateArticle,
 );
 router.delete(

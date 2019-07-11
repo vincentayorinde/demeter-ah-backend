@@ -120,6 +120,27 @@ describe('ARTICLES TEST', () => {
       expect(res.body).to.include.all.keys('message');
       expect(res.body.message).to.be.a('string');
     });
+
+    it('should get the accurate read time of an article', async () => {
+      mockUploadImage = sinon.stub(utils, 'uploadImage')
+        .callsFake(() => new Promise(resolve => resolve('//temp/up.jpg')));
+      const user = await createUser(register);
+      const userResponse = user.response();
+      const { token } = userResponse;
+      const res = await chai
+        .request(app)
+        .post('/api/v1/articles')
+        .field('Content-Type', 'multipart/form-data')
+        .field('title', 'React course by hamza')
+        .field('description', 'very good book')
+        .field('body', 'learning react is good for your career...')
+        .attach('image', `${__dirname}/test.jpg`)
+        .set('x-access-token', token);
+      expect(res.statusCode).to.equal(201);
+      expect(res.body.article.title).to.include(article.title);
+      expect(res.body.article.description).to.include(article.description);
+      expect(res.body.article.readTime).to.be.equal('Less than a minute');
+    });
   });
   describe('Update articles', () => {
     afterEach(() => {
