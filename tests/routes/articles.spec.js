@@ -2,7 +2,9 @@ import chai from 'chai';
 import sinon from 'sinon';
 import chaiHttp from 'chai-http';
 import { app, db } from '../../server';
-import { createUser, createArticle, createRate, createArticleVote  } from '../helpers';
+import {
+  createUser, createArticle, createRate, createArticleVote
+} from '../helpers';
 import * as utils from '../../utils';
 import { transporter } from '../../utils/mailer';
 
@@ -119,7 +121,7 @@ describe('ARTICLES TEST', () => {
       mockUploadImage = sinon.stub(utils, 'uploadImage')
         .callsFake(() => new Promise(resolve => resolve('//temp/up.jpg')));
       const newUser = await createUser(register);
-      const newArticle = await createArticle({ ...article, userId: newUser.id });
+      const newArticle = await createArticle({ ...article, authorId: newUser.id });
       const userResponse = newUser.response();
       const { token } = userResponse;
       const res = await chai
@@ -141,7 +143,7 @@ describe('ARTICLES TEST', () => {
     });
     it('should not update an article if no info is provided', async () => {
       const newUser = await createUser(register);
-      const newArticle = await createArticle({ ...article, userId: newUser.id });
+      const newArticle = await createArticle({ ...article, authorId: newUser.id });
       const userResponse = newUser.response();
       const { token } = userResponse;
       const res = await chai
@@ -176,8 +178,9 @@ describe('ARTICLES TEST', () => {
     it('Only author of an article should be able to edit an article', async () => {
       const newUser = await createUser(register);
       register.email = 'john@andela.com';
+      register.username = 'john';
       const secondUser = await createUser(register);
-      const newArticle = await createArticle({ ...article, userId: newUser.id });
+      const newArticle = await createArticle({ ...article, authorId: newUser.id });
       const userResponse = secondUser.response();
       const { token } = userResponse;
       const res = await chai
@@ -193,7 +196,7 @@ describe('ARTICLES TEST', () => {
     });
     it('should not update an article if the token does not exist', async () => {
       const newUser = await createUser(register);
-      const newArticle = await createArticle({ ...article, userId: newUser.id });
+      const newArticle = await createArticle({ ...article, authorId: newUser.id });
       const res = await chai
         .request(app)
         .put(`/api/v1/articles/${newArticle.slug}`)
@@ -205,7 +208,7 @@ describe('ARTICLES TEST', () => {
     });
     it('should not update an article if the user does not exist', async () => {
       const newUser = await createUser(register);
-      const newArticle = await createArticle({ ...article, userId: newUser.id });
+      const newArticle = await createArticle({ ...article, authorId: newUser.id });
       const token = await utils.getToken(4999, 'wrong@gmail.com');
       const res = await chai
         .request(app)
@@ -227,7 +230,7 @@ describe('ARTICLES TEST', () => {
       mockDeleteImage = sinon.stub(utils, 'deleteImage')
         .callsFake(() => new Promise(resolve => resolve('//temp/up.jpg')));
       const newUser = await createUser(register);
-      const newArticle = await createArticle({ ...article, userId: newUser.id });
+      const newArticle = await createArticle({ ...article, authorId: newUser.id });
       const userResponse = newUser.response();
       const { token } = userResponse;
       const res = await chai
@@ -258,8 +261,9 @@ describe('ARTICLES TEST', () => {
     it('Only author of an article should be able to delete an article', async () => {
       const newUser = await createUser(register);
       register.email = 'john@andela.com';
+      register.username = 'john';
       const secondUser = await createUser(register);
-      const newArticle = await createArticle({ ...article, userId: newUser.id });
+      const newArticle = await createArticle({ ...article, authorId: newUser.id });
       const userResponse = secondUser.response();
       const { token } = userResponse;
       const res = await chai
@@ -274,7 +278,7 @@ describe('ARTICLES TEST', () => {
     });
     it('should not delete an article if the token does not exist', async () => {
       const newUser = await createUser(register);
-      const newArticle = await createArticle({ ...article, userId: newUser.id });
+      const newArticle = await createArticle({ ...article, authorId: newUser.id });
       const res = await chai
         .request(app)
         .delete(`/api/v1/articles/${newArticle.slug}`);
@@ -285,7 +289,7 @@ describe('ARTICLES TEST', () => {
     });
     it('should not delete an article if the user does not exist', async () => {
       const newUser = await createUser(register);
-      const newArticle = await createArticle({ ...article, userId: newUser.id });
+      const newArticle = await createArticle({ ...article, authorId: newUser.id });
       const token = await utils.getToken(4999, 'wrong@gmail.com');
       const res = await chai
         .request(app)
@@ -302,7 +306,7 @@ describe('ARTICLES TEST', () => {
   describe('Get Single article', () => {
     it('Anyone should be able to view an article', async () => {
       const newUser = await createUser(register);
-      const newArticle = await createArticle({ ...article, userId: newUser.id });
+      const newArticle = await createArticle({ ...article, authorId: newUser.id });
       const res = await chai
         .request(app)
         .get(`/api/v1/articles/${newArticle.slug}`);
@@ -332,7 +336,7 @@ describe('ARTICLES TEST', () => {
       userResponse = user.response();
       const { token } = userResponse;
       userToken = token;
-      articleData = await createArticle({ ...article, userId: userResponse.id });
+      articleData = await createArticle({ ...article, authorId: userResponse.id });
     });
     it('should rate article if user is authenticated', async () => {
       const res = await chai
@@ -425,7 +429,7 @@ describe('ARTICLES TEST', () => {
       const userResponse = user.response();
       const { token } = userResponse;
       userToken = token;
-      const newArticle = await createArticle({ ...article, userId: userResponse.id });
+      const newArticle = await createArticle({ ...article, authorId: userResponse.id });
       articleSlug = newArticle.slug;
 
       upvote = {

@@ -45,6 +45,7 @@ describe('USER AUTHENTICATION', () => {
       const res = await chai.request(app).post('/api/v1/users/signup').send({
         ...register,
         email: 'john@havens.com',
+        username: 'kav'
       });
       expect(res.body).to.be.an('object');
       expect(res.body).to.include.all.keys('user', 'message');
@@ -52,7 +53,7 @@ describe('USER AUTHENTICATION', () => {
       expect(res.body.message).to.be.a('string');
       expect(res.body.user.firstName).to.include(register.firstName);
       expect(res.body.user.lastName).to.include(register.lastName);
-      expect(res.body.user.username).to.include(register.username);
+      expect(res.body.user.username).to.include('kav');
       expect(res.body.user.email).to.include('john@havens.com');
     });
 
@@ -61,6 +62,7 @@ describe('USER AUTHENTICATION', () => {
         ...register,
         firstName: 9999,
         email: 'frank.john',
+        username: 'jill'
       });
 
       expect(res.status).to.equal(400);
@@ -77,10 +79,20 @@ describe('USER AUTHENTICATION', () => {
       const res = await chai
         .request(app)
         .post('/api/v1/users/signup')
-        .send(register);
+        .send({ ...register, username: 'lolu' });
       expect(res.status).to.equal(400);
       expect(res.body).to.be.an('object');
       expect(res.body.message[0].message).to.equal('email already existed');
+    });
+
+    it('Should not signup user with already username', async () => {
+      const res = await chai
+        .request(app)
+        .post('/api/v1/users/signup')
+        .send({ ...register, email: 'lolu@gmail.com' });
+      expect(res.status).to.equal(400);
+      expect(res.body).to.be.an('object');
+      expect(res.body.message[0].message).to.equal('username already existed');
     });
   });
 
@@ -258,6 +270,7 @@ describe('USER AUTHENTICATION', () => {
         passwordResetToken: 'sample-test-token',
         passwordResetExpire: date,
         email: 'kelvinese@gmail.com',
+        username: 'kel',
       });
       const res = await chai
         .request(app)
@@ -277,6 +290,7 @@ describe('USER AUTHENTICATION', () => {
         email: 'kelvin@gmail.com',
         passwordResetToken: 'sample-test-token',
         passwordResetExpire: date,
+        username: 'ken',
       });
       const res = await chai
         .request(app)
@@ -299,6 +313,7 @@ describe('USER AUTHENTICATION', () => {
         email: 'kelvin',
         passwordResetToken: 'sample-test-token',
         passwordResetExpire: date,
+        username: 'kes',
       });
       const res = await chai
         .request(app)
@@ -318,6 +333,7 @@ describe('USER AUTHENTICATION', () => {
       const newUser = await db.User.create({
         ...register,
         email: 'vinay@yahoo.com',
+        username: 'vel',
       });
       const activationString = newUser.emailVerificationToken;
       const res = await chai
@@ -330,7 +346,7 @@ describe('USER AUTHENTICATION', () => {
       expect(res.body).to.include.all.keys('user', 'message');
       expect(res.body.user.firstName).to.include(register.firstName);
       expect(res.body.user.lastName).to.include(register.lastName);
-      expect(res.body.user.username).to.include(register.username);
+      expect(res.body.user.username).to.include('vel');
       expect(res.body.user.email).to.include('vinay@yahoo.com');
       expect(res.body.message).to.include(
         'Activation successful, You can now login'

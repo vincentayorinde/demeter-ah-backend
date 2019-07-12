@@ -94,7 +94,7 @@ export default {
           message: 'Article not found',
         });
       }
-      if (foundArticle.userId !== user.id) {
+      if (foundArticle.authorId !== user.id) {
         return res.status(401).send({
           message: 'You are not Authorized to edit this Article',
         });
@@ -183,7 +183,7 @@ export default {
         });
       }
 
-      if (article.userId !== user.id) {
+      if (article.authorId !== user.id) {
         return res.status(401).send({
           message: 'You are not Authorized to delete this Article',
         });

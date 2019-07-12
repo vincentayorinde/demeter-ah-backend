@@ -21,7 +21,7 @@ module.exports = {
     image: {
       type: Sequelize.STRING,
     },
-    userId: {
+    authorId: {
       type: Sequelize.INTEGER,
       allowNull: false,
       required: true,

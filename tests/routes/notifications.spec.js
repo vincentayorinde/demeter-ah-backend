@@ -24,7 +24,7 @@ describe('USER NOTIFICATIONS', () => {
     const user = await createUser({
       firstName: 'vincent',
       lastName: 'hamza',
-      username: 'kevfghjkl',
+      username: 'kevfghjk',
       password: '12345678',
       email: 'prodfd@gmail.com',
     });
@@ -42,7 +42,7 @@ describe('USER NOTIFICATIONS', () => {
     const user = await db.User.create({
       firstName: 'vincent',
       lastName: 'hamza',
-      username: 'kevfghjkl',
+      username: 'kefghjkl',
       password: '12345678',
       email: 'prodfd@gmail.com',
       emailNotify: false
@@ -61,7 +61,7 @@ describe('USER NOTIFICATIONS', () => {
     const user = await createUser({
       firstName: 'user',
       lastName: 'hamza',
-      username: 'userghjkl',
+      username: 'userhjkl',
       password: '12345678',
       email: 'proftg@gmail.com',
     });
@@ -122,7 +122,7 @@ describe('USER NOTIFICATIONS', () => {
     const user = await createUser({
       firstName: 'user',
       lastName: 'hamza',
-      username: 'userghjkl',
+      username: 'usehjkl',
       password: '12345678',
       email: 'proftg@gmail.com',
     });
@@ -141,7 +141,7 @@ describe('USER NOTIFICATIONS', () => {
     const user = await createUser({
       firstName: 'vincent',
       lastName: 'hamza',
-      username: 'kevghjkl',
+      username: 'kevghl',
       password: '12345678',
       email: 'profgrtg@gmail.com',
     });
@@ -159,7 +159,7 @@ describe('USER NOTIFICATIONS', () => {
     const user = await db.User.create({
       firstName: 'vincent',
       lastName: 'hamza',
-      username: 'kevghjkl',
+      username: 'vghjkl',
       password: '12345678',
       email: 'profgrtg@gmail.com',
       inAppNotify: false,

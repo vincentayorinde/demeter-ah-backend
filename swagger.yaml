@@ -571,7 +571,7 @@ definitions:
       image:
         type: "string"
         example: "Larry"
-      userId:
+      authorId:
         type: "string"
         example: "Baston"
       slug:

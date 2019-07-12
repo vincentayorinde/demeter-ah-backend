@@ -18,7 +18,7 @@ describe('USER PROFILE', () => {
     profile = {
       firstName: 'vincent',
       lastName: 'hamza',
-      username: 'kev',
+      username: 'wkev',
       password: '12345678',
       email: 'pro@gmail.com'
     };
