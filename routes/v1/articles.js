@@ -41,4 +41,10 @@ router.delete(
 
 router.post('/vote/:slug', Middleware.authenticate, Middleware.isblackListedToken, Article.voteArticle);
 
+router.get(
+  '/rate/:slug',
+  Validation.articleSlug,
+  Article.getArticleRatings,
+);
+
 export default router;

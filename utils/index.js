@@ -133,3 +133,27 @@ export const getMembers = async (user, follow, id) => {
   });
   return result;
 };
+
+export const findRatedArticle = async ratingParams => db.Article.findOne(ratingParams);
+
+export const avgRating = async (articleId) => {
+  let avg = await (db.Ratings.findOne({
+    where: { articleId },
+    attributes: [[db.sequelize.fn('AVG',
+      db.sequelize.col('stars')), 'avgRating']],
+    group: ['articleId'],
+    order: [[db.sequelize.fn('AVG', db.sequelize.col('stars')), 'DESC']]
+  }));
+  avg = parseFloat(avg.dataValues.avgRating).toFixed(2);
+  return avg;
+};
+
+export const storeRating = async (foundArticleId) => {
+  const articleAvg = await avgRating(foundArticleId);
+  const getArticle = await db.Article.findOne({
+    where: { id: foundArticleId },
+  });
+  getArticle.update({
+    rating: parseFloat(articleAvg).toFixed(2)
+  });
+};

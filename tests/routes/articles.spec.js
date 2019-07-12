@@ -509,4 +509,32 @@ describe('ARTICLES TEST', () => {
       expect(res.body.error).to.equal('This article does not exist');
     });
   });
+  describe('Get Article Ratings', () => {
+    let articleData;
+    beforeEach(async () => {
+      const user = await createUser(register);
+      articleData = await createArticle({ ...article, authorId: user.id });
+    });
+    it('should get a specific article ratings', async () => {
+      const res = await chai
+        .request(app)
+        .get(`/api/v1/articles/rate/${articleData.slug}`)
+        .send();
+      expect(res.statusCode).to.equal(200);
+      expect(res.body).to.be.an('object');
+      expect(res.body).to.include.all.keys('message', 'totalRates', 'rates');
+      expect(res.body.message).to.equal('All ratings for Article');
+      expect(res.body.totalRates).to.be.a('number');
+      expect(res.body.rates).to.be.an('array');
+    });
+    it('should not get a specific article ratings if article does not exists', async () => {
+      const res = await chai
+        .request(app)
+        .get('/api/v1/articles/rate/wrong-slug')
+        .send();
+      expect(res.statusCode).to.equal(404);
+      expect(res.body).to.be.an('object');
+      expect(res.body.message).to.equal('Article does not exist');
+    });
+  });
 });
