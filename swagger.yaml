@@ -455,6 +455,8 @@ definitions:
         type: string
       images:
         type: string
+      tags:
+        type: string (should be comma separated strings)
     xml:
       name: NewArticle
   ratings:

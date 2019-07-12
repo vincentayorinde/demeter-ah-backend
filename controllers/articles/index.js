@@ -11,6 +11,14 @@ export default {
           model: db.User,
           as: 'author',
           attributes: ['username', 'bio', 'image']
+        }, {
+          model: db.ArticleTag,
+          as: 'articleTag',
+          include: [{
+            model: db.Tag,
+            as: 'tag',
+            attributes: ['name']
+          }]
         }]
       });
 
@@ -34,14 +42,18 @@ export default {
 
   createArticle: async (req, res) => {
     try {
-      const data = req.body;
-      const { user } = req;
-
+      const {
+        user, body: {
+          description, body, title, tags
+        }
+      } = req;
+      const tagDetails = tags ? tags.split(',') : null;
+      const tagList = [];
       let article = await user.createArticle(
         {
-          description: data.description,
-          body: data.body,
-          title: data.title
+          description,
+          body,
+          title
         }
       );
 
@@ -49,12 +61,35 @@ export default {
         const image = await uploadImage(req.files.image, article.slug);
         article = await article.update({ image });
       }
+      if (tagDetails) {
+        tagDetails.forEach(async (tag) => {
+          tag = tag.trim().toLowerCase();
+          const tagResponse = await db.Tag.findOne({
+            where: {
+              name: tag
+            }
+          });
+
+          if (!tagResponse) {
+            const newTag = await db.Tag.create({
+              name: tag
+            });
+            tagList.push(newTag.name);
+            await db.ArticleTag.create({ tagId: newTag.id, articleId: article.id });
+          } else {
+            await db.ArticleTag.create({ tagId: tagResponse.id, articleId: article.id });
+            tagList.push(tagResponse.name);
+          }
+        });
+      }
 
       article.setDataValue('author', {
         username: user.username,
         bio: user.bio,
-        image: user.image
+        image: user.image,
       });
+
+      article.setDataValue('tagList', tagList);
 
       await Notification.articleNotification({
         userId: req.user.id,
