@@ -114,3 +114,22 @@ export const createUser = async (user) => {
 export const randomString = () => crypto.randomBytes(11).toString('hex');
 
 export const hashPassword = password => bcrypt.hash(password, 10);
+
+export const getMembers = async (user, follow, id) => {
+  const result = await db.User.findOne({
+    where: {
+      id,
+    },
+    attributes: ['id', 'username', 'email', 'firstName', 'lastName', 'image'],
+    include: [{
+      model: db.MemberShip,
+      as: user,
+      include: [{
+        model: db.User,
+        as: follow,
+        attributes: ['id', 'username', 'email', 'firstName', 'lastName', 'image']
+      }]
+    }]
+  });
+  return result;
+};

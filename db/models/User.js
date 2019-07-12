@@ -77,6 +77,18 @@ module.exports = (sequelize, DataTypes) => {
       as: 'notifications',
       cascade: true,
     });
+
+    User.hasMany(models.MemberShip, {
+      foreignKey: 'followerId',
+      as: 'following',
+      cascade: true,
+    });
+
+    User.hasMany(models.MemberShip, {
+      foreignKey: 'followId',
+      as: 'followers',
+      cascade: true,
+    });
   };
 
   User.prototype.passwordsMatch = function match(password) {
