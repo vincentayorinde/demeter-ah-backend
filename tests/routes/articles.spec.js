@@ -36,6 +36,8 @@ describe('ARTICLES TEST', () => {
     };
     await db.Article.destroy({ truncate: true, cascade: true });
     await db.User.destroy({ truncate: true, cascade: true });
+    await db.ArticleTag.destroy({ truncate: true, cascade: true });
+    await db.Tag.destroy({ truncate: true, cascade: true });
   });
 
   after(async () => {
@@ -43,6 +45,8 @@ describe('ARTICLES TEST', () => {
     await db.Article.destroy({ truncate: true, cascade: true });
     await db.User.destroy({ truncate: true, cascade: true });
     await db.Ratings.destroy({ truncate: true, cascade: true });
+    await db.ArticleTag.destroy({ truncate: true, cascade: true });
+    await db.Tag.destroy({ truncate: true, cascade: true });
   });
 
   describe('Create articles', () => {
@@ -62,6 +66,7 @@ describe('ARTICLES TEST', () => {
         .field('title', 'React course by hamza')
         .field('description', 'very good book')
         .field('body', 'learning react is good for your career...')
+        .field('tags', 'Javascript')
         .attach('image', `${__dirname}/test.jpg`)
         .set('x-access-token', token);
       expect(res.statusCode).to.equal(201);
@@ -73,6 +78,9 @@ describe('ARTICLES TEST', () => {
       expect(res.body.article.title).to.include(article.title);
       expect(res.body.article.description).to.include(article.description);
       expect(res.body.article.body).to.include(article.body);
+      expect(res.body.article.tagList).to.be.an('array');
+      expect(res.body.article.tagList).to.have.length(1);
+      expect(res.body.article.tagList[0]).to.equal('javascript');
     });
     it('should not create an article if info is not complete', async () => {
       const user = await createUser(register);
