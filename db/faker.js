@@ -1,3 +1,4 @@
+const readingTime = require('read-time');
 const faker = require('faker');
 
 const getFakeArticle = id => ({
@@ -7,6 +8,7 @@ const getFakeArticle = id => ({
   authorId: id,
   createdAt: new Date(),
   updatedAt: new Date(),
+  readTime: readingTime(faker.random.word('string')).text
 });
 
 const createFakeArticles = (id) => {
@@ -19,26 +21,42 @@ const createFakeArticles = (id) => {
 };
 
 const getFakeUser = () => ({
-  email: 'sampoli@gmail.com',
+  email: faker.internet.email(),
   bio: faker.random.word('string'),
-  firstName: faker.random.words(4),
-  lastName: faker.random.words(4),
+  firstName: faker.name.firstName(),
+  lastName: faker.name.lastName(),
   username: faker.random.words(4),
   password: faker.random.words(10),
+  image: faker.image.imageUrl(),
+  role: 'author'
 });
 
-const createFakeUser = () => {
-  const Articles = [];
+const getFakeAdmin = () => ({
+  email: 'admin@haven.com',
+  bio: faker.random.word('string'),
+  firstName: faker.name.firstName(),
+  lastName: faker.name.lastName(),
+  username: faker.random.words(4),
+  password: 'password',
+  image: faker.image.imageUrl(),
+  role: 'admin',
+});
+
+const createFakeUsers = () => {
+  const Users = [];
+  Users.push({ ...getFakeUser(), email: 'sampoli@gmail.com' }, getFakeAdmin());
+
   // eslint-disable-next-line no-plusplus
   for (let i = 0; i < 40; i++) {
-    Articles.push(getFakeUser());
+    Users.push(getFakeUser());
   }
-  return Articles;
+  return Users;
 };
 
 module.exports = {
   getFakeArticle,
   createFakeArticles,
   getFakeUser,
-  createFakeUser,
+  createFakeUsers,
+  getFakeAdmin
 };

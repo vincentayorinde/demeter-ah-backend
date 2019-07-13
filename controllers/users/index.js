@@ -251,5 +251,28 @@ export default {
     return res.status(404).send({
       error: 'Notification not Found'
     });
+  },
+
+  getUsers: async (req, res) => {
+    try {
+      const { query } = req;
+      const limit = query.limit || 20;
+      const offset = query.offset ? (query.offset * limit) : 0;
+
+      const users = await db.User.findAndCountAll({
+        offset,
+        limit,
+        attributes: ['username', 'firstName', 'lastName', 'image']
+      });
+      return res.status(200).json({
+        users: users.rows,
+        usersCount: users.count
+      });
+    } catch (e) {
+      return res.status(500).json({
+        message: 'Something went wrong',
+        error: e.message,
+      });
+    }
   }
 };

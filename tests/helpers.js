@@ -1,6 +1,7 @@
 /* eslint-disable require-jsdoc */
 import readingTime from 'read-time';
 import { db } from '../server';
+import { createFakeUsers } from '../db/faker';
 
 
 /**
@@ -32,7 +33,7 @@ export class Response {
 
 export const createUser = async (user) => {
   const {
-    firstName, lastName, username, email, password
+    firstName, lastName, username, email, password, image, role
   } = user;
 
   const newUser = await db.User.create({
@@ -41,6 +42,8 @@ export const createUser = async (user) => {
     username,
     email,
     password,
+    role,
+    image
   });
 
   return newUser;
@@ -54,3 +57,10 @@ export const createArticle = async article => db.Article.create({
 export const createRate = async rating => db.Ratings.create(rating);
 
 export const createArticleVote = async vote => db.ArticleVote.create(vote);
+
+export const createTestFakeUsers = () => {
+  const users = createFakeUsers();
+  users.forEach(async (user) => {
+    await createUser(user);
+  });
+};

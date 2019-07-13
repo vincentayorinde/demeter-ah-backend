@@ -3,7 +3,7 @@ import chaiHttp from 'chai-http';
 import sinon from 'sinon';
 import { transporter } from '../../utils/mailer';
 import { app, db } from '../../server';
-import { createUser } from '../helpers';
+import { createUser, createTestFakeUsers } from '../helpers';
 import * as utils from '../../utils';
 
 let mockUploadImage;
@@ -23,6 +23,7 @@ describe('USER AUTHENTICATION', () => {
       username: 'kev',
       password: '12345678',
       email: 'frank@gmail.com',
+      role: 'admin'
     };
 
     user = await createUser(register);
@@ -371,6 +372,35 @@ describe('USER AUTHENTICATION', () => {
         .get('/api/v1/users/home')
         .send();
       expect(res).to.have.status(200);
+    });
+  });
+
+  describe('Get all Users', () => {
+    before(async () => {
+      await createTestFakeUsers();
+    });
+    it('should get all first 20 users', async () => {
+      const { token } = user.response();
+      const res = await chai
+        .request(app)
+        .get('/api/v1/users')
+        .set('x-access-token', token);
+      expect(res.status).to.equal(200);
+      expect(res.body).to.be.an('object');
+      expect(res.body.users).to.be.an('array');
+      expect(res.body.users).to.have.length(20);
+    });
+
+    it('should get all second 10 users', async () => {
+      const { token } = user.response();
+      const res = await chai
+        .request(app)
+        .get('/api/v1/users?limit=10&offset=1')
+        .set('x-access-token', token);
+      expect(res.status).to.equal(200);
+      expect(res.body).to.be.an('object');
+      expect(res.body.users).to.be.an('array');
+      expect(res.body.users).to.have.length(10);
     });
   });
 });
