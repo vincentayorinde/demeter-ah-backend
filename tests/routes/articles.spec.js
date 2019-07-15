@@ -16,6 +16,7 @@ let article = {};
 let register;
 let mockUploadImage;
 let mockDeleteImage;
+let ratingUser;
 
 describe('ARTICLES TEST', () => {
   before(async () => {
@@ -561,6 +562,7 @@ describe('ARTICLES TEST', () => {
     let articleData;
     beforeEach(async () => {
       const user = await createUser(register);
+      ratingUser = user;
       articleData = await createArticle({ ...article, authorId: user.id });
     });
     it('should get a specific article ratings', async () => {
@@ -575,6 +577,26 @@ describe('ARTICLES TEST', () => {
       expect(res.body.totalRates).to.be.a('number');
       expect(res.body.rates).to.be.an('array');
     });
+
+    it('should get a specific article ratings ', async () => {
+      await createRate({
+        articleId: articleData.id,
+        userId: ratingUser.id,
+        stars: 3
+      });
+      const res = await chai
+        .request(app)
+        .get(`/api/v1/articles/rate/${articleData.slug}?offset=0&limit=5`)
+        .send();
+      expect(res.statusCode).to.equal(200);
+      expect(res.body).to.be.an('object');
+      expect(res.body).to.include.all.keys('message', 'totalRates', 'rates', 'count');
+      expect(res.body.message).to.equal('All ratings for Article');
+      expect(res.body.totalRates).to.be.a('number');
+      expect(res.body.count).to.be.a('number');
+      expect(res.body.rates).to.be.an('array');
+    });
+
     it('should not get a specific article ratings if article does not exists', async () => {
       const res = await chai
         .request(app)
