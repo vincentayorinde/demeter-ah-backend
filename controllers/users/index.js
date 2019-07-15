@@ -25,8 +25,6 @@ export default {
       });
     } catch (e) {
       /* istanbul ignore next */
-      console.log(e);
-      /* istanbul ignore next */
       return res.status(500).json({
         message: 'Something went wrong'
       });
@@ -82,8 +80,6 @@ export default {
         user: user.response()
       });
     } catch (e) {
-      /* istanbul ignore next */
-      console.log(e);
       /* istanbul ignore next */
       return res.status(500).json({
         message: 'Something went wrong'

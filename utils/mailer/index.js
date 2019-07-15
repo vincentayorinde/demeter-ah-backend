@@ -23,8 +23,6 @@ export const sendMail = async ({ email, subject, content }) => {
     await transporter.sendMail(data);
   } catch (e) {
     /* istanbul ignore next */
-    console.log('error', e.message);
-    /* istanbul ignore next */
     throw new Error('mail not sent', e);
   }
 };

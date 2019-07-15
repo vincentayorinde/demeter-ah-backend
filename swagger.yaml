@@ -181,6 +181,27 @@ paths:
           description: Article rated successfully
         '400':
           description: "Invalid rating supplied"
+    get:
+      tags:
+        - Articles
+      summary: get all specific article ratings
+      operationId: getArticleRatings
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: "slug"
+          in: "path"
+          description: An article slug to be rated by a user
+          required: true
+          type: string
+      responses:
+        '200':
+          description: All ratings for Article
+        '404':
+          description: "Article does not exist"
   /articles/{slug}:
     get:
       tags:

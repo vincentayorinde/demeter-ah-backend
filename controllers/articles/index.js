@@ -1,4 +1,6 @@
-import { uploadImage, deleteImage } from '../../utils';
+import {
+  uploadImage, deleteImage, findRatedArticle, storeRating
+} from '../../utils';
 import db from '../../db/models';
 import Notification from '../../utils/notifications';
 
@@ -27,7 +29,6 @@ export default {
           message: 'Article not found',
         });
       }
-
       return res.status(200).json({
         article
       });
@@ -180,13 +181,15 @@ export default {
           stars: rate
         });
         return res.status(200).json({
-          message: 'Rating updated successfully'
+          message: 'Rating updated successfully',
+          rating: checkRating
         });
       }
       const rating = await user.createRate({
         articleId: foundArticle.id,
         stars: rate
       });
+      await storeRating(foundArticle.id);
       return res.status(201).json({
         message: 'Article rated successfully',
         rating,
@@ -302,4 +305,43 @@ export default {
       });
     }
   },
+  getArticleRatings: async (req, res) => {
+    try {
+      const foundArticle = await findRatedArticle({
+        where: { slug: req.params.slug }
+      });
+      if (!foundArticle) {
+        return res.status(404).json({
+          message: 'Article does not exist'
+        });
+      }
+      const fetchRating = await db.Ratings.findAll({
+        where: {
+          articleId: foundArticle.id,
+        },
+        attributes: { exclude: ['userId'] },
+        include: [{
+          model: db.User,
+          as: 'user',
+          attributes: ['id', 'username', 'image', 'firstName', 'lastName']
+        },
+        {
+          model: db.Article,
+          as: 'article',
+          attributes: ['rating']
+        }],
+      });
+      return res.status(200).json({
+        message: 'All ratings for Article',
+        totalRates: fetchRating.length,
+        rates: fetchRating
+      });
+    } catch (e) {
+      /* istanbul ignore next */
+      return res.status(500).json({
+        message: 'Something went wrong',
+        error: e.message
+      });
+    }
+  }
 };
