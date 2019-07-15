@@ -20,6 +20,11 @@ router.post(
   Article.rateArticle,
 );
 router.get(
+  '/',
+  Validation.getArticles,
+  Article.getArticles,
+);
+router.get(
   '/:slug',
   Validation.articleSlug,
   Article.getArticle,

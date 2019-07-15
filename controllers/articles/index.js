@@ -5,6 +5,40 @@ import db from '../../db/models';
 import Notification from '../../utils/notifications';
 
 export default {
+  getArticles: async (req, res) => {
+    try {
+      const { query } = req;
+      const queryParams = {};
+      if (query.author) queryParams.author = query.author;
+
+      const offset = query.offset ? (query.offset * query.limit) : 0;
+      const limit = query.limit || 20;
+
+      const articles = await db.Article.findAndCountAll(
+        {
+          offset,
+          limit,
+          where: queryParams,
+          include: [{
+            model: db.User,
+            as: 'author',
+            attributes: ['username', 'bio', 'image']
+          }]
+        }
+      );
+      return res.status(200).json({
+        articles: articles.rows,
+        articlesCount: articles.count,
+      });
+    } catch (e) {
+      /* istanbul ignore next */
+      return res.status(500).json({
+        message: 'Something went wrong',
+        error: e.message,
+      });
+    }
+  },
+
   getArticle: async (req, res) => {
     try {
       const article = await db.Article.findOne({

@@ -311,6 +311,33 @@ describe('ARTICLES TEST', () => {
     });
   });
 
+  describe('Get All articles', () => {
+    it('Anyone should be able to view all article', async () => {
+      const newUser = await createUser(register);
+      await createArticle({ ...article, authorId: newUser.id });
+      const res = await chai
+        .request(app)
+        .get('/api/v1/articles');
+      expect(res.statusCode).to.equal(200);
+      expect(res.body).to.be.an('object');
+      expect(res.body).to.include.all.keys('articles', 'articlesCount');
+      expect(res.body.articles).to.be.an('array');
+      expect(res.body.articles.length).to.equal(1);
+      expect(res.body.articlesCount).to.equal(1);
+    });
+    it('should not get any articles if none exist', async () => {
+      const res = await chai
+        .request(app)
+        .get('/api/v1/articles');
+      expect(res.statusCode).to.equal(200);
+      expect(res.body).to.be.an('object');
+      expect(res.body).to.include.all.keys('articles', 'articlesCount');
+      expect(res.body.articles).to.be.an('array');
+      expect(res.body.articles.length).to.equal(0);
+      expect(res.body.articlesCount).to.equal(0);
+    });
+  });
+
   describe('Get Single article', () => {
     it('Anyone should be able to view an article', async () => {
       const newUser = await createUser(register);
