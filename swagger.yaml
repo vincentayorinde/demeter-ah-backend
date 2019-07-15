@@ -127,6 +127,41 @@ paths:
       responses:
         '200':
           description: Password has successfully been changed.
+  /role/{username}:
+    patch:
+      tags:
+        - Users
+      summary: Change user role 
+      operationId: changeRole
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+      - name: username
+        in: path
+        description: admin can change user role
+        required: true
+        type: string
+      - name: x-access-token
+        in: header
+        description: Authorization token
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: Role to give to user
+        required: true
+        schema:
+          $ref: '#/definitions/changeRole'
+      responses:
+        '200':
+          description: User role updated successfully
+        '400':
+          description: Unauthorized
+        '404':
+          description: User does not exist
   /articles:
     post:
       tags:
@@ -611,3 +646,13 @@ definitions:
         example: "2019-07-05T12:23:45.130Z"      
     xml:
       name: "getSingleArticle"
+  changeRole:
+    type: object
+    required:
+      - rate
+    properties:
+      rate:
+        type: string
+        example: admin
+    xml:
+      name: changeRole

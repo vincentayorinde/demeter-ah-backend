@@ -30,6 +30,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         default: false,
       },
+      role: {
+        type: DataTypes.ENUM,
+        default: 'author',
+        values: ['author', 'admin']
+      }
     },
     {
       hooks: {

@@ -121,4 +121,39 @@ describe('Middlewares', () => {
       expect(response.message).to.include('jwt must be provided');
     });
   });
+
+  describe('Role Middleware', () => {
+    it('should call next if its admin', (done) => {
+      const user = {
+        role: 'admin',
+      };
+
+      const req = {
+        user,
+      };
+
+      const nextSpy = sinon.spy();
+      Middleware.isAdmin(req, {}, nextSpy).then(() => {
+        // eslint-disable-next-line no-unused-expressions
+        expect(nextSpy.calledOnce).to.be.true;
+      });
+      done();
+    });
+
+    it('should return unauthorized if user is not admin', async () => {
+      const user = {
+        role: 'author',
+      };
+
+      const req = {
+        user,
+      };
+
+      const res = new Response();
+
+      const nextSpy = sinon.spy();
+      const resp = await Middleware.isAdmin(req, res, nextSpy);
+      expect(resp.error).to.include('Unauthorized');
+    });
+  });
 });

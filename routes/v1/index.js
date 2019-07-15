@@ -4,6 +4,7 @@ import article from './articles';
 import profiles from './profiles';
 import notification from './notifications';
 import members from './members';
+import role from './role';
 
 const router = express.Router();
 
@@ -15,5 +16,6 @@ router.use('/error', (req, res) => res.status(500).send({
 router.use('/articles', article);
 router.use('/notifications', notification);
 router.use('/members', members);
+router.use('/role', role);
 
 export default router;

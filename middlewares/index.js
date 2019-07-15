@@ -77,6 +77,25 @@ class Middleware {
     }
     next();
   }
+
+  /**
+      * checks blacked listed tokens.
+      * @param {request} req .
+      * @param {response} res The second number.
+      * @param {next} next The second number.
+      * @returns {void} calls next on success.
+      * @returns {errror} return error on failure to validate.
+      */
+  static async isAdmin(req, res, next) {
+    const { role } = req.user;
+
+    if (role !== 'admin') {
+      return res.status(401).send({
+        error: 'Unauthorized',
+      });
+    }
+    next();
+  }
 }
 
 export default Middleware;
