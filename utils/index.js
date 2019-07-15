@@ -76,7 +76,8 @@ export const messages = {
   integer: '{{ feild }} must be an integer',
   alpha: 'Only letters allowed as {{ field }}',
   alphaNumeric: 'Only letters and numbers are allowed as {{ field }}',
-  range: 'Only ratings from 1 to 5 are allowed'
+  range: 'Only ratings from 1 to 5 are allowed',
+  in: 'Wrong user role provided',
 };
 
 export const sanitizeRules = {
