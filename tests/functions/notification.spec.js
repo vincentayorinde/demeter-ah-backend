@@ -1,7 +1,7 @@
 import chai from 'chai';
 import sinon from 'sinon';
 import db from '../../db/models';
-import { createUser } from '../helpers';
+import { createUser, createArticle } from '../helpers';
 import { transporter } from '../../utils/mailer';
 import Notifications from '../../utils/notifications';
 
@@ -34,7 +34,8 @@ describe('Notification functions', () => {
       username: 'fantastic-genius',
       password: 'password'
     });
-    hamzaArticle = await hamza.createArticle({
+    hamzaArticle = await createArticle({
+      authorId: hamza.id,
       title: 'learn nodeJs',
       description: 'everybody loves nodeJs',
       body: 'people love nodeJs because it is cool'

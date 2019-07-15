@@ -79,7 +79,7 @@ export default {
     try {
       const {
         user, body: {
-          description, body, title, tags
+          description, body, title, tags, readTime
         }
       } = req;
       const tagDetails = tags ? tags.split(',') : null;
@@ -88,7 +88,8 @@ export default {
         {
           description,
           body,
-          title
+          title,
+          readTime
         }
       );
 
@@ -149,7 +150,6 @@ export default {
     try {
       const data = { ...req.body, ...req.params };
       const { user } = req;
-
       const foundArticle = await db.Article.findOne({
         where: { slug: data.slug },
         include: [{
@@ -179,6 +179,7 @@ export default {
         body: data.body || foundArticle.body,
         title: data.title || foundArticle.title,
         image: data.image || foundArticle.image,
+        readTime: data.readTime || foundArticle.readTime,
       });
 
       return res.status(200).json({

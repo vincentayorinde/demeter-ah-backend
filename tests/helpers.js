@@ -1,4 +1,5 @@
 /* eslint-disable require-jsdoc */
+import readingTime from 'read-time';
 import { db } from '../server';
 
 
@@ -45,7 +46,10 @@ export const createUser = async (user) => {
   return newUser;
 };
 
-export const createArticle = async article => db.Article.create(article);
+export const createArticle = async article => db.Article.create({
+  ...article,
+  readTime: readingTime(article.body).text
+});
 
 export const createRate = async rating => db.Ratings.create(rating);
 
