@@ -92,5 +92,22 @@ export default {
         message: e,
       });
     }
+  },
+
+  addComment: async (req, res, next) => {
+    const rules = {
+      content: 'required|string'
+    };
+
+    const data = req.body;
+
+    try {
+      await validatorInstance.validateAll(data, rules, messages);
+      next();
+    } catch (e) {
+      return res.status(400).json({
+        message: e,
+      });
+    }
   }
 };

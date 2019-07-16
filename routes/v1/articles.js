@@ -2,6 +2,7 @@ import express from 'express';
 import Validation from '../../validators/articles';
 import Article from '../../controllers/articles';
 import Middleware from '../../middlewares';
+import Comment from '../../controllers/comments';
 
 const router = express.Router();
 
@@ -54,4 +55,12 @@ router.get(
   Article.getArticleRatings,
 );
 
+router.post(
+  '/:slug/comments',
+  Middleware.authenticate,
+  Middleware.isblackListedToken,
+  Validation.articleSlug,
+  Validation.addComment,
+  Comment.addComment
+);
 export default router;

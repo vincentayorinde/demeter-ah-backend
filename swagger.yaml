@@ -343,6 +343,39 @@ paths:
           description: Pass in the appropriate status (true or false)
         404:
           description: This article does not exist
+  /articles/{slug}/comments:
+    post:
+      tags:
+        - "Articles"
+      summary: Comment on an article
+      description: authenticated user should be able to comment on an article
+      operationId: addComment
+      produces:
+        - application/json
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of article to comment on
+          required: true
+          type: string
+        - name: x-access-token
+          in: header
+          description: Authorization token
+          required: true
+          type: string
+        - in: body
+          name: content
+          description: user comment to be added
+          required: true
+          schema:
+            $ref: '#/definitions/addComment'
+      responses:
+        201:
+          description: Comment added successfully
+        400:
+          description: Input your content
+        404:
+          description: Article does not exist
   /profiles/{username}:
     get:
       tags:
@@ -656,3 +689,13 @@ definitions:
         example: admin
     xml:
       name: changeRole
+  addComment:
+    type: object
+    required:
+      - content
+    properties:
+      content:
+        type: string
+        example: sample user comment
+    xml:
+      name: addComment
