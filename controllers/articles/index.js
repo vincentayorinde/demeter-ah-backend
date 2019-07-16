@@ -341,6 +341,10 @@ export default {
     }
   },
   getArticleRatings: async (req, res) => {
+    const { query } = req;
+    const offset = query.offset ? (query.offset * query.limit) : 0;
+    const limit = query.limit || 20;
+
     try {
       const foundArticle = await findRatedArticle({
         where: { slug: req.params.slug }
@@ -350,7 +354,9 @@ export default {
           message: 'Article does not exist'
         });
       }
-      const fetchRating = await db.Ratings.findAll({
+      const fetchRating = await db.Ratings.findAndCountAll({
+        offset,
+        limit,
         where: {
           articleId: foundArticle.id,
         },
@@ -368,8 +374,9 @@ export default {
       });
       return res.status(200).json({
         message: 'All ratings for Article',
-        totalRates: fetchRating.length,
-        rates: fetchRating
+        totalRates: fetchRating.rows.length,
+        rates: fetchRating.rows,
+        count: fetchRating.count
       });
     } catch (e) {
       /* istanbul ignore next */
