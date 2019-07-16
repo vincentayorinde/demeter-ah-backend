@@ -94,6 +94,12 @@ module.exports = (sequelize, DataTypes) => {
       as: 'followers',
       cascade: true,
     });
+
+    User.hasMany(models.Comment, {
+      foreignKey: 'userId',
+      as: 'comment',
+      cascade: true,
+    });
   };
 
   User.prototype.passwordsMatch = function match(password) {

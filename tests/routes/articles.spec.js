@@ -585,4 +585,62 @@ describe('ARTICLES TEST', () => {
       expect(res.body.message).to.equal('Article does not exist');
     });
   });
+  describe('Comment on Articles', () => {
+    let userResponse;
+    let articleData;
+    let userToken;
+    beforeEach(async () => {
+      const user = await createUser(register);
+      userResponse = user.response();
+      const { token } = userResponse;
+      userToken = token;
+      articleData = await createArticle({ ...article, authorId: userResponse.id });
+    });
+    it('should add a comment if user is authenticated', async () => {
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/${articleData.slug}/comments`)
+        .set('x-access-token', userToken)
+        .send({ content: 'This is my first comment' });
+      expect(res.statusCode).to.equal(201);
+      expect(res.body).to.be.an('object');
+      expect(res.body.message).to.be.equal('Comment added successfully');
+      expect(res.body.comment).to.be.an('object');
+      expect(res.body.comment.content).to.be.a('string');
+    });
+
+    it('should not add a comment if user is not authenticated', async () => {
+      const token = await utils.getToken(45345, 'wrong@gmail.com');
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/${articleData.slug}/comments`)
+        .set('x-access-token', token)
+        .send({ content: 'This is my first comment' });
+      expect(res.statusCode).to.equal(401);
+      expect(res.body).to.be.an('object');
+      expect(res.body.message).to.be.equal('Unauthorized');
+    });
+
+    it('should not add a comment if article does not exist', async () => {
+      const res = await chai
+        .request(app)
+        .post('/api/v1/articles/wrong-article/comments')
+        .set('x-access-token', userToken)
+        .send({ content: 'This is my first comment' });
+      expect(res.statusCode).to.equal(404);
+      expect(res.body).to.be.an('object');
+      expect(res.body.error).to.be.equal('Article does not exist');
+    });
+
+    it('should not add a comment if comment is empty', async () => {
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/${articleData.slug}/comments`)
+        .set('x-access-token', userToken)
+        .send({ content: '' });
+      expect(res.statusCode).to.equal(400);
+      expect(res.body).to.be.an('object');
+      expect(res.body.message[0].message).to.be.equal('Input your content');
+    });
+  });
 });
