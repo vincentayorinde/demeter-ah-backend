@@ -385,5 +385,48 @@ export default {
         error: e.message
       });
     }
+  },
+
+  bookmarkArticle: async (req, res) => {
+    const { params: { slug }, user } = req;
+    try {
+      const article = await db.Article.findOne({
+        where: { slug }
+      });
+      if (!article) {
+        return res.status(404).send({
+          error: 'Article does not exist'
+        });
+      }
+
+      const foundBookmark = await db.Bookmark.findOne({
+        where: {
+          articleId: article.id,
+          userId: user.id
+        }
+      });
+
+      if (foundBookmark) {
+        foundBookmark.destroy();
+        return res.status(200).send({
+          message: 'Bookmark successfully removed'
+        });
+      }
+
+      const bookmark = await db.Bookmark.create({
+        articleId: article.id,
+        userId: user.id
+      });
+
+      return res.status(201).send({
+        message: 'Bookmark created successfully',
+        bookmark
+      });
+    } catch (e) {
+      /* istanbul ignore next */
+      return res.status(500).send({
+        error: 'Something went wrong',
+      });
+    }
   }
 };

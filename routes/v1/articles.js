@@ -63,4 +63,12 @@ router.post(
   Validation.addComment,
   Comment.addComment
 );
+
+router.get(
+  '/bookmark/:slug',
+  Middleware.authenticate,
+  Middleware.isblackListedToken,
+  Validation.articleSlug,
+  Article.bookmarkArticle,
+);
 export default router;

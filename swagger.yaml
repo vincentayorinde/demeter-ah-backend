@@ -484,6 +484,35 @@ paths:
       responses:
         '200':
           description: update user email notify
+  /articles/bookmark/{slug}:
+    get:
+      tags:
+        - "Articles"
+      summary: Bookmark an Article
+      description: Bookmark an article
+      operationId: BookmarkArticle
+      produces:
+        - application/json
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of article to bookmark
+          required: true
+          type: string
+        - name: x-access-token
+          in: header
+          description: Authorization token
+          required: true
+          type: string
+      responses:
+        200:
+          description: Bookmark successfully removed
+        201:
+          description: Bookmark created successfully
+        400:
+          description: Input your content
+        404:
+          description: Article does not exist
 definitions:
   Notify:
     type: object
