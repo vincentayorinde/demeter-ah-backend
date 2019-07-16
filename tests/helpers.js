@@ -64,3 +64,6 @@ export const createTestFakeUsers = () => {
     await createUser(user);
   });
 };
+export const createTag = async tag => db.Tag.create(tag);
+
+export const createArticleTag = async tag => db.ArticleTag.create(tag);

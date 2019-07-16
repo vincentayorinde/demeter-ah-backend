@@ -27,6 +27,12 @@ module.exports = (sequelize, DataTypes) => {
       as: 'author',
     });
 
+    Article.belongsToMany(models.Tag, {
+      through: 'ArticleTag',
+      foreignKey: 'articleId',
+      as: 'tags'
+    });
+
     Article.hasMany(models.ArticleVote, {
       foreignKey: 'articleId',
       as: 'articleVote',
@@ -45,6 +51,5 @@ module.exports = (sequelize, DataTypes) => {
       cascade: true,
     });
   };
-
   return Article;
 };
