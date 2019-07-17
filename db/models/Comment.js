@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
   Comment.associate = (models) => {
     Comment.belongsTo(models.User, {
       foreignKey: 'userId',
-      as: 'user'
+      as: 'author'
     });
 
     Comment.belongsTo(models.Article, {
@@ -17,6 +17,17 @@ module.exports = (sequelize, DataTypes) => {
     Comment.hasMany(models.CommentHistory, {
       foreignKey: 'commentId',
       as: 'commentHistory',
+      cascade: true
+    });
+
+    Comment.hasMany(models.CommentVote, {
+      foreignKey: 'commentId',
+      as: 'upVote',
+      cascade: true
+    });
+    Comment.hasMany(models.CommentVote, {
+      foreignKey: 'commentId',
+      as: 'downVote',
       cascade: true
     });
   };
