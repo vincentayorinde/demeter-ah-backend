@@ -665,4 +665,44 @@ describe('ARTICLES TEST', () => {
       expect(res.body.message[0].message).to.be.equal('Input your content');
     });
   });
+
+  describe('Bookmark Articles', () => {
+    let userResponse;
+    let articleData;
+    let userToken;
+    let user;
+    beforeEach(async () => {
+      await db.Article.destroy({ truncate: true, cascade: true });
+      await db.User.destroy({ truncate: true, cascade: true });
+      await db.Bookmark.destroy({ truncate: true, cascade: true });
+      user = await createUser(register);
+      userResponse = user.response();
+      const { token } = userResponse;
+      userToken = token;
+      articleData = await createArticle({ ...article, authorId: userResponse.id });
+    });
+    it('a user should be able to bookmark an article', async () => {
+      const res = await chai
+        .request(app)
+        .get(`/api/v1/articles/bookmark/${articleData.slug}`)
+        .set('x-access-token', userToken);
+      expect(res.statusCode).to.equal(201);
+      expect(res.body.message).to.be.equal('Bookmark created successfully');
+      expect(res.body.bookmark.articleId).to.be.equal(articleData.id);
+      expect(res.body.bookmark.userId).to.be.equal(user.id);
+    });
+
+    it('a user should be able to remove an article that was bookmarked', async () => {
+      await db.Bookmark.create({
+        articleId: articleData.id,
+        userId: user.id
+      });
+      const res = await chai
+        .request(app)
+        .get(`/api/v1/articles/bookmark/${articleData.slug}`)
+        .set('x-access-token', userToken);
+      expect(res.statusCode).to.equal(200);
+      expect(res.body.message).to.be.equal('Bookmark successfully removed');
+    });
+  });
 });

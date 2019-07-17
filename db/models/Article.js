@@ -38,6 +38,12 @@ module.exports = (sequelize, DataTypes) => {
       as: 'articleTag',
       cascade: true
     });
+
+    Article.hasMany(models.Bookmark, {
+      foreignKey: 'articleId',
+      as: 'bookmarks',
+      cascade: true,
+    });
   };
 
   return Article;
