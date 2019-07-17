@@ -619,6 +619,24 @@ paths:
           description: Article not existing or comment not existing
         '400':
           description: Article slug must be string or comment Id must be integer
+  /articles/stats/{slug}:
+    patch:
+      tags:
+        - "Articles"
+      summary: Increase article reads
+      description: increase article reads
+      operationId: ArticleStats
+      produces:
+        - application/json
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of article to bookmark
+          required: true
+          type: string
+      responses:
+        200:
+          description: Article reads successfully Incremented
 definitions:
   Notify:
     type: object

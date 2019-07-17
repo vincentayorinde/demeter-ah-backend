@@ -869,4 +869,33 @@ describe('ARTICLES TEST', () => {
       expect(res.body.message[0].message).to.equal('commentId must be an integer');
     });
   });
+
+  describe('Update Article Stats', () => {
+    let newUser;
+    let newArticle;
+    beforeEach(async () => {
+      await db.Article.destroy({ truncate: true, cascade: true });
+      await db.User.destroy({ truncate: true, cascade: true });
+      newUser = await createUser(register);
+      newArticle = await createArticle({ ...article, authorId: newUser.id });
+    });
+
+    it('Increment Article reads after reading time elapses', async () => {
+      const { slug } = newArticle;
+      const res = await chai
+        .request(app)
+        .patch(`/api/v1/articles/stats/${slug}`).send();
+      expect(res.status).to.be.equal(200);
+      expect(res.body).to.be.an('object');
+      expect(res.body.message).to.include('Article reads successfully Incremented');
+    });
+
+    it('Should not increment article reads if article does not exist', async () => {
+      const res = await chai
+        .request(app)
+        .patch('/api/v1/articles/stats/dam-67').send();
+      expect(res.body).to.be.an('object');
+      expect(res.body.error).to.include('Article deos not exist');
+    });
+  });
 });
