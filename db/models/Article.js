@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       image: DataTypes.STRING,
       rating: DataTypes.FLOAT,
       readTime: DataTypes.STRING,
+      flagged: DataTypes.BOOLEAN,
     },
     {}
   );
@@ -54,6 +55,11 @@ module.exports = (sequelize, DataTypes) => {
     Article.hasMany(models.Comment, {
       foreignKey: 'articleId',
       as: 'comment',
+      cascade: true
+    });
+    Article.hasMany(models.Report, {
+      foreignKey: 'articleId',
+      as: 'reports',
       cascade: true
     });
   };

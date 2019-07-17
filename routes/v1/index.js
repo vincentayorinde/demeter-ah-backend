@@ -6,6 +6,7 @@ import notification from './notifications';
 import members from './members';
 import role from './role';
 import search from './search';
+import report from './reports';
 
 const router = express.Router();
 
@@ -19,5 +20,6 @@ router.use('/notifications', notification);
 router.use('/members', members);
 router.use('/role', role);
 router.use('/search', search);
+router.use('/report', report);
 
 export default router;

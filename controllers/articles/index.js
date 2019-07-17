@@ -424,5 +424,86 @@ export default {
         error: 'Something went wrong',
       });
     }
+  },
+
+  flagArticle: async (req, res) => {
+    const { params: { slug }, body: { flag } } = req;
+
+    const article = await db.Article.findOne({
+      where: { slug }
+    });
+    if (!article) {
+      return res.status(404).send({
+        message: 'Article does not exist'
+      });
+    }
+    const result = await article.update({
+      flagged: JSON.parse(flag)
+    });
+
+    return res.status(200).send({
+      article: result
+    });
+  },
+
+  showArticleReports: async (req, res) => {
+    const { params: { slug } } = req;
+
+    const article = await db.Article.findOne({
+      where: { slug },
+      include: [{
+        model: db.Report,
+        as: 'reports',
+        include: [{
+          model: db.User,
+          as: 'reporter',
+          attributes: ['id', 'firstName', 'lastName', 'email', 'image', 'username']
+        }]
+      }]
+    });
+
+    if (!article) {
+      return res.status(404).send({
+        message: 'Article does not exist'
+      });
+    }
+    return res.status(200).send({
+      article,
+    });
+  },
+
+  deleteReportedArticle: async (req, res) => {
+    const { params: { slug } } = req;
+
+    const article = await db.Article.findOne({
+      where: {
+        slug
+      }
+    });
+    if (!article) {
+      return res.status(404).send({
+        message: 'Article does not exist'
+      });
+    }
+    const reports = await db.Report.findAll({
+      where: {
+        articleId: article.id
+      }
+    });
+    if (!reports.length) {
+      return res.status(404).send({
+        message: 'sorry you can\'t delete an article that was not reported'
+      });
+    }
+
+    await deleteImage(article.slug);
+    await db.Article.destroy({
+      where: {
+        id: article.id,
+      }
+    });
+    return res.status(200).send({
+      message: 'deleted successfully',
+    });
   }
 };

@@ -91,4 +91,28 @@ router.get(
   Comment.getCommentHistory
 );
 
+router.patch(
+  '/flag/:slug',
+  Middleware.authenticate,
+  Middleware.isblackListedToken,
+  Middleware.isAdmin,
+  Validation.flagArticle,
+  Article.flagArticle
+);
+
+router.delete(
+  '/reported/:slug',
+  Middleware.authenticate,
+  Middleware.isblackListedToken,
+  Middleware.isAdmin,
+  Article.deleteReportedArticle
+);
+
+router.get(
+  '/reported/:slug',
+  Middleware.authenticate,
+  Middleware.isblackListedToken,
+  Middleware.isAdmin,
+  Article.showArticleReports
+);
 export default router;

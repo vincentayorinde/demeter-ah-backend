@@ -124,5 +124,37 @@ export default {
         message: e,
       });
     }
+  },
+  reportArticle: async (req, res, next) => {
+    const rules = {
+      message: 'required|string'
+    };
+
+    const data = req.body;
+
+    try {
+      await validatorInstance.validateAll(data, rules, messages);
+      next();
+    } catch (e) {
+      return res.status(400).json({
+        message: e,
+      });
+    }
+  },
+
+  flagArticle: async (req, res, next) => {
+    try {
+      JSON.parse(req.body.flag);
+      const rules = {
+        flag: 'required|boolean'
+      };
+      const data = req.body;
+      await validatorInstance.validateAll(data, rules, messages);
+      next();
+    } catch (e) {
+      return res.status(400).json({
+        error: 'flag must be true or false',
+      });
+    }
   }
 };
