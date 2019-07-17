@@ -1,4 +1,4 @@
-const { getFakeUser } = require('../faker');
+const { createFakeUsers } = require('../faker');
 
 module.exports = {
   up: async (queryInterface) => {
@@ -7,7 +7,7 @@ module.exports = {
         email: 'sampoli@gmail.com',
       },
     }, ['email']);
-    if (!user) queryInterface.bulkInsert('Users', [getFakeUser()], {});
+    if (!user) queryInterface.bulkInsert('Users', createFakeUsers(), {});
   },
 
   down: queryInterface => queryInterface.bulkDelete('Users', null, {})

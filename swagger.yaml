@@ -34,6 +34,22 @@ paths:
           description: User Successfully Updated
         '400':
           description: Error message
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      operationId: getAllUsers
+      produces:
+        - application/json
+      parameters:
+        - name: x-access-token
+          in: header
+          description: Authorization token
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successfully got all users data     
   /users/signup:
     post:
       tags:
