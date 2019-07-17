@@ -15,7 +15,7 @@ let register = {};
 let login = {};
 let user;
 describe('USER AUTHENTICATION', () => {
-  before(async () => {
+  beforeEach(async () => {
     mockTransporter = sinon.stub(transporter, 'sendMail').resolves({});
     register = {
       firstName: 'vincent',
@@ -27,16 +27,14 @@ describe('USER AUTHENTICATION', () => {
     };
 
     user = await createUser(register);
-  });
 
-  beforeEach(async () => {
     login = {
       password: '12345678',
       email: 'frank@gmail.com',
     };
   });
 
-  after(async () => {
+  afterEach(async () => {
     await db.User.destroy({ truncate: true, cascade: true });
     mockTransporter.restore();
   });
@@ -376,9 +374,10 @@ describe('USER AUTHENTICATION', () => {
   });
 
   describe('Get all Users', () => {
-    before(async () => {
+    beforeEach(async () => {
       await createTestFakeUsers();
     });
+
     it('should get all first 20 users', async () => {
       const { token } = user.response();
       const res = await chai
@@ -401,6 +400,171 @@ describe('USER AUTHENTICATION', () => {
       expect(res.body).to.be.an('object');
       expect(res.body.users).to.be.an('array');
       expect(res.body.users).to.have.length(10);
+    });
+  });
+
+  describe('Admin Create, Update and Delete User', () => {
+    let userToken;
+    beforeEach(async () => {
+      const { token } = user.response();
+      userToken = token;
+    });
+
+    describe('Admin create user', () => {
+      it('Should create a user by admin', async () => {
+        const res = await chai
+          .request(app)
+          .post('/api/v1/users')
+          .set('x-access-token', userToken)
+          .send({
+            ...register, email: 'newuser@havens.com', username: 'newuser'
+          });
+        expect(res.status).to.equal(201);
+        expect(res.body).to.be.an('object');
+        expect(res.body.user.firstName).to.include(register.firstName);
+        expect(res.body.user.lastName).to.include(register.lastName);
+        expect(res.body.user.username).to.include('newuser');
+        expect(res.body.user.email).to.include('newuser@havens.com');
+      });
+
+      it('Should not create a user with invalid data', async () => {
+        const res = await chai
+          .request(app)
+          .post('/api/v1/users')
+          .set('x-access-token', userToken)
+          .send({
+            ...register,
+            firstName: 9999,
+            email: 'frank.john',
+            username: 'jill'
+          });
+
+        expect(res.status).to.equal(400);
+        expect(res.body).to.be.an('object');
+        expect(res.body.message[0].message).to.equal(
+          'Only letters allowed as firstName'
+        );
+        expect(res.body.message[1].message).to.equal(
+          'The value provided is not an email'
+        );
+      });
+
+      it('Should not create a user with already existing email', async () => {
+        const res = await chai
+          .request(app)
+          .post('/api/v1/users')
+          .set('x-access-token', userToken)
+          .send({ ...register, username: 'lolu' });
+        expect(res.status).to.equal(400);
+        expect(res.body).to.be.an('object');
+        expect(res.body.message[0].message).to.equal('email already existed');
+      });
+
+      it('Should create user with already existing username', async () => {
+        const res = await chai
+          .request(app)
+          .post('/api/v1/users')
+          .set('x-access-token', userToken)
+          .send({ ...register, email: 'lolu@gmail.com' });
+        expect(res.status).to.equal(400);
+        expect(res.body).to.be.an('object');
+        expect(res.body.message[0].message).to.equal('username already existed');
+      });
+    });
+
+    describe('Admin update a user', () => {
+      afterEach(() => {
+        mockUploadImage.restore();
+      });
+
+      it('should update user profile image', async () => {
+        mockUploadImage = sinon.stub(utils, 'uploadImage')
+          .callsFake(() => new Promise(resolve => resolve('//temp/up.jpg')));
+        const { username } = user.response();
+
+        const res = await chai
+          .request(app)
+          .put(`/api/v1/users/${username}`)
+          .field('Content-Type', 'multipart/form-data')
+          .attach('image', `${__dirname}/test.jpg`)
+          .set('x-access-token', userToken);
+        expect(res.status).to.equal(200);
+        expect(res.body).to.be.an('object');
+        expect(res.body).to.include.key('user');
+        expect(res.body.user).to.be.an('object');
+        expect(res.body.user.image).to.include('//temp/up.jpg');
+      });
+
+      it('should update with previous data when no field is provided', async () => {
+        const { username } = user.response();
+
+        const res = await chai
+          .request(app)
+          .put(`/api/v1/users/${username}`)
+          .set('x-access-token', userToken)
+          .send({});
+        expect(res.status).to.equal(200);
+        expect(res.body).to.be.an('object');
+        expect(res.body).to.include.key('user');
+        expect(res.body.user).to.be.an('object');
+      });
+
+      it('Should update user profile by admin when new information is passed', async () => {
+        const { username } = user.response();
+
+        const res = await chai
+          .request(app)
+          .put(`/api/v1/users/${username}`)
+          .set('x-access-token', userToken)
+          .send({ username: 'john' });
+        expect(res.status).to.equal(200);
+        expect(res.body).to.be.an('object');
+        expect(res.body).to.include.key('user');
+        expect(res.body.user).to.be.an('object');
+        expect(res.body.user.username).to.include('john');
+      });
+
+      it('should not update user if not exist', async () => {
+        const { username } = user.response();
+
+        const res = await chai
+          .request(app)
+          .delete(`/api/v1/users/${username}-1234`)
+          .set('x-access-token', userToken)
+          .send({});
+        expect(res.status).to.equal(404);
+        expect(res.body).to.be.an('object');
+        expect(res.body).to.include.key('error');
+        expect(res.body.error).to.equal('User does not exist');
+      });
+    });
+
+    describe('Admin delete a user', () => {
+      it('should delete user if user exist', async () => {
+        const { username } = user.response();
+
+        const res = await chai
+          .request(app)
+          .delete(`/api/v1/users/${username}`)
+          .set('x-access-token', userToken);
+        expect(res.status).to.equal(200);
+        expect(res.body).to.be.an('object');
+        expect(res.body).to.include.key('message');
+        expect(res.body.message).to.equal('User profile deactivated successfully');
+      });
+
+      it('should not delete user if not exist', async () => {
+        const { username } = user.response();
+
+        const res = await chai
+          .request(app)
+          .delete(`/api/v1/users/${username}-1234`)
+          .set('x-access-token', userToken);
+        expect(res.status).to.equal(404);
+        expect(res.body).to.be.an('object');
+        expect(res.body).to.include.key('error');
+        expect(res.body.error).to.equal('User does not exist');
+      });
     });
   });
 });

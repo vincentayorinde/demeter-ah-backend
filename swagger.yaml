@@ -49,7 +49,32 @@ paths:
           type: string
       responses:
         '200':
-          description: Successfully got all users data     
+          description: Successfully got all users data  
+    post:
+      tags:
+        - "User"
+      summary: Super admin Create new user
+      description: Super admin Create new user
+      operationId: CreateUser
+      produces:
+        - application/json
+      parameters:
+        - name: x-access-token
+          in: header
+          description: Authorization token
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: User object that needs to be added to the app
+          required: true
+          schema:
+            $ref: '#/definitions/NewUser'
+      responses:
+        201:
+          description: User successfully created
+        400:
+          description: Username or Email already existed  
   /users/signup:
     post:
       tags:
@@ -658,11 +683,6 @@ paths:
           description: Id of comment to vote
           required: true
           type: integer
-        - name: x-access-token
-          in: header
-          description: Authorization token
-          required: true
-          type: string
         - name: "status"
           in: body
           description: A user vote status
@@ -678,6 +698,63 @@ paths:
           description: Pass in the appropriate status (true or false)
         404:
           description: This comment does not exist
+  /users/{username}:
+    put:
+      tags:
+        - "User"
+      summary: Super admin update a user
+      description: Super admin update a user
+      operationId: SuperAdminUpdateUser
+      produces:
+        - application/json
+      parameters:
+        - name: username
+          in: path
+          description: username of user to be updated
+          required: true
+          type: string
+        - name: x-access-token
+          in: header
+          description: Authorization token
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: User object that needs to be added to the app
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateProfile'
+      responses:
+        200:
+          description: User successfully updated
+        400:
+          description: Username or Email already existed 
+        404:
+          description: User does not exist 
+    delete:
+      tags:
+        - "User"
+      summary: Super admin delete a user
+      description: Super admin delete a user
+      operationId: DeleteUser
+      produces:
+        - application/json
+      parameters:
+        - name: username
+          in: path
+          description: username of user to be deleted
+          required: true
+          type: string
+        - name: x-access-token
+          in: header
+          description: Authorization token
+          required: true
+          type: string   
+      responses:
+        200:
+          description: User successfully deleted
+        404:
+          description: User does not exist 
 definitions:
   Notify:
     type: object

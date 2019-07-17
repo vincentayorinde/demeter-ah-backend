@@ -26,7 +26,7 @@ export default {
     } catch (e) {
       /* istanbul ignore next */
       return res.status(500).json({
-        message: 'Something went wrong'
+        error: 'Something went wrong'
       });
     }
   },
@@ -274,5 +274,103 @@ export default {
         error: e.message,
       });
     }
-  }
+  },
+
+  adminUpdate: async (req, res) => {
+    try {
+      const { username } = req.params;
+
+      const foundUser = await db.User.findOne({
+        where: {
+          username
+        }
+      });
+
+      if (!foundUser) {
+        return res.status(404).send({
+          error: 'User does not exist'
+        });
+      }
+
+      const image = req.files
+        ? await uploadImage(req.files.image, `${req.user.username}-profileImg`)
+        : foundUser.image;
+
+      const { firstName, lastName, bio } = req.body || foundUser;
+      const user = await foundUser.update(
+        {
+          username: req.body.username || username,
+          firstName,
+          lastName,
+          image,
+          bio
+        }
+      );
+      res.status(200).send({
+        user: user.response()
+      });
+    } catch (e) {
+      /* istanbul ignore next */
+      return res.status(500).send({
+        error: 'Something went wrong'
+      });
+    }
+  },
+
+  adminDelete: async (req, res) => {
+    const { username } = req.params;
+
+    const foundUser = await db.User.findOne({
+      where: {
+        username
+      }
+    });
+    try {
+      if (!foundUser) {
+        return res.status(404).send({
+          error: 'User does not exist'
+        });
+      }
+
+      await foundUser.update({
+        active: false
+      });
+
+      res.status(200).send({
+        message: 'User profile deactivated successfully'
+      });
+    } catch (e) {
+    /* istanbul ignore next */
+      return res.status(500).send({
+        error: 'Something went wrong'
+      });
+    }
+  },
+
+  adminCreate: async (req, res) => {
+    const {
+      firstName, lastName, email, username, role
+    } = req.body;
+
+    const password = randomString();
+    try {
+      const user = await db.User.create({
+        firstName,
+        lastName,
+        password,
+        email,
+        username,
+        role,
+        byadmin: true
+      });
+      return res.status(201).json({
+        user: user.response()
+      });
+    } catch (e) {
+      /* istanbul ignore next */
+      return res.status(500).json({
+        error: 'Something went wrong'
+      });
+    }
+  },
 };

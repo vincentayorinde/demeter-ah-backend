@@ -7,7 +7,7 @@ module.exports = {
         email: 'sampoli@gmail.com',
       },
     }, ['email']);
-    if (!user) queryInterface.bulkInsert('Users', createFakeUsers(), {});
+    if (!user) queryInterface.bulkInsert('Users', await createFakeUsers(), {});
   },
 
   down: queryInterface => queryInterface.bulkDelete('Users', null, {})

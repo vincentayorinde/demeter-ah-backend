@@ -98,4 +98,25 @@ export default {
       });
     }
   },
+
+  createUser: async (req, res, next) => {
+    const rules = {
+      firstName: 'required|alpha',
+      lastName: 'required|alpha',
+      username: 'required|alphaNumeric|unique:User',
+      email: 'required|email|unique:User',
+      role: 'required|string|in:author,admin,superadmin'
+    };
+    const data = req.body;
+    sanitize(data, sanitizeRules);
+
+    try {
+      await validatorInstance.validateAll(data, rules, messages);
+      next();
+    } catch (e) {
+      return res.status(400).send({
+        message: e,
+      });
+    }
+  },
 };

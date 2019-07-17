@@ -20,5 +20,28 @@ router.get(
   Middleware.isAdmin,
   User.getUsers
 );
+router.post(
+  '/',
+  Middleware.authenticate,
+  Middleware.isblackListedToken,
+  Middleware.isAdmin,
+  Validation.createUser,
+  User.adminCreate
+);
+router.put(
+  '/:username',
+  Middleware.authenticate,
+  Middleware.isblackListedToken,
+  Middleware.isAdmin,
+  Validation.updateUser,
+  User.adminUpdate
+);
+router.delete(
+  '/:username',
+  Middleware.authenticate,
+  Middleware.isblackListedToken,
+  Middleware.isAdmin,
+  User.adminDelete
+);
 
 export default router;

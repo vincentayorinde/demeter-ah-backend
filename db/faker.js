@@ -1,5 +1,6 @@
 const readingTime = require('read-time');
 const faker = require('faker');
+const bcrypt = require('bcryptjs');
 
 const getFakeArticle = id => ({
   title: faker.random.words(4),
@@ -31,20 +32,21 @@ const getFakeUser = () => ({
   role: 'author'
 });
 
-const getFakeAdmin = () => ({
+const getFakeAdmin = async () => ({
   email: 'admin@haven.com',
   bio: faker.random.word('string'),
   firstName: faker.name.firstName(),
   lastName: faker.name.lastName(),
   username: faker.random.words(4),
-  password: 'password',
+  password: await bcrypt.hash('password', 10),
   image: faker.image.imageUrl(),
   role: 'admin',
 });
 
-const createFakeUsers = () => {
+const createFakeUsers = async () => {
   const Users = [];
-  Users.push({ ...getFakeUser(), email: 'sampoli@gmail.com' }, getFakeAdmin());
+  Users.push({ ...getFakeUser(), email: 'sampoli@gmail.com' },
+    await getFakeAdmin());
 
   // eslint-disable-next-line no-plusplus
   for (let i = 0; i < 40; i++) {
