@@ -109,5 +109,20 @@ export default {
         message: e,
       });
     }
+  },
+
+  commentId: async (req, res, next) => {
+    const rules = {
+      commentId: 'required|integer'
+    };
+    const { commentId } = req.params;
+    try {
+      await validatorInstance.validateAll({ commentId }, rules, messages);
+      next();
+    } catch (e) {
+      return res.status(400).json({
+        message: e,
+      });
+    }
   }
 };

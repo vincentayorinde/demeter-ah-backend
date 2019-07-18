@@ -50,6 +50,12 @@ module.exports = (sequelize, DataTypes) => {
       as: 'bookmarks',
       cascade: true,
     });
+
+    Article.hasMany(models.Comment, {
+      foreignKey: 'articleId',
+      as: 'comment',
+      cascade: true
+    });
   };
   return Article;
 };

@@ -3,7 +3,8 @@ import sinon from 'sinon';
 import chaiHttp from 'chai-http';
 import { app, db } from '../../server';
 import {
-  createUser, createArticle, createRate, createArticleVote
+  createUser, createArticle, createRate, createArticleVote,
+  createComment, createCommentHistory
 } from '../helpers';
 import * as utils from '../../utils';
 import { transporter } from '../../utils/mailer';
@@ -681,6 +682,7 @@ describe('ARTICLES TEST', () => {
       userToken = token;
       articleData = await createArticle({ ...article, authorId: userResponse.id });
     });
+
     it('a user should be able to bookmark an article', async () => {
       const res = await chai
         .request(app)
@@ -703,6 +705,168 @@ describe('ARTICLES TEST', () => {
         .set('x-access-token', userToken);
       expect(res.statusCode).to.equal(200);
       expect(res.body.message).to.be.equal('Bookmark successfully removed');
+    });
+  });
+
+  describe('User  Edit Comment on Articles', () => {
+    let userResponse;
+    let articleData;
+    let userToken;
+    let commentData;
+    let commentId;
+    beforeEach(async () => {
+      const user = await createUser(register);
+      userResponse = user.response();
+      const { token } = userResponse;
+      userToken = token;
+      articleData = await createArticle({ ...article, authorId: userResponse.id });
+      commentData = await createComment({ articleId: articleData.id, content: 'user comment' });
+      commentId = parseInt(commentData.id, 10);
+    });
+
+    it('should add a new user comment if user is authenticated', async () => {
+      const res = await chai
+        .request(app)
+        .patch(`/api/v1/articles/${articleData.slug}/comments/${commentId}`)
+        .set('x-access-token', userToken)
+        .send({ content: 'updated comment' });
+      expect(res.statusCode).to.equal(200);
+      expect(res.body).to.be.an('object');
+      expect(res.body.comment.content).to.be.a('string');
+    });
+
+    it('should not add a new user comment if user is not authenticated', async () => {
+      const token = await utils.getToken(45345, 'wrong@gmail.com');
+      const res = await chai
+        .request(app)
+        .patch(`/api/v1/articles/${articleData.slug}/comments/${commentId}`)
+        .set('x-access-token', token)
+        .send({ content: 'updated comment' });
+      expect(res.statusCode).to.equal(401);
+      expect(res.body).to.be.an('object');
+      expect(res.body.message).to.equal('Unauthorized');
+    });
+
+    it('should not add a new user comment if article does not exist', async () => {
+      const res = await chai
+        .request(app)
+        .patch(`/api/v1/articles/wrong-article/comments/${commentId}`)
+        .set('x-access-token', userToken)
+        .send({ content: 'updated comment' });
+      expect(res.statusCode).to.equal(404);
+      expect(res.body).to.be.an('object');
+      expect(res.body.error).to.equal('Article does not exist');
+    });
+
+    it('should not add a new user comment if real comment does not exist', async () => {
+      const res = await chai
+        .request(app)
+        .patch(`/api/v1/articles/${articleData.slug}/comments/404`)
+        .set('x-access-token', userToken)
+        .send({ content: 'updated comment' });
+      expect(res.statusCode).to.equal(404);
+      expect(res.body).to.be.an('object');
+      expect(res.body.error).to.equal('Comment does not exist');
+    });
+
+    it('should not add a new user comment if comment is empty', async () => {
+      const res = await chai
+        .request(app)
+        .patch(`/api/v1/articles/${articleData.slug}/comments/${commentId}`)
+        .set('x-access-token', userToken)
+        .send({ content: '' });
+      expect(res.statusCode).to.equal(400);
+      expect(res.body).to.be.an('object');
+      expect(res.body.message[0].message).to.equal('Input your content');
+    });
+
+    it('should not add a new user comment if comment id is string', async () => {
+      const res = await chai
+        .request(app)
+        .patch(`/api/v1/articles/${articleData.slug}/comments/unacceptedable`)
+        .set('x-access-token', userToken)
+        .send({ content: 'updated comment' });
+      expect(res.statusCode).to.equal(400);
+      expect(res.body).to.be.an('object');
+      expect(res.body.message[0].message).to.equal('commentId must be an integer');
+    });
+  });
+
+  describe('Get comment history', () => {
+    let userToken;
+    let articleSlug;
+    let commentId;
+    beforeEach(async () => {
+      await db.CommentHistory.destroy({ truncate: true, cascade: true });
+      const user = await createUser({ ...register, email: 'man@havens.com' });
+      const userResponse = user.response();
+      const { token } = userResponse;
+      userToken = token;
+      const newArticle = await createArticle({ ...article, authorId: userResponse.id });
+      articleSlug = newArticle.slug;
+      const commentDetails = {
+        userId: userResponse.id,
+        articleId: newArticle.id,
+        content: 'This article is good'
+      };
+      const comment = await createComment(commentDetails);
+      commentId = parseInt(comment.id, 10);
+      await createCommentHistory({ commentId, content: 'This article is now good' });
+    });
+
+    it('should get comment history', async () => {
+      const res = await chai
+        .request(app)
+        .get(`/api/v1/articles/${articleSlug}/comments/${commentId}/history`)
+        .set('x-access-token', userToken);
+      expect(res.status).to.equal(200);
+      expect(res.body).to.be.an('object');
+      expect(res.body.comment.content).to.equal('This article is good');
+      expect(res.body.commentHistory).to.be.an('array');
+      expect(res.body.commentHistory[0].content).to.equal('This article is now good');
+    });
+
+    it('should get second page of comment history', async () => {
+      await createCommentHistory({ commentId, content: 'This article is now good for better' });
+      const res = await chai
+        .request(app)
+        .get(`/api/v1/articles/${articleSlug}/comments/${commentId}/history?offset=1&limit=1`)
+        .set('x-access-token', userToken);
+      expect(res.status).to.equal(200);
+      expect(res.body).to.be.an('object');
+      expect(res.body.comment.content).to.equal('This article is good');
+      expect(res.body.commentHistory).to.be.an('array');
+      expect(res.body.commentHistory[0].content).to.equal('This article is now good for better');
+    });
+
+    it('should not get comment history for article that does not exist', async () => {
+      const res = await chai
+        .request(app)
+        .get(`/api/v1/articles/${articleSlug}-1234/comments/${commentId}/history`)
+        .set('x-access-token', userToken);
+      expect(res.status).to.equal(404);
+      expect(res.body).to.be.an('object');
+      expect(res.body.error).to.equal('Article does not exist');
+    });
+
+    it('should not get comment history for article comment that does not exist', async () => {
+      const res = await chai
+        .request(app)
+        .get(`/api/v1/articles/${articleSlug}/comments/${1234}/history`)
+        .set('x-access-token', userToken);
+      expect(res.status).to.equal(404);
+      expect(res.body).to.be.an('object');
+      expect(res.body.error).to.equal('Comment does not exist');
+    });
+
+    it('should not get comment history for article comment that does not exist', async () => {
+      const res = await chai
+        .request(app)
+        .get(`/api/v1/articles/${articleSlug}/comments/his/history`)
+        .set('x-access-token', userToken);
+      expect(res.status).to.equal(400);
+      expect(res.body).to.be.an('object');
+      expect(res.body.message[0].message).to.equal('commentId must be an integer');
     });
   });
 });

@@ -54,6 +54,8 @@ export const createArticle = async article => db.Article.create({
   readTime: readingTime(article.body).text
 });
 
+export const createComment = async comment => db.Comment.create(comment);
+
 export const createRate = async rating => db.Ratings.create(rating);
 
 export const createArticleVote = async vote => db.ArticleVote.create(vote);
@@ -67,3 +69,7 @@ export const createTestFakeUsers = () => {
 export const createTag = async tag => db.Tag.create(tag);
 
 export const createArticleTag = async tag => db.ArticleTag.create(tag);
+
+export const editComment = async editedComment => db.CommentHistory.create(editedComment);
+
+export const createCommentHistory = async editedComment => db.CommentHistory.create(editedComment);

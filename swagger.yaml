@@ -559,6 +559,66 @@ paths:
       responses:
         '200':
           description: an object containg search result
+  /articles/{slug}/comments/{commnetId}:
+    patch:
+      tags:
+        - Edit Article Comment
+      summary: edit article comment
+      operationId: EditComment
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: "slug"
+          in: "path"
+          description: "Slug of article with its comment being edited"
+          required: true
+          type: string
+        - name: "commentId"
+          in: "path"
+          description: "Id of article comment to be edited"
+          required: true
+          type: "integer"
+          format: "int64"
+      responses:
+        '200':
+          description: comment successfully edited
+        '404':
+          description: Article not existing or comment not existing
+        '400':
+          description: Article slug must be string or comment Id must be integer
+  /articles/{slug}/comments/{commnetId}/history:
+    get:
+      tags:
+        - Get Article Comment Edit History
+      summary: get an article comment's edit history
+      operationId: GetCommentHistory
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: "slug"
+          in: "path"
+          description: "Islug of article whose comment historynis being gotten"
+          required: true
+          type: string
+        - name: "commentId"
+          in: "path"
+          description: "Id of article comment that its edit history is being gotten"
+          required: true
+          type: "integer"
+          format: "int64"
+      responses:
+        '200':
+          description: comment edit history successfully gotten
+        '404':
+          description: Article not existing or comment not existing
+        '400':
+          description: Article slug must be string or comment Id must be integer
 definitions:
   Notify:
     type: object
@@ -623,7 +683,8 @@ definitions:
       images:
         type: string
       tags:
-        type: string (should be comma separated strings)
+        type: string
+        description: should be comma separated strings 
     xml:
       name: NewArticle
   ratings:
