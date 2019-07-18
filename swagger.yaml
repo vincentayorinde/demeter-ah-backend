@@ -529,6 +529,36 @@ paths:
           description: Input your content
         404:
           description: Article does not exist
+  /search:
+    get:
+      tags:
+        - Search
+      summary: Get search results for author, articles or tags
+      operationId: search
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+      - name: author
+        in: query
+        description: filters out authors from the search result
+        required: false
+        type: string
+      - name: tag
+        in: query
+        description: filters out tags from the search result
+        required: false
+        type: string
+      - name: title
+        in: query
+        description: filters out articles from the search result
+        required: false
+        type: string
+      responses:
+        '200':
+          description: an object containg search result
 definitions:
   Notify:
     type: object

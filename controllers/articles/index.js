@@ -48,13 +48,9 @@ export default {
           as: 'author',
           attributes: ['username', 'bio', 'image']
         }, {
-          model: db.ArticleTag,
-          as: 'articleTag',
-          include: [{
-            model: db.Tag,
-            as: 'tag',
-            attributes: ['name']
-          }]
+          model: db.Tag,
+          as: 'tags',
+          attributes: ['name']
         }]
       });
 

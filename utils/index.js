@@ -68,6 +68,7 @@ export const createUserFromSocials = async (data) => {
 export const messages = {
   required: 'Input your {{ field }}',
   required_with_any: 'You have to provide a {{ field }} for any {{ argument.0 }}',
+  requiredWithoutAll: 'Search Failed, no Filter provided',
   min: '{{ field }} should not be less than {{ argument.0 }}',
   max: '{{ field }} should not be more than {{ argument.0 }}',
   unique: '{{ field }} already existed',
@@ -96,22 +97,6 @@ validations.unique = async (data, field, message, args, get) => {
 };
 
 export const validatorInstance = Validator(validations, Vanilla);
-
-export const createUser = async (user) => {
-  const {
-    firstName, lastName, username, email, password
-  } = user;
-
-  const newUser = await db.User.create({
-    firstName,
-    lastName,
-    username,
-    email,
-    password
-  });
-
-  return newUser;
-};
 
 export const randomString = () => crypto.randomBytes(11).toString('hex');
 

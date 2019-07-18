@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       as: 'articleTag',
       cascade: true
     });
+    Tag.belongsToMany(models.Article, { through: 'ArticleTag', foreignKey: 'tagId', as: 'article' });
   };
   return Tag;
 };

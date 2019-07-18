@@ -2,7 +2,7 @@ import chai from 'chai';
 import chaiHttp from 'chai-http';
 import sinon from 'sinon';
 import { app, db } from '../../server';
-import { createUser } from '../../utils';
+import { createUser } from '../helpers';
 import { transporter } from '../../utils/mailer';
 
 const { expect } = chai;

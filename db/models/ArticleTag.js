@@ -3,13 +3,11 @@ module.exports = (sequelize) => {
   }, {});
   ArticleTag.associate = (models) => {
     ArticleTag.belongsTo(models.Article, {
-      foreignKey: 'articleId',
-      as: 'article'
+      foreignKey: 'articleId'
     });
 
     ArticleTag.belongsTo(models.Tag, {
-      foreignKey: 'tagId',
-      as: 'tag'
+      foreignKey: 'tagId'
     });
   };
   return ArticleTag;

@@ -5,6 +5,7 @@ import profiles from './profiles';
 import notification from './notifications';
 import members from './members';
 import role from './role';
+import search from './search';
 
 const router = express.Router();
 
@@ -17,5 +18,6 @@ router.use('/articles', article);
 router.use('/notifications', notification);
 router.use('/members', members);
 router.use('/role', role);
+router.use('/search', search);
 
 export default router;

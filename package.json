@@ -15,7 +15,7 @@
     "seed": "sequelize db:seed:all",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "heroku-postbuild": " npm run migrate",
-    "dev:test": "NODE_ENV=test npm run rollback:migration && npm test"
+		"dev:test": "NODE_ENV=test npm run rollback:migration && npm test"
   },
   "nyc": {
     "exclude": [
