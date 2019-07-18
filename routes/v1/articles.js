@@ -122,4 +122,12 @@ router.patch(
   Validation.articleSlug,
   Article.statsUpdate
 );
+
+router.post(
+  '/comment/vote/:commentId',
+  Middleware.authenticate,
+  Middleware.isblackListedToken,
+  Validation.voteComment,
+  Comment.voteComment,
+);
 export default router;

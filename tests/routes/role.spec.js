@@ -1,8 +1,12 @@
 import chai from 'chai';
 import chaiHttp from 'chai-http';
+import sinon from 'sinon';
 import { app, db } from '../../server';
+import { transporter } from '../../utils/mailer';
 
 const { expect } = chai;
+
+let mockTransporter;
 
 chai.use(chaiHttp);
 let user = {};
@@ -22,6 +26,14 @@ describe('USER ROLE', () => {
     await db.User.destroy({ truncate: true, cascade: true });
   });
   describe('Change user role', async () => {
+    before(async () => {
+      mockTransporter = sinon.stub(transporter, 'sendMail').resolves({});
+    });
+
+    after(() => {
+      mockTransporter.restore();
+    });
+
     it('should change user role if user is admin and authenticated', async () => {
       user = await db.User.create(profile);
       const userResponse = user.response();

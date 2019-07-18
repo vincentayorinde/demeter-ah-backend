@@ -23,8 +23,8 @@ export default {
       });
     } catch (e) {
       /* istanbul ignore next */
-      return res.status(500).json({
-        message: 'something went wrong'
+      return res.status(500).send({
+        error: 'something went wrong'
       });
     }
   },
@@ -114,5 +114,60 @@ export default {
         error: e.message
       });
     }
-  }
+  },
+  voteComment: async (req, res) => {
+    const { params: { commentId }, body, user } = req;
+    const comment = await db.Comment.findOne({
+      where: {
+        id: commentId
+      }
+    });
+
+    const status = JSON.parse(body.status);
+
+    try {
+      if (!comment) {
+        return res.status(404).send({
+          error: 'This comment does not exist'
+        });
+      }
+
+      const voteDetails = {
+        userId: user.id,
+        commentId,
+        status
+      };
+
+      const vote = await db.CommentVote.findCommentVote(voteDetails);
+
+      let resStatus = 201;
+      let message = status ? 'You upvote this comment' : 'You downvote this comment';
+
+      if (!vote) {
+        await db.CommentVote.create(voteDetails);
+      } else {
+        resStatus = 200;
+        if (status === vote.status) {
+          await vote.deleteCommentVote();
+          message = 'You have unvoted this comment';
+        } else {
+          await vote.updateCommentVote(status);
+        }
+      }
+
+      const upvotes = await db.CommentVote.getCommentVotes({ ...voteDetails, status: true });
+      const downvotes = await db.CommentVote.getCommentVotes({ ...voteDetails, status: false });
+
+      return res.status(resStatus).json({
+        message,
+        upvotes,
+        downvotes
+      });
+    } catch (e) {
+      /* istanbul ignore next */
+      return res.status(500).send({
+        error: 'Something went wrong',
+      });
+    }
+  },
 };

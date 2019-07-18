@@ -156,5 +156,29 @@ export default {
         error: 'flag must be true or false',
       });
     }
+  },
+  voteComment: async (req, res, next) => {
+    let data;
+    const rules = {
+      status: 'required|boolean',
+      commentId: 'required|integer'
+    };
+
+    try {
+      data = { status: JSON.parse(req.body.status), ...req.params };
+    } catch (error) {
+      return res.status(400).send({
+        error: 'Wrong status field provided',
+      });
+    }
+
+    try {
+      await validatorInstance.validateAll(data, rules, messages);
+      next();
+    } catch (e) {
+      return res.status(400).send({
+        message: e,
+      });
+    }
   }
 };
