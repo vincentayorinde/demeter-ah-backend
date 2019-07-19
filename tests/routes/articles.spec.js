@@ -525,12 +525,15 @@ describe('ARTICLES TEST', () => {
       expect(res.body.message).to.equal('You downvote this article');
     });
 
-    it('Should unvote an article', async () => {
+    it('Should unvote an article already upvoted', async () => {
       await createArticleVote(upvote);
       const res = await chai
         .request(app)
         .post(`/api/v1/articles/vote/${articleSlug}`)
-        .set('x-access-token', userToken);
+        .set('x-access-token', userToken)
+        .send({
+          status: true
+        });
       expect(res.status).to.equal(200);
       expect(res.body).to.be.an('object');
       expect(res.body.message).to.equal('You have unvote this article');
@@ -554,12 +557,42 @@ describe('ARTICLES TEST', () => {
       const res = await chai
         .request(app)
         .post(`/api/v1/articles/vote/${wrongSlug}`)
-        .set('x-access-token', userToken);
+        .set('x-access-token', userToken)
+        .send({
+          status: false
+        });
       expect(res.status).to.equal(404);
       expect(res.body).to.be.an('object');
       expect(res.body.error).to.equal('This article does not exist');
     });
+
+    it('Should return error message when status is not true or false', async () => {
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/vote/${articleSlug}`)
+        .set('x-access-token', userToken)
+        .send({
+          status: 'ade'
+        });
+      expect(res.status).to.equal(400);
+      expect(res.body).to.be.an('object');
+      expect(res.body.error).to.equal('Wrong status field provided');
+    });
+
+    it('Should return error message when status is set to null', async () => {
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/vote/${articleSlug}`)
+        .set('x-access-token', userToken)
+        .send({
+          status: null
+        });
+      expect(res.status).to.equal(400);
+      expect(res.body).to.be.an('object');
+      expect(res.body.error[0].message).to.equal('Input your status');
+    });
   });
+
   describe('Get Article Ratings', () => {
     let articleData;
     beforeEach(async () => {

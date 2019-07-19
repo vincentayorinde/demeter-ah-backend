@@ -180,5 +180,30 @@ export default {
         message: e,
       });
     }
-  }
+  },
+
+  voteArticle: async (req, res, next) => {
+    let voteData;
+    const rules = {
+      status: 'required|boolean',
+      slug: 'required|string'
+    };
+
+    try {
+      voteData = { status: JSON.parse(req.body.status), ...req.params };
+    } catch (error) {
+      return res.status(400).send({
+        error: 'Wrong status field provided',
+      });
+    }
+
+    try {
+      await validatorInstance.validateAll(voteData, rules, messages);
+      next();
+    } catch (e) {
+      return res.status(400).send({
+        error: e,
+      });
+    }
+  },
 };

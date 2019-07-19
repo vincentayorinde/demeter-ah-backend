@@ -273,7 +273,7 @@ export default {
   voteArticle: async (req, res) => {
     const { slug } = req.params;
     let { status } = req.body;
-    status = status === 'true' || status === 'false' ? JSON.parse(status) : status;
+    status = JSON.parse(status);
     const article = await db.Article.findOne({
       where: {
         slug
@@ -304,16 +304,12 @@ export default {
       if (!vote) {
         await db.ArticleVote.create(voteDetails);
       } else {
-        switch (status) {
-          case true:
-          case false:
-            await vote.updateArticleVote(status);
-            resStatus = 200;
-            break;
-          default:
-            await vote.deleteArticleVote();
-            message = 'You have unvote this article';
-            resStatus = 200;
+        resStatus = 200;
+        if (status === vote.status) {
+          await vote.deleteArticleVote();
+          message = 'You have unvote this article';
+        } else {
+          await vote.updateArticleVote(status);
         }
       }
 
