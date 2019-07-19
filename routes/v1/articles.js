@@ -71,4 +71,24 @@ router.get(
   Validation.articleSlug,
   Article.bookmarkArticle,
 );
+
+router.patch(
+  '/:slug/comments/:commentId',
+  Middleware.authenticate,
+  Middleware.isblackListedToken,
+  Validation.articleSlug,
+  Validation.addComment,
+  Validation.commentId,
+  Comment.editComment
+);
+
+router.get(
+  '/:slug/comments/:commentId/history',
+  Middleware.authenticate,
+  Middleware.isblackListedToken,
+  Validation.articleSlug,
+  Validation.commentId,
+  Comment.getCommentHistory
+);
+
 export default router;

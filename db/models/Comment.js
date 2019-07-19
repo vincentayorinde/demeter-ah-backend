@@ -1,9 +1,5 @@
-
-
 module.exports = (sequelize, DataTypes) => {
   const Comment = sequelize.define('Comment', {
-    userId: DataTypes.INTEGER,
-    articleId: DataTypes.INTEGER,
     content: DataTypes.TEXT
   }, {});
   Comment.associate = (models) => {
@@ -11,9 +7,16 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'userId',
       as: 'user'
     });
+
     Comment.belongsTo(models.Article, {
       foreignKey: 'articleId',
       as: 'article',
+      cascade: true
+    });
+
+    Comment.hasMany(models.CommentHistory, {
+      foreignKey: 'commentId',
+      as: 'commentHistory',
       cascade: true
     });
   };
