@@ -350,11 +350,17 @@ paths:
           description: Authorization token
           required: true
           type: string
+        - name: "status"
+          in: body
+          description: A user vote status
+          required: true
+          schema:
+            $ref: '#/definitions/voteArticle'
       responses:
         200:
           description: You have unvote this article
         201:
-          description: You upote this article
+          description: You upvote this article
         400:
           description: Pass in the appropriate status (true or false)
         404:
@@ -637,6 +643,41 @@ paths:
       responses:
         200:
           description: Article reads successfully Incremented
+  /articles/comment/vote/{commentId}:
+    post:
+      tags:
+        - "Articles"
+      summary: Vote a comment
+      description: Vote a comment
+      operationId: voteComment
+      produces:
+        - application/json
+      parameters:
+        - name: commentId
+          in: path
+          description: Id of comment to vote
+          required: true
+          type: integer
+        - name: x-access-token
+          in: header
+          description: Authorization token
+          required: true
+          type: string
+        - name: "status"
+          in: body
+          description: A user vote status
+          required: true
+          schema:
+            $ref: '#/definitions/voteComment'
+      responses:
+        200:
+          description: You have unvote this comment
+        201:
+          description: You upvote this comment
+        400:
+          description: Pass in the appropriate status (true or false)
+        404:
+          description: This comment does not exist
 definitions:
   Notify:
     type: object
@@ -853,3 +894,21 @@ definitions:
         example: sample user comment
     xml:
       name: addComment
+  voteComment:
+    type: object
+    required:
+      - status
+    properties:
+      status:
+        type: string
+    xml:
+      name: voteComment
+  voteArticle:
+    type: object
+    required:
+      - status
+    properties:
+      status:
+        type: string
+    xml:
+      name: voteArticle

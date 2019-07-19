@@ -706,6 +706,118 @@ describe('ARTICLES TEST', () => {
       expect(res.statusCode).to.equal(200);
       expect(res.body.message).to.be.equal('Bookmark successfully removed');
     });
+
+    it('a user should not bookmark article that does not exist', async () => {
+      await db.Bookmark.create({
+        articleId: articleData.id,
+        userId: user.id
+      });
+      const res = await chai
+        .request(app)
+        .get('/api/v1/articles/bookmark/random slug name')
+        .set('x-access-token', userToken);
+      expect(res.statusCode).to.equal(404);
+      expect(res.body.error).to.be.equal('Article does not exist');
+    });
+  });
+
+  describe('Like Comments', () => {
+    let userResponse;
+    let commentData;
+    let userToken;
+    beforeEach(async () => {
+      const user = await createUser(register);
+      userResponse = user.response();
+      const { token } = userResponse;
+      userToken = token;
+      const articleData = await createArticle({ ...article, authorId: userResponse.id });
+      commentData = await db.Comment.create({
+        articleId: articleData.id,
+        userId: userResponse.id,
+        content: 'this is a new comment'
+      });
+    });
+    it('should vote a comment if user is authenticated', async () => {
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/comment/vote/${commentData.id}`)
+        .set('x-access-token', userToken)
+        .send({ status: 'true' });
+      expect(res.statusCode).to.equal(201);
+      expect(res.body.message).to.be.equal('You upvote this comment');
+    });
+
+    it('should vote a comment if user is authenticated', async () => {
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/comment/vote/${commentData.id}`)
+        .set('x-access-token', userToken)
+        .send({ status: true });
+      expect(res.statusCode).to.equal(201);
+      expect(res.body.message).to.be.equal('You upvote this comment');
+    });
+
+    it('a user should be able to change reaction to comment', async () => {
+      await db.CommentVote.create({
+        commentId: commentData.id,
+        userId: userResponse.id,
+        status: true,
+      });
+
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/comment/vote/${commentData.id}`)
+        .set('x-access-token', userToken)
+        .send({ status: false });
+      expect(res.statusCode).to.equal(200);
+      expect(res.body.message).to.be.equal('You downvote this comment');
+    });
+
+    it('should be able to unvote a comment', async () => {
+      await db.CommentVote.create({
+        commentId: commentData.id,
+        userId: userResponse.id,
+        status: true,
+      });
+
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/comment/vote/${commentData.id}`)
+        .set('x-access-token', userToken)
+        .send({ status: true });
+      expect(res.statusCode).to.equal(200);
+      expect(res.body.message).to.be.equal('You have unvoted this comment');
+    });
+
+    it('should not vote a comment if comment does not exist', async () => {
+      const res = await chai
+        .request(app)
+        .post('/api/v1/articles/comment/vote/908')
+        .set('x-access-token', userToken)
+        .send({ status: 'true' });
+      expect(res.statusCode).to.equal(404);
+      expect(res.body.error).to.be.equal('This comment does not exist');
+    });
+
+    it('should not vote a comment if info provided is invalid', async () => {
+      const res = await chai
+        .request(app)
+        .post('/api/v1/articles/comment/vote/908')
+        .set('x-access-token', userToken)
+        .send({ status: 'wrongString' });
+      expect(res.statusCode).to.equal(400);
+      expect(res.body.error).to.be.equal('Wrong status field provided');
+    });
+
+    it('should not vote a comment if info provided is null', async () => {
+      const res = await chai
+        .request(app)
+        .post('/api/v1/articles/comment/vote/908')
+        .set('x-access-token', userToken)
+        .send({ status: null });
+      expect(res.statusCode).to.equal(400);
+      expect(res.body.message[0].message).to.be.equal('Input your status');
+    });
   });
 
   describe('User  Edit Comment on Articles', () => {
