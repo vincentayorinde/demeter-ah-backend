@@ -505,5 +505,30 @@ export default {
     return res.status(200).send({
       message: 'deleted successfully',
     });
+  },
+
+  statsUpdate: async (req, res) => {
+    try {
+      const { params: { slug } } = req;
+      const article = await db.Article.findOne({
+        where: { slug }
+      });
+
+      if (!article) {
+        return res.status(404).send({
+          error: 'Article deos not exist',
+        });
+      }
+
+      await article.increment(['reads'], { by: 1 });
+      return res.status(200).send({
+        message: 'Article reads successfully Incremented',
+      });
+    } catch (e) {
+      /* istanbul ignore next */
+      return res.status(500).send({
+        error: 'Something went wrong'
+      });
+    }
   }
 };

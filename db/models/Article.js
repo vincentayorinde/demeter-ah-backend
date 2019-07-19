@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       description: DataTypes.TEXT,
       slug: DataTypes.STRING,
       body: DataTypes.TEXT,
+      reads: DataTypes.INTEGER,
       image: DataTypes.STRING,
       rating: DataTypes.FLOAT,
       readTime: DataTypes.STRING,

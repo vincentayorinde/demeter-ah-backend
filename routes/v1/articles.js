@@ -39,6 +39,7 @@ router.put(
   Middleware.generateReadTime,
   Article.updateArticle,
 );
+
 router.delete(
   '/:slug',
   Middleware.authenticate,
@@ -114,5 +115,11 @@ router.get(
   Middleware.isblackListedToken,
   Middleware.isAdmin,
   Article.showArticleReports
+);
+
+router.patch(
+  '/stats/:slug',
+  Validation.articleSlug,
+  Article.statsUpdate
 );
 export default router;
