@@ -532,7 +532,7 @@ paths:
         '200':
           description: update user email notify
   /articles/bookmark/{slug}:
-    get:
+    post:
       tags:
         - "Articles"
       summary: Bookmark an Article
@@ -713,11 +713,6 @@ paths:
           description: username of user to be updated
           required: true
           type: string
-        - name: x-access-token
-          in: header
-          description: Authorization token
-          required: true
-          type: string
         - in: body
           name: body
           description: User object that needs to be added to the app
@@ -755,6 +750,24 @@ paths:
           description: User successfully deleted
         404:
           description: User does not exist 
+  /articles/bookmark/user:
+    get:
+      tags:
+        - "Bookmarked Articles"
+      summary: Get all bookmarked articles
+      description: Get all bookmarked articles
+      operationId: Get all bookmarked articles
+      produces:
+        - application/json
+      parameters:
+        - name: x-access-token
+          in: header
+          description: Authorization token
+          required: true
+          type: string
+      responses:
+        200:
+          description: Bookmarked articles fetched successfully
 definitions:
   Notify:
     type: object

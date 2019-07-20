@@ -3,8 +3,8 @@ import sinon from 'sinon';
 import chaiHttp from 'chai-http';
 import { app, db } from '../../server';
 import {
-  createUser, createArticle, createRate, createArticleVote, createComment, createCommentHistory,
-  createCategory
+  createUser, createArticle, createRate, createArticleVote,
+  createComment, createCommentHistory, createBookmark, createCategory
 } from '../helpers';
 import * as utils from '../../utils';
 import { transporter } from '../../utils/mailer';
@@ -57,6 +57,7 @@ describe('ARTICLES TEST', () => {
     await db.Tag.destroy({ truncate: true, cascade: true });
     await db.Comment.destroy({ truncate: true, cascade: true });
     await db.Category.destroy({ truncate: true, cascade: true });
+    await db.Bookmark.destroy({ truncate: true, cascade: true });
   });
 
   describe('Create articles', () => {
@@ -779,7 +780,7 @@ describe('ARTICLES TEST', () => {
     it('a user should be able to bookmark an article', async () => {
       const res = await chai
         .request(app)
-        .get(`/api/v1/articles/bookmark/${articleData.slug}`)
+        .post(`/api/v1/articles/bookmark/${articleData.slug}`)
         .set('x-access-token', userToken);
       expect(res.statusCode).to.equal(201);
       expect(res.body.message).to.be.equal('Bookmark created successfully');
@@ -794,7 +795,7 @@ describe('ARTICLES TEST', () => {
       });
       const res = await chai
         .request(app)
-        .get(`/api/v1/articles/bookmark/${articleData.slug}`)
+        .post(`/api/v1/articles/bookmark/${articleData.slug}`)
         .set('x-access-token', userToken);
       expect(res.statusCode).to.equal(200);
       expect(res.body.message).to.be.equal('Bookmark successfully removed');
@@ -807,7 +808,7 @@ describe('ARTICLES TEST', () => {
       });
       const res = await chai
         .request(app)
-        .get('/api/v1/articles/bookmark/random slug name')
+        .post('/api/v1/articles/bookmark/random slug name')
         .set('x-access-token', userToken);
       expect(res.statusCode).to.equal(404);
       expect(res.body.error).to.be.equal('Article does not exist');
@@ -1180,6 +1181,47 @@ describe('ARTICLES TEST', () => {
         });
       expect(res.statusCode).to.equal(400);
       expect(res.body.error).to.be.equal('Invalid highlighted text');
+    });
+  });
+
+  describe('Get User Bookmarked Articles', () => {
+    let userResponse;
+    let articleData;
+    let userToken;
+    beforeEach(async () => {
+      await db.Bookmark.destroy({ truncate: true, cascade: true });
+      const user = await createUser(register);
+      userResponse = user.response();
+      const { token } = userResponse;
+      userToken = token;
+      articleData = await createArticle({ ...article, authorId: userResponse.id });
+      await createBookmark({ userId: userResponse.id, articleId: articleData.id });
+    });
+
+    it('should return all user bookmarked article', async () => {
+      const res = await chai
+        .request(app)
+        .get('/api/v1/articles/bookmark/user')
+        .set('x-access-token', userToken);
+      expect(res.status).to.equal(200);
+      expect(res.body).to.be.an('object');
+      expect(res.body.articles).to.be.an('array');
+      expect(res.body.articles).to.have.length(1);
+      expect(res.body.count).to.equal(1);
+    });
+
+    it('should return all user bookmarked article for second page', async () => {
+      const newArticle = await createArticle({ ...article, authorId: userResponse.id });
+      await createBookmark({ userId: userResponse.id, articleId: newArticle.id });
+      const res = await chai
+        .request(app)
+        .get('/api/v1/articles/bookmark/user?offset=1&limit=1')
+        .set('x-access-token', userToken);
+      expect(res.status).to.equal(200);
+      expect(res.body).to.be.an('object');
+      expect(res.body.articles).to.be.an('array');
+      expect(res.body.articles).to.have.length(1);
+      expect(res.body.count).to.equal(2);
     });
   });
 });

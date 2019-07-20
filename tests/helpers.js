@@ -73,6 +73,9 @@ export const createArticleTag = async tag => db.ArticleTag.create(tag);
 export const editComment = async editedComment => db.CommentHistory.create(editedComment);
 
 export const createCommentHistory = async editedComment => db.CommentHistory.create(editedComment);
+
 export const createReport = async report => db.Report.create(report);
 
 export const createCategory = async category => db.Category.create(category);
+
+export const createBookmark = async bookmarkDetails => db.Bookmark.create(bookmarkDetails);

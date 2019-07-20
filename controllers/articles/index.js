@@ -539,5 +539,35 @@ export default {
         error: 'Something went wrong'
       });
     }
+  },
+
+  getBookmarkedArticles: async (req, res) => {
+    const userId = req.user.id;
+    const { query } = req;
+    const limit = query.limit || 10;
+    const offset = query.offset ? (query.offset * limit) : 0;
+
+    try {
+      const articles = await db.Article.findAndCountAll({
+        offset,
+        limit,
+        include: [{
+          model: db.Bookmark,
+          as: 'bookmarks',
+          where: {
+            userId
+          }
+        }]
+      });
+
+      return res.status(200).send({
+        articles: articles.rows,
+        count: articles.count
+      });
+    } catch (e) {
+      return res.status(500).send({
+        error: e.message
+      });
+    }
   }
 };

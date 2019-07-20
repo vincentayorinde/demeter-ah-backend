@@ -71,7 +71,7 @@ router.post(
   Comment.addComment
 );
 
-router.get(
+router.post(
   '/bookmark/:slug',
   Middleware.authenticate,
   Middleware.isblackListedToken,
@@ -141,6 +141,13 @@ router.get(
   '/:slug/comments',
   Validation.articleSlug,
   Comment.getComments,
+);
+
+router.get(
+  '/bookmark/user',
+  Middleware.authenticate,
+  Middleware.isblackListedToken,
+  Article.getBookmarkedArticles
 );
 
 export default router;
