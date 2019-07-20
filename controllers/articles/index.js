@@ -203,6 +203,7 @@ export default {
         }
       });
       if (checkRating) {
+        await storeRating(foundArticle.id);
         checkRating.update({
           stars: rate
         });
