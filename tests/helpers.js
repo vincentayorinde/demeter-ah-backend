@@ -56,6 +56,8 @@ export const createArticle = async article => db.Article.create({
 
 export const createComment = async comment => db.Comment.create(comment);
 
+export const voteComment = async voteDetails => db.CommentVote.create(voteDetails);
+
 export const createRate = async rating => db.Ratings.create(rating);
 
 export const createArticleVote = async vote => db.ArticleVote.create(vote);

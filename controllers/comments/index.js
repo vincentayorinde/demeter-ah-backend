@@ -170,4 +170,47 @@ export default {
       });
     }
   },
+
+  getComments: async (req, res) => {
+    const { params: { slug } } = req;
+    try {
+      const article = await db.Article.findOne({
+        where: { slug }
+      });
+
+      if (!article) {
+        return res.status(404).send({
+          error: 'Article does not exist'
+        });
+      }
+      const comments = await db.Comment.findAll({
+        where: { articleId: article.id },
+        include: [
+          {
+            model: db.CommentVote,
+            where: { status: true },
+            required: false,
+            as: 'upVote',
+            attributes: ['status'],
+          },
+          {
+            model: db.CommentVote,
+            where: { status: false },
+            required: false,
+            as: 'downVote',
+            attributes: ['status'],
+          }
+        ],
+      });
+      return res.status(200).send({
+        message: 'Comments retrieved successfully',
+        comments,
+      });
+    } catch (e) {
+      /* istanbul ignore next */
+      return res.status(500).send({
+        error: 'Something went wrong',
+      });
+    }
+  },
 };

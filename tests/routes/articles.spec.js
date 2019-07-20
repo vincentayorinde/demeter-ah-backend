@@ -3,8 +3,7 @@ import sinon from 'sinon';
 import chaiHttp from 'chai-http';
 import { app, db } from '../../server';
 import {
-  createUser, createArticle, createRate, createArticleVote,
-  createComment, createCommentHistory
+  createUser, createArticle, createRate, createArticleVote, createComment, createCommentHistory
 } from '../helpers';
 import * as utils from '../../utils';
 import { transporter } from '../../utils/mailer';
@@ -40,6 +39,7 @@ describe('ARTICLES TEST', () => {
     await db.User.destroy({ truncate: true, cascade: true });
     await db.ArticleTag.destroy({ truncate: true, cascade: true });
     await db.Tag.destroy({ truncate: true, cascade: true });
+    await db.Comment.destroy({ truncate: true, cascade: true });
   });
 
   after(async () => {
@@ -49,6 +49,7 @@ describe('ARTICLES TEST', () => {
     await db.Ratings.destroy({ truncate: true, cascade: true });
     await db.ArticleTag.destroy({ truncate: true, cascade: true });
     await db.Tag.destroy({ truncate: true, cascade: true });
+    await db.Comment.destroy({ truncate: true, cascade: true });
   });
 
   describe('Create articles', () => {
@@ -381,7 +382,7 @@ describe('ARTICLES TEST', () => {
       expect(res.body).to.be.an('object');
       expect(res.body).to.include.all.keys('message');
       expect(res.body.message).to.be.a('string');
-      expect(res.body.message).to.include('Article not found');
+      expect(res.body.message).to.include('Article does not exist');
     });
   });
 
@@ -1008,6 +1009,33 @@ describe('ARTICLES TEST', () => {
         .patch('/api/v1/articles/stats/dam-67').send();
       expect(res.body).to.be.an('object');
       expect(res.body.error).to.include('Article deos not exist');
+    });
+  });
+
+  describe('Get Single article comments', () => {
+    it('should get an article comments', async () => {
+      const newUser = await createUser(register);
+      const newArticle = await createArticle({ ...article, authorId: newUser.id });
+      await createComment({ userId: newUser.id, articleId: newArticle.id, content: 'user comment' });
+      const res = await chai
+        .request(app)
+        .get(`/api/v1/articles/${newArticle.slug}/comments`);
+      expect(res.statusCode).to.equal(200);
+      expect(res.body).to.be.an('object');
+      expect(res.body.message).to.equal('Comments retrieved successfully');
+      expect(res.body.comments).to.be.an('array');
+      expect(res.body.comments[0]).to.be.an('object');
+      expect(res.body.comments[0].upVote).to.be.an('array');
+      expect(res.body.comments[0].downVote).to.be.an('array');
+    });
+
+    it('should not get an article comments if article does not exist', async () => {
+      const res = await chai
+        .request(app)
+        .get('/api/v1/articles/wrong-article/comments');
+      expect(res.statusCode).to.equal(404);
+      expect(res.body).to.be.an('object');
+      expect(res.body.error).to.equal('Article does not exist');
     });
   });
 });

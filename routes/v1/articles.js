@@ -130,4 +130,11 @@ router.post(
   Validation.voteComment,
   Comment.voteComment,
 );
+
+router.get(
+  '/:slug/comments',
+  Validation.articleSlug,
+  Comment.getComments,
+);
+
 export default router;

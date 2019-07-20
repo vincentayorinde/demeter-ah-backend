@@ -44,10 +44,6 @@ export default {
       const article = await db.Article.findOne({
         where: { slug: req.params.slug },
         include: [{
-          model: db.User,
-          as: 'author',
-          attributes: ['username', 'bio', 'image']
-        }, {
           model: db.Tag,
           as: 'tags',
           attributes: ['name']
@@ -56,17 +52,16 @@ export default {
 
       if (!article) {
         return res.status(404).send({
-          message: 'Article not found',
+          message: 'Article does not exist',
         });
       }
-      return res.status(200).json({
+      return res.status(200).send({
         article
       });
     } catch (e) {
       /* istanbul ignore next */
       return res.status(500).json({
-        message: 'Something went wrong',
-        error: e.message,
+        error: 'Something went wrong'
       });
     }
   },
@@ -226,9 +221,9 @@ export default {
         rating,
       });
     } catch (e) {
+      /* istanbul ignore next */
       return res.status(500).json({
-        message: 'Something went wrong',
-        error: e.message
+        error: 'Something went wrong',
       });
     }
   },
