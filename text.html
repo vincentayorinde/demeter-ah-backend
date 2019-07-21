@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <h1>highligh test</h1>
+  <p>Applying to Andela introduced me to Git version control, after learning about Git I was like “had I knew”, the stress of managing a folder of containing up to fifty of the different versions of the code with most of them not working. With Github, those stress were gone. After reading a blog post on medium I could understand how the git workflow goes-
+The basics of Gitflow is as follows:
+The production version of your code sits in a branch named master.
+The development version of your code (ready to be tested ) sits in a branch named develop.
+When you are working on a new feature or experiencing a bug, a new branch is created off of the develop branch. This is a bug or a feature branch.
+When development or fixing on the new branch has been completed, the new branch is either merged back into the develop branch if the changes have been accepted, or left in their respective branch if they are not.
+When the develop branch is finally ready to be released into production, a new release branch is created.
+When the release branch is approved for release, it is merged into the master branch and develop branch to capture any fixes that may have been done directly on the release branch.
+Following this workflow provides a way to organize and manage work easily, maintaining regular backups of a different version, makes it easy to work remotely and most Importantly makes collaboration with other team members less stressful</p>
+  <script> 
+    const myP = document.querySelector('p');
+    myP.addEventListener('mouseup', (event) => {
+      const selObj = window.getSelection();
+      const range = selObj.getRangeAt(0);
+      const sentObj = {
+        text: range.toString(),
+        startPosition: range.startOffset,
+        endPosition: range.endOffset
+      }
+      console.log('this is it', JSON.stringify(sentObj));
+      
+      // console.log(range)
+    })
+  //   document.getElementsByTagName('p').onmouseup = function() {
+  //       if (typeof window.getSelection === 'function') {
+  //           //code
+  //    var selObj = window.getSelection(); 
+  //    console.log(selObj.getRangeAt(0));
+  //    var selRange = selObj.getRangeAt(0);			 
+  //       }
+  //       else if (document.selection) {   
+  //           alert(document.selection.createRange().htmlText)  //IE6 7 8
+  //       }
+  //  }
+   
+  </script>
+</body>
+</html>

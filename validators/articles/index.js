@@ -1,4 +1,5 @@
 import { messages, validatorInstance } from '../../utils';
+import db from '../../db/models';
 
 export default {
   createArticle: async (req, res, next) => {
@@ -96,10 +97,28 @@ export default {
 
   addComment: async (req, res, next) => {
     const rules = {
-      content: 'required|string'
+      content: 'required|string',
+      slug: 'required|string',
+      highlightedTextObj: 'object'
     };
+    const { params: { slug }, body: { highlightedTextObj } } = req;
+    const data = { ...req.body, slug };
 
-    const data = req.body;
+    try {
+      if (highlightedTextObj) {
+        const { startPosition, endPosition, text } = highlightedTextObj;
+        const { body } = await db.Article.findOne({
+          where: { slug: req.params.slug }
+        });
+        if (text !== body.substring(startPosition, endPosition)) {
+          throw new Error('Invalid highlighted text');
+        }
+      }
+    } catch (e) {
+      return res.status(400).json({
+        error: e.message,
+      });
+    }
 
     try {
       await validatorInstance.validateAll(data, rules, messages);
