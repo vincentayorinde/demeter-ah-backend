@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { getToken, randomString } from '../../utils';
 import { sendMail } from '../../utils/mailer';
-import { activationMessage } from '../../utils/mailer/mails';
+import { activationMessage, resetPasswordMessage } from '../../utils/mailer/mails';
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
@@ -34,7 +34,8 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM,
         default: 'author',
         values: ['author', 'admin']
-      }
+      },
+      byadmin: DataTypes.BOOLEAN,
     },
     {
       hooks: {
@@ -53,6 +54,15 @@ module.exports = (sequelize, DataTypes) => {
                 user.email,
                 user.emailVerificationToken
               ),
+            });
+          }
+
+          if (user.byadmin) {
+            const passwordResetToken = randomString();
+            sendMail({
+              email: user.email,
+              subject: 'Password Reset LInk',
+              content: resetPasswordMessage(user.email, passwordResetToken)
             });
           }
         },
@@ -127,6 +137,7 @@ module.exports = (sequelize, DataTypes) => {
       firstName: this.firstName,
       lastName: this.lastName,
       id: this.id,
+      role: this.role
     };
     if (addToken) userData.token = getToken(this.id, this.email);
     return userData;

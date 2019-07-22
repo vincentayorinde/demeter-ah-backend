@@ -79,7 +79,7 @@ class Middleware {
   }
 
   /**
-      * checks blacked listed tokens.
+      * checks if user is admin or superadmin.
       * @param {request} req .
       * @param {response} res The second number.
       * @param {next} next The second number.
