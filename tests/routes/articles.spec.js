@@ -8,6 +8,7 @@ import {
 } from '../helpers';
 import * as utils from '../../utils';
 import { transporter } from '../../utils/mailer';
+import Notifications from '../../utils/notifications';
 
 const { expect } = chai;
 let mockTransporter;
@@ -18,11 +19,13 @@ let register;
 let mockUploadImage;
 let mockDeleteImage;
 let ratingUser;
+let mockPusher;
 let category;
 
 describe('ARTICLES TEST', () => {
   before(async () => {
     mockTransporter = sinon.stub(transporter, 'sendMail').resolves({});
+    mockPusher = sinon.stub(Notifications.pusher, 'trigger').resolves({});
   });
   beforeEach(async () => {
     category = await createCategory({ name: 'comms' });
@@ -50,6 +53,7 @@ describe('ARTICLES TEST', () => {
 
   after(async () => {
     mockTransporter.restore();
+    mockPusher.restore();
     await db.Article.destroy({ truncate: true, cascade: true });
     await db.User.destroy({ truncate: true, cascade: true });
     await db.Ratings.destroy({ truncate: true, cascade: true });

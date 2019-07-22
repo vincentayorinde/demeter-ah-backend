@@ -4,12 +4,14 @@ import sinon from 'sinon';
 import { createUser } from '../helpers';
 import { app, db } from '../../server';
 import { transporter } from '../../utils/mailer';
+import Notifications from '../../utils/notifications';
 
 
 const { expect } = chai;
 
 chai.use(chaiHttp);
 let mockTransporter;
+let mockPusher;
 let user1;
 let user2;
 let user3;
@@ -18,6 +20,7 @@ let user4;
 describe('FOLLOW TEST', () => {
   beforeEach(async () => {
     mockTransporter = sinon.stub(transporter, 'sendMail').resolves({});
+    mockPusher = sinon.stub(Notifications.pusher, 'trigger').resolves({});
     await db.User.destroy({ truncate: true, cascade: true });
     await db.MemberShip.destroy({ truncate: true, cascade: true });
     user1 = await createUser({
@@ -52,6 +55,7 @@ describe('FOLLOW TEST', () => {
 
   afterEach(async () => {
     mockTransporter.restore();
+    mockPusher.restore();
     await db.User.sync({ truncate: true, casade: true });
     await db.MemberShip.sync({ truncate: true, casade: true });
   });

@@ -1,4 +1,5 @@
 import db from '../../db/models';
+import Notification from '../../utils/notifications';
 
 export default {
   addComment: async (req, res) => {
@@ -6,7 +7,7 @@ export default {
     let { highlightedTextObj } = req.body;
     try {
       const foundArticle = await db.Article.findOne({
-        where: { slug }
+        where: { slug },
       });
       if (!foundArticle) {
         return res.status(404).send({
@@ -19,6 +20,12 @@ export default {
         userId: user.id,
         content,
         highlightedText: highlightedTextObj
+      });
+
+      Notification.articleNotification({
+        articleId: foundArticle.id,
+        userId: user.id,
+        type: 'comment'
       });
       return res.status(201).json({
         message: 'Comment added successfully',
