@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       rating: DataTypes.FLOAT,
       readTime: DataTypes.STRING,
       flagged: DataTypes.BOOLEAN,
+      categoryId: DataTypes.INTEGER,
     },
     {}
   );
@@ -62,6 +63,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'articleId',
       as: 'reports',
       cascade: true
+    });
+    Article.belongsTo(models.Category, {
+      foreignKey: 'categoryId',
+      as: 'category'
     });
   };
   return Article;

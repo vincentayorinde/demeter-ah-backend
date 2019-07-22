@@ -732,6 +732,7 @@ definitions:
       - description
       - body
       - images
+      - categoryId
     properties:
       title:
         type: string
