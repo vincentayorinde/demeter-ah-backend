@@ -13,35 +13,42 @@ export default {
       });
     }
 
-    const userExist = await db.User.findOne({
-      where: { id: followId }
-    });
-
-    if (!userExist) {
-      return res.status(404).send({
-        error: 'user not found'
+    try {
+      const userExist = await db.User.findOne({
+        where: { id: followId }
       });
-    }
-    const following = await db.MemberShip.findOne({
-      where: {
+
+      if (!userExist) {
+        return res.status(404).send({
+          error: 'user not found'
+        });
+      }
+      const following = await db.MemberShip.findOne({
+        where: {
+          followerId,
+          followId
+        }
+      });
+      if (following) {
+        // unfollow user
+        await following.destroy();
+        return res.status(200).send({
+          message: 'unfollow successful'
+        });
+      }
+      const result = await db.MemberShip.create({
         followerId,
         followId
-      }
-    });
-    if (following) {
-      // unfollow user
-      await following.destroy();
+      });
       return res.status(200).send({
-        message: 'unfollow successful'
+        user: result
+      });
+    } catch (e) {
+      /* istanbul ignore next */
+      return res.status(500).send({
+        error: 'something went wrong'
       });
     }
-    const result = await db.MemberShip.create({
-      followerId,
-      followId
-    });
-    return res.status(200).send({
-      user: result
-    });
   },
 
   getFollowing: async (req, res) => {

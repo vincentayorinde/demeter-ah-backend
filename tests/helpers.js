@@ -64,9 +64,7 @@ export const createArticleVote = async vote => db.ArticleVote.create(vote);
 
 export const createTestFakeUsers = async () => {
   const users = await createFakeUsers();
-  users.forEach(async (user) => {
-    await createUser(user);
-  });
+  await db.User.bulkCreate(users);
 };
 export const createTag = async tag => db.Tag.create(tag);
 
