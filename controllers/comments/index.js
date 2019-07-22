@@ -3,6 +3,7 @@ import db from '../../db/models';
 export default {
   addComment: async (req, res) => {
     const { params: { slug }, body: { content }, user } = req;
+    let { highlightedTextObj } = req.body;
     try {
       const foundArticle = await db.Article.findOne({
         where: { slug }
@@ -12,10 +13,12 @@ export default {
           error: 'Article does not exist'
         });
       }
+      highlightedTextObj = JSON.stringify(highlightedTextObj);
       const comment = await db.Comment.create({
         articleId: foundArticle.id,
         userId: user.id,
-        content
+        content,
+        highlightedText: highlightedTextObj
       });
       return res.status(201).json({
         message: 'Comment added successfully',
