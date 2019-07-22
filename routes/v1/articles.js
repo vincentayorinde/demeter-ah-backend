@@ -48,7 +48,13 @@ router.delete(
   Article.deleteArticle,
 );
 
-router.post('/vote/:slug', Middleware.authenticate, Middleware.isblackListedToken, Article.voteArticle);
+router.post(
+  '/vote/:slug',
+  Middleware.authenticate,
+  Middleware.isblackListedToken,
+  Validation.voteArticle,
+  Article.voteArticle
+);
 
 router.get(
   '/rate/:slug',
