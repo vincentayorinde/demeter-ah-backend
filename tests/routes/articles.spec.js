@@ -3,7 +3,8 @@ import sinon from 'sinon';
 import chaiHttp from 'chai-http';
 import { app, db } from '../../server';
 import {
-  createUser, createArticle, createRate, createArticleVote, createComment, createCommentHistory
+  createUser, createArticle, createRate, createArticleVote, createComment, createCommentHistory,
+  createCategory
 } from '../helpers';
 import * as utils from '../../utils';
 import { transporter } from '../../utils/mailer';
@@ -17,16 +18,19 @@ let register;
 let mockUploadImage;
 let mockDeleteImage;
 let ratingUser;
+let category;
 
 describe('ARTICLES TEST', () => {
   before(async () => {
     mockTransporter = sinon.stub(transporter, 'sendMail').resolves({});
   });
   beforeEach(async () => {
+    category = await createCategory({ name: 'comms' });
     article = {
       title: 'React course by hamza',
       description: 'very good book',
-      body: 'learning react is good for your career...'
+      body: 'learning react is good for your career...',
+      categoryId: category.id
     };
     register = {
       firstName: 'vincent',
@@ -40,6 +44,7 @@ describe('ARTICLES TEST', () => {
     await db.ArticleTag.destroy({ truncate: true, cascade: true });
     await db.Tag.destroy({ truncate: true, cascade: true });
     await db.Comment.destroy({ truncate: true, cascade: true });
+    await db.Category.destroy({ truncate: true, cascade: true });
   });
 
   after(async () => {
@@ -50,6 +55,7 @@ describe('ARTICLES TEST', () => {
     await db.ArticleTag.destroy({ truncate: true, cascade: true });
     await db.Tag.destroy({ truncate: true, cascade: true });
     await db.Comment.destroy({ truncate: true, cascade: true });
+    await db.Category.destroy({ truncate: true, cascade: true });
   });
 
   describe('Create articles', () => {
@@ -62,6 +68,7 @@ describe('ARTICLES TEST', () => {
       const user = await createUser(register);
       const userResponse = user.response();
       const { token } = userResponse;
+      category = await createCategory({ name: 'tech' });
       const res = await chai
         .request(app)
         .post('/api/v1/articles')
@@ -70,6 +77,7 @@ describe('ARTICLES TEST', () => {
         .field('description', 'very good book')
         .field('body', 'learning react is good for your career...')
         .field('tags', 'Javascript')
+        .field('categoryId', category.id)
         .attach('image', `${__dirname}/test.jpg`)
         .set('x-access-token', token);
       expect(res.statusCode).to.equal(201);
@@ -84,6 +92,24 @@ describe('ARTICLES TEST', () => {
       expect(res.body.article.tagList).to.be.an('array');
       expect(res.body.article.tagList).to.have.length(1);
       expect(res.body.article.tagList[0]).to.equal('javascript');
+    });
+    it('should not create an article if category Id does not exit', async () => {
+      const user = await createUser(register);
+      const userResponse = user.response();
+      const { token } = userResponse;
+      const res = await chai
+        .request(app)
+        .post('/api/v1/articles')
+        .field('Content-Type', 'multipart/form-data')
+        .field('title', 'React course by hamza')
+        .field('description', 'very good book')
+        .field('body', 'learning react is good for your career...')
+        .field('tags', 'Javascript')
+        .field('categoryId', 345678)
+        .attach('image', `${__dirname}/test.jpg`)
+        .set('x-access-token', token);
+      expect(res.statusCode).to.equal(400);
+      expect(res.body.message).to.equal('category does not Exist');
     });
     it('should not create an article if info is not complete', async () => {
       const user = await createUser(register);
@@ -130,6 +156,7 @@ describe('ARTICLES TEST', () => {
       const user = await createUser(register);
       const userResponse = user.response();
       const { token } = userResponse;
+      category = await createCategory({ name: 'tech' });
       const res = await chai
         .request(app)
         .post('/api/v1/articles')
@@ -137,6 +164,7 @@ describe('ARTICLES TEST', () => {
         .field('title', 'React course by hamza')
         .field('description', 'very good book')
         .field('body', 'learning react is good for your career...')
+        .field('categoryId', category.id)
         .attach('image', `${__dirname}/test.jpg`)
         .set('x-access-token', token);
       expect(res.statusCode).to.equal(201);

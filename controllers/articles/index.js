@@ -70,9 +70,22 @@ export default {
     try {
       const {
         user, body: {
-          description, body, title, tags, readTime
+          description, body, title, tags, readTime, categoryId
         }
       } = req;
+
+      const categoryExist = await db.Category.findOne({
+        where: {
+          id: categoryId
+        }
+      });
+
+      if (!categoryExist) {
+        return res.status(400).send({
+          message: 'category does not Exist'
+        });
+      }
+
       const tagDetails = tags ? tags.split(',') : null;
       const tagList = [];
       let article = await user.createArticle(
@@ -80,7 +93,8 @@ export default {
           description,
           body,
           title,
-          readTime
+          readTime,
+          categoryId
         }
       );
 
@@ -171,6 +185,7 @@ export default {
         title: data.title || foundArticle.title,
         image: data.image || foundArticle.image,
         readTime: data.readTime || foundArticle.readTime,
+        categoryId: data.categoryId || foundArticle.categoryId,
       });
 
       return res.status(200).json({
