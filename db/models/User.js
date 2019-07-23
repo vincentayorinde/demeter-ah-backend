@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
               email: user.email,
               subject: 'Activate Account',
               content: activationMessage(
-                user.email,
+                user,
                 user.emailVerificationToken
               ),
             });
@@ -62,7 +62,7 @@ module.exports = (sequelize, DataTypes) => {
             sendMail({
               email: user.email,
               subject: 'Password Reset LInk',
-              content: resetPasswordMessage(user.email, passwordResetToken)
+              content: resetPasswordMessage(user, passwordResetToken)
             });
           }
         },
