@@ -17,8 +17,24 @@ const createFakeArticles = (id) => {
   // eslint-disable-next-line no-plusplus
   for (let i = 0; i < 40; i++) {
     Articles.push(getFakeArticle(id));
+    Articles[i].slug = `slug${i}`;
   }
   return Articles;
+};
+
+const createFakeArticleVotes = (userId, articleId) => {
+  const Votes = [];
+  // eslint-disable-next-line no-plusplus
+  for (let i = 0; i < 40; i++) {
+    Votes.push({
+      status: Boolean(i % 2),
+      userId,
+      articleId,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+  }
+  return Votes;
 };
 
 const getFakeUser = () => ({
@@ -26,8 +42,8 @@ const getFakeUser = () => ({
   bio: faker.random.word('string'),
   firstName: faker.name.firstName(),
   lastName: faker.name.lastName(),
-  username: faker.random.words(4),
-  password: faker.random.words(10),
+  username: faker.name.firstName(),
+  password: bcrypt.hashSync('password', 10),
   image: faker.image.imageUrl(),
   role: 'author'
 });
@@ -50,7 +66,9 @@ const createFakeUsers = async () => {
 
   // eslint-disable-next-line no-plusplus
   for (let i = 0; i < 40; i++) {
-    Users.push(getFakeUser());
+    const user = getFakeUser();
+    user.username = `${user.username}${i}`;
+    Users.push(user);
   }
   return Users;
 };
@@ -60,5 +78,6 @@ module.exports = {
   createFakeArticles,
   getFakeUser,
   createFakeUsers,
-  getFakeAdmin
+  getFakeAdmin,
+  createFakeArticleVotes
 };
