@@ -30,6 +30,7 @@ describe('ARTICLES TEST', () => {
       title: 'React course by hamza',
       description: 'very good book',
       body: 'learning react is good for your career...',
+      publish: true,
       categoryId: category.id
     };
     register = {
@@ -78,6 +79,7 @@ describe('ARTICLES TEST', () => {
         .field('body', 'learning react is good for your career...')
         .field('tags', 'Javascript')
         .field('categoryId', category.id)
+        .field('publish', true)
         .attach('image', `${__dirname}/test.jpg`)
         .set('x-access-token', token);
       expect(res.statusCode).to.equal(201);
@@ -105,6 +107,7 @@ describe('ARTICLES TEST', () => {
         .field('description', 'very good book')
         .field('body', 'learning react is good for your career...')
         .field('tags', 'Javascript')
+        .field('publish', true)
         .field('categoryId', 345678)
         .attach('image', `${__dirname}/test.jpg`)
         .set('x-access-token', token);
@@ -165,6 +168,7 @@ describe('ARTICLES TEST', () => {
         .field('description', 'very good book')
         .field('body', 'learning react is good for your career...')
         .field('categoryId', category.id)
+        .field('publish', true)
         .attach('image', `${__dirname}/test.jpg`)
         .set('x-access-token', token);
       expect(res.statusCode).to.equal(201);
@@ -220,7 +224,7 @@ describe('ARTICLES TEST', () => {
       expect(res.body.article.description).to.include(article.description);
       expect(res.body.article.body).to.include(article.body);
     });
-    it('should not update an article does not exist', async () => {
+    it('should not update an article that does not exist', async () => {
       const newUser = await createUser(register);
       const userResponse = newUser.response();
       const { token } = userResponse;
@@ -234,6 +238,22 @@ describe('ARTICLES TEST', () => {
       expect(res.body).to.include.all.keys('message');
       expect(res.body.message).to.be.a('string');
       expect(res.body.message).to.include('Article not found');
+    });
+    it('should not update an article if info is incorrect', async () => {
+      const newUser = await createUser(register);
+      const userResponse = newUser.response();
+      const { token } = userResponse;
+      const res = await chai
+        .request(app)
+        .put('/api/v1/articles/9')
+        .set('x-access-token', token)
+        .send({ title: 980 });
+      expect(res.statusCode).to.equal(400);
+      expect(res.body).to.be.an('object');
+      expect(res.body.message).to.be.an('array');
+      expect(res.body.message[0]).to.include.all.keys('message');
+      expect(res.body.message[0].message).to.be.a('string');
+      expect(res.body.message[0].message).to.include('title must be a string');
     });
     it('Only author of an article should be able to edit an article', async () => {
       const newUser = await createUser(register);
@@ -387,6 +407,17 @@ describe('ARTICLES TEST', () => {
       expect(res.body.articles).to.be.an('array');
       expect(res.body.articles.length).to.equal(0);
       expect(res.body.articlesCount).to.equal(0);
+    });
+    it('should not get any articles if none exist', async () => {
+      const res = await chai
+        .request(app)
+        .get('/api/v1/articles?limit=true');
+      expect(res.statusCode).to.equal(400);
+      expect(res.body).to.be.an('object');
+      expect(res.body.message).to.be.an('array');
+      expect(res.body.message[0]).to.include.all.keys('message');
+      expect(res.body.message[0].message).to.be.a('string');
+      expect(res.body.message[0].message).to.include('limit must be an integer');
     });
   });
 

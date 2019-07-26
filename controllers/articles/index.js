@@ -70,10 +70,10 @@ export default {
     try {
       const {
         user, body: {
-          description, body, title, tags, readTime, categoryId
+          description, body, title, tags,
+          readTime, categoryId, publish
         }
       } = req;
-
       const categoryExist = await db.Category.findOne({
         where: {
           id: categoryId
@@ -94,7 +94,8 @@ export default {
           body,
           title,
           readTime,
-          categoryId
+          categoryId,
+          publish
         }
       );
 
@@ -182,6 +183,7 @@ export default {
       const article = await foundArticle.update({
         description: data.description || foundArticle.description,
         body: data.body || foundArticle.body,
+        publish: data.publish || foundArticle.publish,
         title: data.title || foundArticle.title,
         image: data.image || foundArticle.image,
         readTime: data.readTime || foundArticle.readTime,

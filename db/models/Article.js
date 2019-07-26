@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       rating: DataTypes.FLOAT,
       readTime: DataTypes.STRING,
       flagged: DataTypes.BOOLEAN,
+      publish: DataTypes.BOOLEAN,
       categoryId: DataTypes.INTEGER,
     },
     {}
