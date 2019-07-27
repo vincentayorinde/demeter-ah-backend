@@ -77,12 +77,10 @@ passport.use(
     },
     async (token, tokenSecret, profile, done) => {
       const { username } = profile;
-      let { displayName } = profile;
       const image = profile.photos[0].value;
       const email = profile.emails[0].value.toLocaleLowerCase();
-      displayName = displayName.split(' ');
-      const firstName = displayName[0].toLocaleLowerCase();
-      const lastName = displayName[1].toLocaleLowerCase();
+      const firstName = 'anonymous';
+      const lastName = 'user';
 
       const data = {
         email,
