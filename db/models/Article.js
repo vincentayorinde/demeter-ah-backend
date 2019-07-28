@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       readTime: DataTypes.STRING,
       flagged: DataTypes.BOOLEAN,
       categoryId: DataTypes.INTEGER,
+      audiourl: DataTypes.STRING,
     },
     {}
   );

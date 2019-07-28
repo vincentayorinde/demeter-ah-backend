@@ -22,7 +22,8 @@
       "**/*.spec.js",
       "middlewares/passport.js",
       "utils/index.js",
-      "db/faker.js"
+      "db/faker.js",
+      "middlewares/AWS/index.js"
     ]
   },
   "husky": {
@@ -56,6 +57,7 @@
     "@babel/core": "^7.4.5",
     "@babel/node": "^7.4.5",
     "@babel/preset-env": "^7.4.5",
+    "aws-sdk": "^2.501.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "cloudinary": "^1.14.0",

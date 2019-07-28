@@ -8,6 +8,7 @@ import {
 } from '../helpers';
 import * as utils from '../../utils';
 import { transporter } from '../../utils/mailer';
+import { polly } from '../../middlewares/AWS';
 
 const { expect } = chai;
 let mockTransporter;
@@ -19,10 +20,12 @@ let mockUploadImage;
 let mockDeleteImage;
 let ratingUser;
 let category;
+let textToSpeech;
 
 describe('ARTICLES TEST', () => {
   before(async () => {
     mockTransporter = sinon.stub(transporter, 'sendMail').resolves({});
+    textToSpeech = sinon.stub(polly, 'synthesizeSpeech').resolves({});
   });
   beforeEach(async () => {
     category = await createCategory({ name: 'comms' });
@@ -49,6 +52,7 @@ describe('ARTICLES TEST', () => {
 
   after(async () => {
     mockTransporter.restore();
+    textToSpeech.restore();
     await db.Article.destroy({ truncate: true, cascade: true });
     await db.User.destroy({ truncate: true, cascade: true });
     await db.Ratings.destroy({ truncate: true, cascade: true });

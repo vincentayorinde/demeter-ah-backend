@@ -3,6 +3,7 @@ import {
 } from '../../utils';
 import db from '../../db/models';
 import Notification from '../../utils/notifications';
+import textToSpeech from '../../middlewares/AWS';
 
 export default {
   getArticles: async (req, res) => {
@@ -97,6 +98,8 @@ export default {
           categoryId
         }
       );
+
+      textToSpeech(article.id, article.body, article.slug);
 
       if (req.files) {
         const image = await uploadImage(req.files.image, article.slug);
