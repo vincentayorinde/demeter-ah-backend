@@ -1130,4 +1130,56 @@ describe('ARTICLES TEST', () => {
       expect(res.body.error).to.equal('Article does not exist');
     });
   });
+
+  describe('Highlighted text comment', () => {
+    let userToken;
+    let articleSlug;
+    let newArticle;
+
+    beforeEach(async () => {
+      const user = await createUser({ ...register, email: 'man@havens.com' });
+      const userResponse = user.response();
+      const { token } = userResponse;
+      userToken = token;
+      newArticle = await createArticle({ ...article, authorId: userResponse.id });
+      articleSlug = newArticle.slug;
+    });
+
+    it('should add an highlighted comment if user is authenticated', async () => {
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/${articleSlug}/comments`)
+        .set('x-access-token', userToken)
+        .send({
+          content: 'This is my first comment',
+          highlightedTextObj: {
+            text: article.body.substring(9, 22),
+            startPosition: 9,
+            endPosition: 22
+          }
+        });
+      expect(res.statusCode).to.equal(201);
+      expect(res.body.message).to.be.equal('Comment added successfully');
+      expect(res.body.comment).to.be.an('object');
+      expect(res.body.comment.content).to.be.a('string');
+      // test response here
+    });
+
+    it('should add an highlighted comment if user is authenticated', async () => {
+      const res = await chai
+        .request(app)
+        .post(`/api/v1/articles/${articleSlug}/comments`)
+        .set('x-access-token', userToken)
+        .send({
+          content: 'This is my first comment',
+          highlightedTextObj: {
+            text: 'invalid text',
+            startPosition: 11,
+            endPosition: 25
+          }
+        });
+      expect(res.statusCode).to.equal(400);
+      expect(res.body.error).to.be.equal('Invalid highlighted text');
+    });
+  });
 });
