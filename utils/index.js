@@ -87,6 +87,7 @@ export const sanitizeRules = {
   username: 'trim',
   email: 'trim',
   password: 'trim',
+  publish: 'to_boolean'
 };
 
 validations.unique = async (data, field, message, args, get) => {

@@ -800,6 +800,10 @@ definitions:
         type: string
       image:
         type: string
+      publish:
+        type: boolean
+      categoryId:
+        type: Integer
     xml:
       name: NewUser
   NewArticle:
@@ -810,6 +814,7 @@ definitions:
       - body
       - images
       - categoryId
+      - publish
     properties:
       title:
         type: string

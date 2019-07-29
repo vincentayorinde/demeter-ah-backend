@@ -7,6 +7,8 @@ export default {
       body: 'required|string',
       image: 'object',
       title: 'required|string',
+      categoryId: 'required|integer',
+      publish: 'required|boolean'
     };
 
     const data = { ...req.body, ...req.files };
@@ -27,6 +29,7 @@ export default {
       body: 'string',
       image: 'object',
       title: 'string',
+      publish: 'boolean',
       slug: 'string|required'
     };
 
