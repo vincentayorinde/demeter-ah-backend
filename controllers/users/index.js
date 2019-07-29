@@ -106,7 +106,7 @@ export default {
         await sendMail({
           email: user.email,
           subject: 'Password Reset LInk',
-          content: resetPasswordMessage(user.email, passwordResetToken)
+          content: resetPasswordMessage(user, passwordResetToken)
         });
 
         return res.status(200).json({
