@@ -45,7 +45,9 @@ describe('Notification functions', () => {
 
   after(async () => {
     await db.User.destroy({ truncate: true, cascade: true });
+    await db.MemberShip.destroy({ truncate: true, cascade: true });
     mockTransporter.restore();
+    mockPusher.restore();
   });
   beforeEach(async () => {
     bulkCreateSpy = sinon.spy(db.Notification, 'bulkCreate');
@@ -55,7 +57,6 @@ describe('Notification functions', () => {
   afterEach(() => {
     createSpy.restore();
     bulkCreateSpy.restore();
-    mockPusher.restore();
   });
 
   describe('Testing notification function', () => {
@@ -88,7 +89,7 @@ describe('Notification functions', () => {
       });
 
       const { message } = notificationContent.dataValues;
-      expect(message).to.equal(`${vincent.firstName} ${vincent.lastName} likes your article titled "${hamzaArticle.dataValues.title}"`);
+      expect(message).to.equal(`${vincent.firstName} ${vincent.lastName} likes your article "${hamzaArticle.dataValues.title}"`);
     });
 
     it('should create a new comment notification message', async () => {
@@ -106,7 +107,7 @@ describe('Notification functions', () => {
       });
 
       const { message } = notificationContent.dataValues;
-      expect(message).to.equal(`${vincent.firstName} ${vincent.lastName} commented on your article titled "${hamzaArticle.dataValues.title}"`);
+      expect(message).to.equal(`${vincent.firstName} ${vincent.lastName} commented on your article "${hamzaArticle.dataValues.title}"`);
     });
 
     it('should create a new dislike notification message', async () => {
@@ -125,25 +126,31 @@ describe('Notification functions', () => {
       });
 
       const { message } = notificationContent.dataValues;
-      expect(message).to.equal(`${vincent.firstName} ${vincent.lastName} dislikes your article titled "${hamzaArticle.dataValues.title}"`);
+      expect(message).to.equal(`${vincent.firstName} ${vincent.lastName} dislikes your article "${hamzaArticle.dataValues.title}"`);
     });
 
     it('should get a new publish notification message', async () => {
+      await db.MemberShip.create({
+        followId: hamza.id,
+        followerId: vincent.id
+      });
+
       await Notifications.articleNotification({
-        userId: vincent.id,
+        userId: hamza.id,
         articleId: hamzaArticle.dataValues.id,
         type: 'publish'
       });
+
       expect(bulkCreateSpy.calledOnce).to.be.true;
       const notificationContent = await db.Notification.findOne({
         where: {
-          senderId: vincent.id,
-          receiverId: hamza.id
+          senderId: hamza.id,
+          receiverId: vincent.id
         }
       });
 
       const { message } = notificationContent.dataValues;
-      expect(message).to.equal(`${vincent.firstName} ${vincent.lastName} published a new article titled "${hamzaArticle.dataValues.title}"`);
+      expect(message).to.equal(`${hamza.firstName} ${hamza.lastName} published a new article titled "${hamzaArticle.dataValues.title}"`);
     });
   });
 });

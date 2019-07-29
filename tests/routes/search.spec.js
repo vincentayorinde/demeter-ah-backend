@@ -1,17 +1,22 @@
 import chai from 'chai';
 import chaiHttp from 'chai-http';
+import sinon from 'sinon';
 import { app, db } from '../../server';
 import {
   createUser, createArticle, createTag, createArticleTag
 } from '../helpers';
+import { transporter } from '../../utils/mailer';
 
 const { expect } = chai;
 
 chai.use(chaiHttp);
 let user, article, newUser, newArticle, newTag = {};
-describe('USER PROFILE', () => {
+let mockTransporter;
+
+describe('SEARCH TEST', () => {
   before(async () => {
     await db.Article.destroy({ truncate: true, cascade: true });
+    mockTransporter = sinon.stub(transporter, 'sendMail').resolves({});
     user = {
       firstName: 'vincent',
       lastName: 'hamza',
@@ -31,6 +36,7 @@ describe('USER PROFILE', () => {
   });
   after(async () => {
     await db.Article.destroy({ truncate: true, cascade: true });
+    mockTransporter.restore();
   });
   describe('SEARCH', () => {
     it('Should not get articles if no filter is entered', async () => {

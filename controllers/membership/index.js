@@ -1,5 +1,6 @@
 import db from '../../db/models';
 import { getMembers } from '../../utils';
+import Notification from '../../utils/notifications';
 
 export default {
   createFollowing: async (req, res) => {
@@ -40,6 +41,12 @@ export default {
         followerId,
         followId
       });
+
+      await Notification.followNotification({
+        userId: followerId,
+        followedUserId: followId
+      });
+
       return res.status(200).send({
         user: result
       });

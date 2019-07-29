@@ -72,31 +72,44 @@ const followNotification = async ({ userId, followedUserId }) => {
 const bulkNotify = async ({
   senderId, message, emailMsg, link
 }) => {
-  const userIds = await db.User.findAll({
+  const inApp = await db.MemberShip.findAll({
     where: {
-      inAppNotify: true,
+      followId: senderId
     },
-    attributes: ['id']
+    include: [{
+      model: db.User,
+      as: 'follower',
+      where: {
+        inAppNotify: true,
+      },
+      attributes: ['id']
+    }]
   });
 
-  const users = await db.User.findAll({
+  const emailNotify = await db.MemberShip.findAll({
     where: {
-      emailNotify: true,
+      followId: senderId
     },
-    attributes: ['email']
+    include: [{
+      model: db.User,
+      as: 'follower',
+      where: {
+        emailNotify: true,
+      },
+      attributes: ['email']
+    }]
   });
-  // TODO:: Fetch users following this user and send email
-  // to them when an article is created
-  const usersEmail = users.map(user => user.email);
+  const followersIds = inApp.map(user => user.follower.id);
+  const followersEmails = emailNotify.map(user => user.follower.email);
 
-  sendEmailNotification(usersEmail, emailMsg, link);
+  sendEmailNotification(followersEmails, emailMsg, link);
 
-  const data = userIds.map(user => ({
-    receiverId: user.id, senderId, message, link
+  const data = followersIds.map(receiverId => ({
+    receiverId, senderId, message, link
   }));
 
   await db.Notification.bulkCreate(data);
-  await pushNotification(userIds);
+  await pushNotification(followersIds);
 };
 
 
@@ -122,8 +135,8 @@ const articleNotification = async ({ userId, articleId, type }) => {
   const link = `/articles/${slug}`;
 
   if (type === 'publish') {
-    const publishMsg = `${user.firstName} ${user.lastName} published a new article titled "${title}"`;
-    const publishEmailMsg = `${user.firstName} ${user.lastName} published a new article titled <strong>${title}</strong>`;
+    const publishMsg = `${author.firstName} ${author.lastName} published a new article titled "${title}"`;
+    const publishEmailMsg = `${author.firstName} ${author.lastName} published a new article titled <strong>${title}</strong>`;
     await bulkNotify({
       senderId: userId,
       message: publishMsg,
@@ -136,8 +149,8 @@ const articleNotification = async ({ userId, articleId, type }) => {
     else if (type === 'dislike') msgType = 'dislikes';
     else msgType = 'commented on';
 
-    const message = `${user.firstName} ${user.lastName} ${msgType} your article titled "${title}"`;
-    const emailMsg = `${user.firstName} ${user.lastName} ${msgType} your article titled <strong>${title}</strong>`;
+    const message = `${user.firstName} ${user.lastName} ${msgType} your article "${title}"`;
+    const emailMsg = `${user.firstName} ${user.lastName} ${msgType} your article <strong>${title}</strong>`;
 
     if (emailNotify) await sendEmailNotification(email, emailMsg, link);
 

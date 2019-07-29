@@ -125,13 +125,13 @@ export default {
         });
       }
 
-      article.setDataValue('author', {
+      await article.setDataValue('author', {
         username: user.username,
         bio: user.bio,
         image: user.image,
       });
 
-      article.setDataValue('tagList', tagList);
+      await article.setDataValue('tagList', tagList);
 
       await Notification.articleNotification({
         userId: req.user.id,
@@ -316,7 +316,7 @@ export default {
 
       let resStatus = 201;
       let message = status ? 'You upvote this article' : 'You downvote this article';
-
+      let notify = status;
 
       if (!vote) {
         await db.ArticleVote.create(voteDetails);
@@ -325,9 +325,18 @@ export default {
         if (status === vote.status) {
           await vote.deleteArticleVote();
           message = 'You have unvote this article';
+          notify = false;
         } else {
           await vote.updateArticleVote(status);
         }
+      }
+
+      if (notify) {
+        await Notification.articleNotification({
+          articleId,
+          userId,
+          type: 'like'
+        });
       }
 
       const upvotes = await db.ArticleVote.getArticleVotes({ ...voteDetails, status: true });
