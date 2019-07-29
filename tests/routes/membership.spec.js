@@ -176,4 +176,30 @@ describe('FOLLOW TEST', () => {
     expect(res.body.user).to.include.all
       .keys('followers', 'username', 'id', 'email', 'firstName', 'lastName', 'image');
   });
+
+  it('should throw validation error if followId is not present', async () => {
+    const userResponse = user1.response();
+    const { token } = userResponse;
+    const res = await chai
+      .request(app)
+      .post('/api/v1/members')
+      .send({ followId: '' })
+      .set('x-access-token', token);
+    expect(res.statusCode).to.equal(400);
+    expect(res.body.message).to.be.an('array');
+    expect(res.body.message[0].message).to.equal('Input your followId');
+  });
+
+  it('should throw validation error if followId is not present', async () => {
+    const userResponse = user1.response();
+    const { token } = userResponse;
+    const res = await chai
+      .request(app)
+      .post('/api/v1/members')
+      .send({ followId: 'tyuio' })
+      .set('x-access-token', token);
+    expect(res.statusCode).to.equal(400);
+    expect(res.body.message).to.be.an('array');
+    expect(res.body.message[0].message).to.equal('followId must be an integer');
+  });
 });
