@@ -19,11 +19,18 @@ export default {
           offset,
           limit,
           where: queryParams,
-          include: [{
-            model: db.User,
-            as: 'author',
-            attributes: ['username', 'bio', 'image']
-          }]
+          include: [
+            {
+              model: db.User,
+              as: 'author',
+              attributes: ['username', 'bio', 'image']
+            },
+            {
+              model: db.Category,
+              as: 'category',
+              attributes: ['name']
+            }
+          ]
         }
       );
       return res.status(200).json({
@@ -39,15 +46,109 @@ export default {
     }
   },
 
+  getUserArticles: async (req, res) => {
+    try {
+      const { user: { id }, query } = req;
+      const offset = query.offset ? (query.offset * query.limit) : 0;
+      const limit = query.limit || 20;
+
+      const articles = await db.Article.findAndCountAll(
+        {
+          offset,
+          limit,
+          where: { authorId: id },
+          attributes: ['title', 'rating', 'reads'],
+          include: [
+            {
+              model: db.ArticleVote,
+              where: { status: true },
+              required: false,
+              as: 'upVote',
+              attributes: ['status'],
+              include: [{
+                model: db.User,
+                required: false,
+                as: 'user',
+                attributes: ['username']
+              }]
+            },
+            {
+              model: db.ArticleVote,
+              where: { status: false },
+              required: false,
+              as: 'downVote',
+              attributes: ['status'],
+              include: [{
+                model: db.User,
+                required: false,
+                as: 'user',
+                attributes: ['username']
+              }]
+            }
+          ]
+        }
+      );
+      return res.status(200).json({
+        articles: articles.rows,
+        articlesCount: articles.count,
+      });
+    } catch (e) {
+      /* istanbul ignore next */
+      console.log(e);
+      return res.status(500).json({
+        message: 'Something went wrong',
+        error: e.message,
+      });
+    }
+  },
+
   getArticle: async (req, res) => {
     try {
       const article = await db.Article.findOne({
         where: { slug: req.params.slug },
-        include: [{
-          model: db.Tag,
-          as: 'tags',
-          attributes: ['name']
-        }]
+        include: [
+          {
+            model: db.User,
+            as: 'author',
+            attributes: ['username', 'bio', 'image']
+          },
+          {
+            model: db.Category,
+            as: 'category',
+            attributes: ['name']
+          },
+          {
+            model: db.Tag,
+            as: 'tags',
+            attributes: ['name']
+          },
+          {
+            model: db.ArticleVote,
+            where: { status: true },
+            required: false,
+            as: 'upVote',
+            attributes: ['status'],
+            include: [{
+              model: db.User,
+              required: false,
+              as: 'user',
+              attributes: ['username']
+            }]
+          },
+          {
+            model: db.ArticleVote,
+            where: { status: false },
+            required: false,
+            as: 'downVote',
+            attributes: ['status'],
+            include: [{
+              model: db.User,
+              required: false,
+              as: 'user',
+              attributes: ['username']
+            }]
+          }
+        ]
       });
 
       if (!article) {

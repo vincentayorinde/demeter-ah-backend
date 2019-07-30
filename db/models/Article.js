@@ -39,7 +39,13 @@ module.exports = (sequelize, DataTypes) => {
 
     Article.hasMany(models.ArticleVote, {
       foreignKey: 'articleId',
-      as: 'articleVote',
+      as: 'upVote',
+      cascade: true
+    });
+
+    Article.hasMany(models.ArticleVote, {
+      foreignKey: 'articleId',
+      as: 'downVote',
       cascade: true
     });
 

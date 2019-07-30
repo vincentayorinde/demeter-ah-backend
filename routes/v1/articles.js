@@ -21,6 +21,15 @@ router.post(
   Validation.rateArticle,
   Article.rateArticle,
 );
+
+router.get(
+  '/user',
+  Middleware.authenticate,
+  Middleware.isblackListedToken,
+  Validation.getUserArticles,
+  Article.getUserArticles
+);
+
 router.get(
   '/',
   Validation.getArticles,
@@ -31,6 +40,7 @@ router.get(
   Validation.articleSlug,
   Article.getArticle,
 );
+
 router.put(
   '/:slug',
   Middleware.authenticate,

@@ -1080,6 +1080,35 @@ describe('ARTICLES TEST', () => {
     });
   });
 
+  describe('Get User Articles', () => {
+    let newUser;
+    let newArticle;
+    beforeEach(async () => {
+      await db.Article.destroy({ truncate: true, cascade: true });
+      await db.User.destroy({ truncate: true, cascade: true });
+      newUser = await createUser(register);
+      newArticle = await createArticle({ ...article, authorId: newUser.id });
+    });
+
+    it('get Articles for a logged in author', async () => {
+      const { token } = newUser.response();
+      const { title } = newArticle;
+      const res = await chai
+        .request(app)
+        .get('/api/v1/articles/user/')
+        .set('x-access-token', token);
+      expect(res.status).to.be.equal(200);
+      expect(res.body).to.be.an('object');
+      expect(res.body).to.include.all.keys('articles', 'articlesCount');
+      expect(res.body.articles).to.be.an('array');
+      expect(res.body.articles.length).to.equal(1);
+      expect(res.body.articles[0]).to.be.an('object');
+      expect(res.body.articles[0]).to.include.all.keys('title', 'rating', 'reads', 'upVote', 'downVote');
+      expect(res.body.articles[0].title).to.equal(title);
+      expect(res.body.articlesCount).to.equal(1);
+    });
+  });
+
   describe('Update Article Stats', () => {
     let newUser;
     let newArticle;

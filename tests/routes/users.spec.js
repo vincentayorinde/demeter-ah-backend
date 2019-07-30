@@ -375,7 +375,11 @@ describe('USER AUTHENTICATION', () => {
 
   describe('Get all Users', () => {
     beforeEach(async () => {
-      await createTestFakeUsers();
+      try {
+        await createTestFakeUsers();
+      } catch (e) {
+        console.log(e.message);
+      }
     });
 
     it('should get all first 20 users', async () => {

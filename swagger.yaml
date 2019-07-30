@@ -224,6 +224,28 @@ paths:
       responses:
         '201':
           description: Article created successfully
+    get:
+      tags:
+        - "Articles"
+      summary: get all articles
+      description: get all articles
+      operationId: getArticles
+      produces:
+        - application/json
+      parameters:
+        - name: limit
+          in: query
+          description: articles per page
+          required: false
+          type: string
+        - name: offset
+          in: query
+          description: article page
+          required: false
+          type: string
+      responses:
+        200:
+          description: get all Articles successfully
   /articles/rate/{slug}:
     post:
       tags:
@@ -590,7 +612,7 @@ paths:
       responses:
         '200':
           description: an object containg search result
-  /articles/{slug}/comments/{commnetId}:
+  /articles/{slug}/comments/{commentId}:
     patch:
       tags:
         - Edit Article Comment
@@ -620,7 +642,7 @@ paths:
           description: Article not existing or comment not existing
         '400':
           description: Article slug must be string or comment Id must be integer
-  /articles/{slug}/comments/{commnetId}/history:
+  /articles/{slug}/comments/{commentId}/history:
     get:
       tags:
         - Get Article Comment Edit History
@@ -650,13 +672,36 @@ paths:
           description: Article not existing or comment not existing
         '400':
           description: Article slug must be string or comment Id must be integer
+  /articles/getUserArticles:
+    get:
+      tags:
+        - "Articles"
+      summary: get articles created by a user
+      description: get articles created by a user
+      operationId: getUserArticle
+      produces:
+        - application/json
+      parameters:
+        - name: limit
+          in: query
+          description: articles per page
+          required: false
+          type: string
+        - name: offset
+          in: query
+          description: article page
+          required: false
+          type: string
+      responses:
+        200:
+          description: User Articles gotten successfully
   /articles/stats/{slug}:
     patch:
       tags:
         - "Articles"
       summary: Increase article reads
       description: increase article reads
-      operationId: ArticleStats
+      operationId: updateArticleStats
       produces:
         - application/json
       parameters:
