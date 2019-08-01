@@ -12,7 +12,6 @@ router.post('/signout', Middleware.authenticate, Middleware.isblackListedToken, 
 router.post('/reset-password', Validation.resetPassword, User.resetPassword);
 router.put('/change-password', Validation.changePassword, User.changePassword);
 router.put('/activate/:token', User.activate);
-router.get('/home', User.home);
 router.get(
   '/',
   Middleware.authenticate,

@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { v2 as cloudinary } from 'cloudinary';
+import Cryptr from 'cryptr';
 import { validations } from 'indicative';
 import { Vanilla } from 'indicative/builds/formatters';
 import Validator from 'indicative/builds/validator';
@@ -12,6 +13,12 @@ cloudinary.config({
   api_key: process.env.API_KEY,
   api_secret: process.env.API_SECRET
 });
+
+export const encryptQuery = (string) => {
+  const cryptr = new Cryptr(process.env.SECRET);
+  const encryptedString = cryptr.encrypt(string);
+  return encryptedString;
+};
 
 export const uploadImage = (img, publicId) => new Promise((resolve, reject) => {
   cloudinary.uploader.upload(img.tempFilePath,
@@ -45,22 +52,43 @@ export const blackListThisToken = async (token) => {
 
 export const createUserFromSocials = async (data) => {
   const {
-    email, firstName, lastName, username, image
+    email, firstName, lastName, image
   } = data;
+
+  const username = email.substring(0, email.indexOf('@'));
+
   let user = await db.User.findOne({
     where: { email },
   });
 
-  if (!user) {
-    user = await db.User.create({
-      email,
-      firstName,
-      lastName,
-      username,
-      social: true,
-      image,
-    });
+  try {
+    if (!user) {
+      user = await db.User.create({
+        email,
+        firstName,
+        lastName,
+        username,
+        social: true,
+        image,
+      });
+    }
+  } catch (e) {
+    if (e.name === 'SequelizeUniqueConstraintError') {
+      const getRandomInt = max => (Math.floor(Math.random() * Math.floor(max)));
+      const newUsername = `${username}${getRandomInt(10000000000)}`;
+      user = await db.User.create({
+        email,
+        firstName,
+        lastName,
+        username: newUsername,
+        social: true,
+        image,
+      });
+      return user.response();
+    }
+    throw e;
   }
+
 
   return user.response();
 };
