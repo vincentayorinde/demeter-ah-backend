@@ -185,10 +185,6 @@ export default {
     }
   },
 
-  home: async (req, res) => res.status(200).send({
-    user: req.user
-  }),
-
   changeEmailNotification: async (req, res) => {
     const { user } = req;
     const notifyMe = user.emailNotify;

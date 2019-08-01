@@ -52,14 +52,31 @@ export const createUserFromSocials = async (data) => {
   });
 
   if (!user) {
-    user = await db.User.create({
-      email,
-      firstName,
-      lastName,
-      username,
-      social: true,
-      image,
-    });
+    try {
+      user = await db.User.create({
+        email,
+        firstName,
+        lastName,
+        username,
+        social: true,
+        image,
+      });
+    } catch (e) {
+      if (e.name === 'SequelizeUniqueConstraintError') {
+        const getRandomInt = max => (Math.floor(Math.random() * Math.floor(max)));
+        const newUsername = `${username}-${getRandomInt(100)}`;
+        user = await db.User.create({
+          email,
+          firstName,
+          lastName,
+          username: newUsername,
+          social: true,
+          image,
+        });
+        return user.response();
+      }
+      throw e;
+    }
   }
 
   return user.response();

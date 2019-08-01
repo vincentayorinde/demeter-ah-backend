@@ -1,7 +1,12 @@
 import express from 'express';
+import dotenv from 'dotenv';
 import passport from '../../middlewares/passport';
 
+dotenv.config();
+
 const router = express.Router();
+
+const redirect = (req, res) => res.redirect(`${process.env.FRONTEND_STAGING_URL}/#/signin?token=${req.user.token}&username=${req.user.username}`);
 
 // google login
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
@@ -11,7 +16,7 @@ router.get(
     failureRedirect: '/api/v1/error'
   }),
   /* istanbul ignore next */
-  (req, res) => res.redirect('/api/v1/users/home')
+  redirect
 );
 
 // facebook login
@@ -22,7 +27,7 @@ router.get(
     failureRedirect: '/api/v1/error'
   }),
   /* istanbul ignore next */
-  (req, res) => res.redirect('/api/v1/users/home')
+  redirect
 );
 
 // twiiter login
@@ -33,7 +38,7 @@ router.get(
     failureRedirect: '/api/v1/error'
   }),
   /* istanbul ignore next */
-  (req, res) => res.redirect('/api/v1/users/home')
+  redirect
 );
 
 export default router;

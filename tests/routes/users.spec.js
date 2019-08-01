@@ -363,14 +363,6 @@ describe('USER AUTHENTICATION', () => {
       expect(res.body.error).to.be.a('string');
       expect(res.body.error).to.include('Invalid activation Link');
     });
-
-    it('should call home route', async () => {
-      const res = await chai
-        .request(app)
-        .get('/api/v1/users/home')
-        .send();
-      expect(res).to.have.status(200);
-    });
   });
 
   describe('Get all Users', () => {
