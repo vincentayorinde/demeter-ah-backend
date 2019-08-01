@@ -8,6 +8,7 @@ import passport from 'passport';
 import session from 'express-session';
 import fileupload from 'express-fileupload';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import Routes from '../routes';
 import db from '../db/models';
 
@@ -21,6 +22,8 @@ app.use(bodyParser.json());
 app.use(fileupload({
   useTempFiles: true
 }));
+
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser(process.env.SESSION_SECRET));
 
