@@ -11,7 +11,14 @@ export default {
       password: 'required|min:8|max:30',
     };
 
-    const data = req.body;
+    let data = req.body;
+    const email = data.email.toLowerCase();
+    const username = data.username.toLowerCase();
+    data = {
+      ...data,
+      email,
+      username
+    };
 
     sanitize(data, sanitizeRules);
     try {
@@ -107,7 +114,14 @@ export default {
       email: 'required|email|unique:User',
       role: 'required|string|in:author,admin,superadmin'
     };
-    const data = req.body;
+    let data = req.body;
+    const email = data.email.toLowerCase();
+    const username = data.username.toLowerCase();
+    data = {
+      ...data,
+      email,
+      username
+    };
     sanitize(data, sanitizeRules);
 
     try {
