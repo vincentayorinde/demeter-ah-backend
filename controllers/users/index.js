@@ -103,7 +103,7 @@ export default {
         const date = new Date();
         date.setHours(date.getHours() + 2);
         await user.update({ passwordResetToken, passwordResetExpire: date });
-        await sendMail({
+        sendMail({
           email: user.email,
           subject: 'Password Reset LInk',
           content: resetPasswordMessage(user, passwordResetToken)
@@ -184,10 +184,6 @@ export default {
       });
     }
   },
-
-  home: async (req, res) => res.status(200).send({
-    user: req.user
-  }),
 
   changeEmailNotification: async (req, res) => {
     const { user } = req;
