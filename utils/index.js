@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { v2 as cloudinary } from 'cloudinary';
 import Cryptr from 'cryptr';
+import cryptoRandomString from 'crypto-random-string';
 import { validations } from 'indicative';
 import { Vanilla } from 'indicative/builds/formatters';
 import Validator from 'indicative/builds/validator';
@@ -11,7 +12,7 @@ import db from '../db/models';
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.API_KEY,
-  api_secret: process.env.API_SECRET
+  api_secret: process.env.API_SECRET,
 });
 
 export const encryptQuery = (string) => {
@@ -21,12 +22,18 @@ export const encryptQuery = (string) => {
 };
 
 export const uploadImage = (img, publicId) => new Promise((resolve, reject) => {
-  cloudinary.uploader.upload(img.tempFilePath,
-    { public_id: publicId }, (err, res) => (err ? reject(err) : resolve(res.url)));
+  cloudinary.uploader.upload(
+    img.tempFilePath,
+    { public_id: publicId },
+    (err, res) => (err ? reject(err) : resolve(res.url))
+  );
 });
 
 export const deleteImage = publicId => new Promise((resolve, reject) => {
-  cloudinary.uploader.destroy(publicId, (err, res) => (err ? reject(err) : resolve(res.url)));
+  cloudinary.uploader.destroy(
+    publicId,
+    (err, res) => (err ? reject(err) : resolve(res.url))
+  );
 });
 
 export const getToken = (id, email) => jwt.sign({ id, email }, process.env.SECRET, {
@@ -55,40 +62,23 @@ export const createUserFromSocials = async (data) => {
     email, firstName, lastName, image
   } = data;
 
-  const username = email.substring(0, email.indexOf('@'));
+  const randomStr = cryptoRandomString({ length: 10 });
+  const username = `${email.substring(0, email.indexOf('@'))}${randomStr}`;
 
   let user = await db.User.findOne({
     where: { email },
   });
 
-  try {
-    if (!user) {
-      user = await db.User.create({
-        email,
-        firstName,
-        lastName,
-        username,
-        social: true,
-        image,
-      });
-    }
-  } catch (e) {
-    if (e.name === 'SequelizeUniqueConstraintError') {
-      const getRandomInt = max => (Math.floor(Math.random() * Math.floor(max)));
-      const newUsername = `${username}${getRandomInt(10000000000)}`;
-      user = await db.User.create({
-        email,
-        firstName,
-        lastName,
-        username: newUsername,
-        social: true,
-        image,
-      });
-      return user.response();
-    }
-    throw e;
+  if (!user) {
+    user = await db.User.create({
+      email,
+      firstName,
+      lastName,
+      username,
+      social: true,
+      image,
+    });
   }
-
 
   return user.response();
 };
@@ -115,7 +105,7 @@ export const sanitizeRules = {
   username: 'trim',
   email: 'trim',
   password: 'trim',
-  publish: 'to_boolean'
+  publish: 'to_boolean',
 };
 
 validations.unique = async (data, field, message, args, get) => {
@@ -137,15 +127,26 @@ export const getMembers = async (user, follow, id) => {
       id,
     },
     attributes: ['id', 'username', 'email', 'firstName', 'lastName', 'image'],
-    include: [{
-      model: db.MemberShip,
-      as: user,
-      include: [{
-        model: db.User,
-        as: follow,
-        attributes: ['id', 'username', 'email', 'firstName', 'lastName', 'image']
-      }]
-    }]
+    include: [
+      {
+        model: db.MemberShip,
+        as: user,
+        include: [
+          {
+            model: db.User,
+            as: follow,
+            attributes: [
+              'id',
+              'username',
+              'email',
+              'firstName',
+              'lastName',
+              'image',
+            ],
+          },
+        ],
+      },
+    ],
   });
   return result;
 };
@@ -153,13 +154,14 @@ export const getMembers = async (user, follow, id) => {
 export const findRatedArticle = async ratingParams => db.Article.findOne(ratingParams);
 
 export const avgRating = async (articleId) => {
-  let avg = await (db.Ratings.findOne({
+  let avg = await db.Ratings.findOne({
     where: { articleId },
-    attributes: [[db.sequelize.fn('AVG',
-      db.sequelize.col('stars')), 'avgRating']],
+    attributes: [
+      [db.sequelize.fn('AVG', db.sequelize.col('stars')), 'avgRating'],
+    ],
     group: ['articleId'],
-    order: [[db.sequelize.fn('AVG', db.sequelize.col('stars')), 'DESC']]
-  }));
+    order: [[db.sequelize.fn('AVG', db.sequelize.col('stars')), 'DESC']],
+  });
   avg = parseFloat(avg.dataValues.avgRating).toFixed(2);
   return avg;
 };
@@ -170,6 +172,6 @@ export const storeRating = async (foundArticleId) => {
     where: { id: foundArticleId },
   });
   getArticle.update({
-    rating: parseFloat(articleAvg).toFixed(2)
+    rating: parseFloat(articleAvg).toFixed(2),
   });
 };
