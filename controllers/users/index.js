@@ -11,13 +11,17 @@ export default {
     const {
       firstName, lastName, password, email, username
     } = req.body;
+
+    const newEmail = email.toLowerCase();
+    const newUsername = username.toLowerCase();
+
     try {
       const user = await db.User.create({
         firstName,
         lastName,
         password,
-        email,
-        username
+        email: newEmail,
+        username: newUsername
       });
       return res.status(201).json({
         message: 'User Registration successful',
@@ -33,9 +37,10 @@ export default {
 
   logIn: async (req, res) => {
     const { email, password } = req.body;
+    const newEmail = email.toLowerCase();
     try {
       const user = await db.User.findOne({
-        where: { email }
+        where: { email: newEmail }
       });
       if (!user) {
         return res.status(400).send({
@@ -62,13 +67,15 @@ export default {
 
   updateUser: async (req, res) => {
     try {
+      let username = req.body.username || req.user.username;
+      username = username.toLowerCase();
       const image = req.files
-        ? await uploadImage(req.files.image, `${req.user.username}-profileImg`)
+        ? await uploadImage(req.files.image, `${username}-profileImg`)
         : req.user.image;
 
       const user = await req.user.update(
         {
-          username: req.body.username || req.user.username,
+          username,
           firstName: req.body.firstName || req.user.firstName,
           lastName: req.body.lastName || req.user.lastName,
           image,
@@ -95,7 +102,8 @@ export default {
     });
   },
   resetPassword: async (req, res) => {
-    const { email } = req.body;
+    let { email } = req.body;
+    email = email.toLowerCase();
     try {
       const user = await db.User.findOne({ where: { email } });
       if (user) {
@@ -273,9 +281,9 @@ export default {
   },
 
   adminUpdate: async (req, res) => {
+    let { username } = req.params;
+    username = username.toLowerCase();
     try {
-      const { username } = req.params;
-
       const foundUser = await db.User.findOne({
         where: {
           username
@@ -287,15 +295,16 @@ export default {
           error: 'User does not exist'
         });
       }
-
+      username = req.body.username || foundUser.username;
+      username = username.toLowerCase();
       const image = req.files
-        ? await uploadImage(req.files.image, `${req.user.username}-profileImg`)
+        ? await uploadImage(req.files.image, `${username}-profileImg`)
         : foundUser.image;
 
       const { firstName, lastName, bio } = req.body || foundUser;
       const user = await foundUser.update(
         {
-          username: req.body.username || username,
+          username,
           firstName,
           lastName,
           image,
@@ -314,7 +323,8 @@ export default {
   },
 
   adminDelete: async (req, res) => {
-    const { username } = req.params;
+    let { username } = req.params;
+    username = username.toLowerCase();
 
     const foundUser = await db.User.findOne({
       where: {
@@ -348,14 +358,16 @@ export default {
       firstName, lastName, email, username, role
     } = req.body;
 
+    const newEmail = email.toLowerCase();
+    const newUsername = username.toLowerCase();
     const password = randomString();
     try {
       const user = await db.User.create({
         firstName,
         lastName,
         password,
-        email,
-        username,
+        email: newEmail,
+        username: newUsername,
         role,
         byadmin: true
       });
