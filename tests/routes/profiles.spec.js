@@ -38,13 +38,13 @@ describe('USER PROFILE', () => {
         .get(`/api/v1/profiles/${username}`)
         .send();
       expect(res.body).to.be.an('object');
-      expect(res.body).to.include.all.keys('profile');
-      expect(res.body.profile.firstName).to.equal(profile.firstName);
-      expect(res.body.profile.lastName).to.equal(profile.lastName);
-      expect(res.body.profile.username).to.equal(profile.username);
-      expect(res.body.profile.bio).to.equal(null);
-      expect(res.body.profile.image).to.equal(null);
-      expect(res.body.profile.email).to.equal(profile.email);
+      expect(res.body).to.include.all.keys('user');
+      expect(res.body.user.firstName).to.equal(user.firstName);
+      expect(res.body.user.lastName).to.equal(user.lastName);
+      expect(res.body.user.username).to.equal(user.username);
+      expect(res.body.user.bio).to.equal(null);
+      expect(res.body.user.image).to.equal(null);
+      expect(res.body.user.email).to.equal(user.email);
     });
 
     it('Should not get user profile if username does not exist', async () => {

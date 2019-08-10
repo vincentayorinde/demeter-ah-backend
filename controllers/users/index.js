@@ -21,7 +21,7 @@ export default {
       });
       return res.status(201).json({
         message: 'User Registration successful',
-        user: user.response()
+        user: { ...user.response(), followersNo: 0, followingNo: 0 }
       });
     } catch (e) {
       /* istanbul ignore next */
@@ -37,6 +37,8 @@ export default {
       const user = await db.User.findOne({
         where: { email }
       });
+
+
       if (!user) {
         return res.status(400).send({
           error: 'Invalid email or password'
@@ -48,9 +50,18 @@ export default {
           error: 'Invalid email or password'
         });
       }
+
+      const followingNo = await db.MemberShip.count({
+        where: { followerId: user.id },
+      });
+
+      const followersNo = await db.MemberShip.count({
+        where: { followId: user.id },
+      });
+
       return res.status(200).json({
         message: 'User Login in successful',
-        user: user.response()
+        user: { ...user.response(), followingNo, followersNo }
       });
     } catch (e) {
       /* istanbul ignore next */
@@ -66,6 +77,19 @@ export default {
         ? await uploadImage(req.files.image, `${req.user.username}-profileImg`)
         : req.user.image;
 
+      if (req.body.username) {
+        const foundUser = await db.User.findOne({
+          where: { username: req.body.username }
+        });
+        if (foundUser) {
+          if (foundUser !== req.user) {
+            return res.status(400).json({
+              message: 'Username already exist'
+            });
+          }
+        }
+      }
+
       const user = await req.user.update(
         {
           username: req.body.username || req.user.username,
@@ -75,9 +99,18 @@ export default {
           bio: req.body.bio || req.user.bio
         }
       );
+
+      const followingNo = await db.MemberShip.count({
+        where: { followerId: user.id },
+      });
+
+      const followersNo = await db.MemberShip.count({
+        where: { followId: user.id },
+      });
+
       res.status(200).json({
         message: 'User profile successfully updated',
-        user: user.response()
+        user: { ...user.response(), followersNo, followingNo }
       });
     } catch (e) {
       /* istanbul ignore next */
