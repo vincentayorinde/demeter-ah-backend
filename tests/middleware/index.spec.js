@@ -101,7 +101,7 @@ describe('Middlewares', () => {
       const response = await Middleware.authenticate(req, res, nextSpy);
       expect(response).to.be.a('object');
       expect(response).to.have.property('message');
-      expect(response.message).to.include('jwt malformed');
+      expect(response.message).to.include('Unauthorized access');
     });
 
     it('should return jwt must be provided when no token is provided', async () => {
@@ -118,7 +118,7 @@ describe('Middlewares', () => {
 
       expect(response).to.be.a('object');
       expect(response).to.have.property('message');
-      expect(response.message).to.include('jwt must be provided');
+      expect(response.message).to.include('Unauthorized access');
     });
   });
 

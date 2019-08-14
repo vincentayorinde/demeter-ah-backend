@@ -57,7 +57,7 @@ class Middleware {
       next();
     } catch (error) {
       return res.status(400).send({
-        message: error.message,
+        message: 'Unauthorized access',
       });
     }
   }
