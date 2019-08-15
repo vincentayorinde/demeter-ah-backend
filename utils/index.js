@@ -175,3 +175,22 @@ export const storeRating = async (foundArticleId) => {
     rating: parseFloat(articleAvg).toFixed(2),
   });
 };
+
+export const decodeUser = async (req, res, next) => {
+  const token = req.headers['x-access-token'];
+
+  try {
+    const decodedToken = decodeToken(token);
+
+    const { email } = decodedToken;
+
+    const user = await db.User.findOne({
+      where: { email },
+    });
+
+    req.user = user;
+  } catch (error) {
+    req.user = null;
+  }
+  next();
+};

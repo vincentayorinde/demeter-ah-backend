@@ -2,15 +2,38 @@ import db from '../../db/models';
 
 export default {
   getProfile: async (req, res) => {
+    const { userId } = req.query;
+    let isFollowed = null;
+    const include = userId ? [
+      {
+        model: db.MemberShip,
+        as: 'followers',
+        where: { followerId: userId },
+        required: false,
+      }
+    ] : [];
     try {
       const user = await db.User.findOne({
         where: { username: req.params.username },
+        attributes: ['id',
+          'username',
+          'email',
+          'firstName',
+          'lastName',
+          'image',
+          'bio',
+        ],
+        include
       });
 
       if (!user) {
         return res.status(404).send({
           error: 'User does not exist',
         });
+      }
+
+      if (userId) {
+        isFollowed = (user.dataValues.followers.length > 0);
       }
 
       const followingNo = await db.MemberShip.count({
@@ -21,13 +44,13 @@ export default {
         where: { followId: user.id },
       });
 
-      const data = user.response(false);
       return res.status(200).json({
         user: {
-          ...data,
+          ...user.dataValues,
+          isFollowed,
           followersNo,
           followingNo,
-        },
+        }
       });
     } catch (e) {
       /* istanbul ignore next */
