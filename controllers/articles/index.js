@@ -667,6 +667,16 @@ export default {
           where: {
             userId
           }
+        },
+        {
+          model: db.User,
+          as: 'author',
+          attributes: ['firstName', 'lastName', ['image', 'authorImage']]
+        },
+        {
+          model: db.Category,
+          as: 'category',
+          attributes: ['name']
         }]
       });
 
