@@ -89,7 +89,7 @@ export default {
           where: { username: req.body.username }
         });
         if (foundUser) {
-          if (foundUser !== req.user) {
+          if (foundUser.id !== req.user.id) {
             return res.status(400).json({
               message: 'Username already exist'
             });
