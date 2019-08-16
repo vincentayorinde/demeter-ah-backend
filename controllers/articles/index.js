@@ -1,8 +1,11 @@
+import Sequelize from 'sequelize';
 import {
   uploadImage, deleteImage, findRatedArticle, storeRating
 } from '../../utils';
 import db from '../../db/models';
 import Notification from '../../utils/notifications';
+
+const { Op } = Sequelize;
 
 export default {
   getArticles: async (req, res) => {
@@ -677,6 +680,43 @@ export default {
     } catch (e) {
       return res.status(500).send({
         error: e.message
+      });
+    }
+  },
+
+  getRelatedArticles: async (req, res) => {
+    const { slug, category } = req.params;
+    try {
+      const foundCategory = await db.Category.findOne(
+        { where: { name: category } }
+      );
+      if (!foundCategory) {
+        return res.status(404).json({
+          error: 'Category not found'
+        });
+      }
+      const foundArticles = await db.Article.findAndCountAll(
+        {
+          limit: 2,
+          where: {
+            categoryId: foundCategory.id,
+            slug: {
+              [Op.ne]: slug
+            }
+          },
+          attributes: ['title', 'slug', 'image', 'createdAt', 'categoryId', 'description'],
+          order: [
+            Sequelize.fn('RANDOM'),
+          ]
+        }
+      );
+      return res.status(200).json({
+        articles: foundArticles
+      });
+    } catch (e) {
+      console.log('the error', e);
+      return res.status(500).json({
+        error: 'somthing went wrong'
       });
     }
   }

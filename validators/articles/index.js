@@ -1,4 +1,5 @@
-import { messages, validatorInstance } from '../../utils';
+import { sanitize } from 'indicative';
+import { messages, validatorInstance, sanitizeRules } from '../../utils';
 import db from '../../db/models';
 
 export default {
@@ -242,6 +243,24 @@ export default {
       next();
     } catch (e) {
       return res.status(400).send({
+        error: e,
+      });
+    }
+  },
+
+  category: async (req, res, next) => {
+    const rules = {
+      category: 'string|required'
+    };
+
+    const data = req.params;
+
+    sanitize(data, sanitizeRules);
+    try {
+      await validatorInstance.validateAll(data, rules, messages);
+      next();
+    } catch (e) {
+      return res.status(400).json({
         error: e,
       });
     }
