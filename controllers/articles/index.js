@@ -110,7 +110,7 @@ export default {
           {
             model: db.User,
             as: 'author',
-            attributes: ['username', 'bio', 'image']
+            attributes: ['username', 'bio', 'image', 'firstName', 'lastName']
           },
           {
             model: db.Category,
@@ -667,6 +667,16 @@ export default {
           where: {
             userId
           }
+        },
+        {
+          model: db.User,
+          as: 'author',
+          attributes: ['firstName', 'lastName', ['image', 'authorImage']]
+        },
+        {
+          model: db.Category,
+          as: 'category',
+          attributes: ['name']
         }]
       });
 
