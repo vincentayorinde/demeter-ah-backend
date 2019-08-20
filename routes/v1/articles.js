@@ -23,7 +23,7 @@ router.post(
 );
 
 router.get(
-  '/user',
+  '/user/:username',
   Middleware.authenticate,
   Middleware.isblackListedToken,
   Validation.getUserArticles,

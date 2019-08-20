@@ -51,7 +51,7 @@ export default {
 
   getUserArticles: async (req, res) => {
     try {
-      const { user: { id }, query } = req;
+      const { user: { id }, query, params: { username } } = req;
       const offset = query.offset ? (query.offset * query.limit) : 0;
       const limit = query.limit || 20;
 
@@ -59,9 +59,14 @@ export default {
         {
           offset,
           limit,
-          where: { authorId: id },
-          attributes: ['title', 'rating', 'reads'],
+          where: { authorId: id, publish: true, username },
+          // attributes: ['title', 'description', 'rating', 'reads'],
           include: [
+            {
+              model: db.Category,
+              as: 'category',
+              attributes: ['name']
+            },
             {
               model: db.ArticleVote,
               where: { status: true },
