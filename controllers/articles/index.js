@@ -113,7 +113,7 @@ export default {
           {
             model: db.User,
             as: 'author',
-            attributes: ['username', 'bio', 'image']
+            attributes: ['firstName', 'lastName', 'username', 'bio', 'image']
           },
           {
             model: db.Category,
