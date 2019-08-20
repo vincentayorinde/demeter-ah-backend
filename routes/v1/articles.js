@@ -160,4 +160,11 @@ router.get(
   Article.getBookmarkedArticles
 );
 
+router.get(
+  '/:slug/:category/related',
+  Validation.category,
+  Validation.articleSlug,
+  Article.getRelatedArticles,
+);
+
 export default router;
