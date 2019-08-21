@@ -51,49 +51,79 @@ export default {
 
   getUserArticles: async (req, res) => {
     try {
-      const { user: { id }, query, params: { username } } = req;
+      const { user, query, params: { username } } = req;
       const offset = query.offset ? (query.offset * query.limit) : 0;
       const limit = query.limit || 20;
 
+      let userId = null;
+      if (user) {
+        userId = user.id;
+      }
+      const id = userId;
+
+      let authorId = null;
+      if (username) {
+        const foundUser = await db.User.findOne({
+          where: {
+            username
+          }
+        });
+        authorId = foundUser.id;
+      }
+
+      const data = [
+        {
+          model: db.Category,
+          as: 'category',
+          attributes: ['name']
+        },
+        {
+          model: db.User,
+          as: 'author',
+          attributes: ['firstName', 'lastName', ['image', 'authorImage']]
+        },
+        {
+          model: db.ArticleVote,
+          where: { status: true },
+          required: false,
+          as: 'upVote',
+          attributes: ['status'],
+          include: [{
+            model: db.User,
+            required: false,
+            as: 'user',
+            attributes: ['username']
+          }]
+        },
+        {
+          model: db.ArticleVote,
+          where: { status: false },
+          required: false,
+          as: 'downVote',
+          attributes: ['status'],
+          include: [{
+            model: db.User,
+            required: false,
+            as: 'user',
+            attributes: ['username']
+          }]
+        }
+      ];
+
+      const include = id ? [...data, {
+        model: db.Bookmark,
+        as: 'bookmarks',
+        where: {
+          userId: id
+        },
+        required: false,
+      }] : [...data];
       const articles = await db.Article.findAndCountAll(
         {
           offset,
           limit,
-          where: { authorId: id, publish: true, username },
-          // attributes: ['title', 'description', 'rating', 'reads'],
-          include: [
-            {
-              model: db.Category,
-              as: 'category',
-              attributes: ['name']
-            },
-            {
-              model: db.ArticleVote,
-              where: { status: true },
-              required: false,
-              as: 'upVote',
-              attributes: ['status'],
-              include: [{
-                model: db.User,
-                required: false,
-                as: 'user',
-                attributes: ['username']
-              }]
-            },
-            {
-              model: db.ArticleVote,
-              where: { status: false },
-              required: false,
-              as: 'downVote',
-              attributes: ['status'],
-              include: [{
-                model: db.User,
-                required: false,
-                as: 'user',
-                attributes: ['username']
-              }]
-            }
-          ]
+          where: { authorId: (authorId || id), publish: true },
+          include
         }
       );
       return res.status(200).json({
@@ -111,52 +141,67 @@ export default {
   },
 
   getArticle: async (req, res) => {
+    const { user } = req;
+    let authorId = null;
+    if (user) {
+      authorId = user.id;
+    }
+    const data = [
+      {
+        model: db.User,
+        as: 'author',
+        attributes: ['firstName', 'lastName', 'username', 'bio', 'image']
+      },
+      {
+        model: db.Category,
+        as: 'category',
+        attributes: ['name']
+      },
+      {
+        model: db.Tag,
+        as: 'tags',
+        attributes: ['name']
+      },
+      {
+        model: db.ArticleVote,
+        where: { status: true },
+        required: false,
+        as: 'upVote',
+        attributes: ['status'],
+        include: [{
+          model: db.User,
+          required: false,
+          as: 'user',
+          attributes: ['username']
+        }]
+      },
+      {
+        model: db.ArticleVote,
+        where: { status: false },
+        required: false,
+        as: 'downVote',
+        attributes: ['status'],
+        include: [{
+          model: db.User,
+          required: false,
+          as: 'user',
+          attributes: ['username']
+        }]
+      }
+    ];
+
+    const include = authorId ? [...data, {
+      model: db.Bookmark,
+      as: 'bookmarks',
+      where: {
+        userId: authorId
+      },
+      required: false,
+    }] : [...data];
     try {
       const article = await db.Article.findOne({
         where: { slug: req.params.slug },
-        include: [
-          {
-            model: db.User,
-            as: 'author',
-            attributes: ['firstName', 'lastName', 'username', 'bio', 'image']
-          },
-          {
-            model: db.Category,
-            as: 'category',
-            attributes: ['name']
-          },
-          {
-            model: db.Tag,
-            as: 'tags',
-            attributes: ['name']
-          },
-          {
-            model: db.ArticleVote,
-            where: { status: true },
-            required: false,
-            as: 'upVote',
-            attributes: ['status'],
-            include: [{
-              model: db.User,
-              required: false,
-              as: 'user',
-              attributes: ['username']
-            }]
-          },
-          {
-            model: db.ArticleVote,
-            where: { status: false },
-            required: false,
-            as: 'downVote',
-            attributes: ['status'],
-            include: [{
-              model: db.User,
-              required: false,
-              as: 'user',
-              attributes: ['username']
-            }]
-          }
-        ]
+        include
       });
 
       if (!article) {
