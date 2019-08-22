@@ -451,7 +451,7 @@ export default {
     status = JSON.parse(status);
     const article = await db.Article.findOne({
       where: {
-        slug
+        slug,
       }
     });
 
@@ -490,20 +490,45 @@ export default {
       }
 
       if (notify) {
-        await Notification.articleNotification({
+        Notification.articleNotification({
           articleId,
           userId,
           type: 'like'
         });
       }
-
-      const upvotes = await db.ArticleVote.getArticleVotes({ ...voteDetails, status: true });
-      const downvotes = await db.ArticleVote.getArticleVotes({ ...voteDetails, status: false });
+      const upVote = await db.ArticleVote.findAll({
+        where: {
+          articleId: voteDetails.articleId,
+          status: true,
+        },
+        attributes: ['status'],
+        include: [
+          {
+            model: db.User,
+            as: 'user',
+            attributes: ['username']
+          }
+        ]
+      });
+      const downVote = await db.ArticleVote.findAll({
+        where: {
+          articleId: voteDetails.articleId,
+          status: false,
+        },
+        attributes: ['status'],
+        include: [
+          {
+            model: db.User,
+            as: 'user',
+            attributes: ['username']
+          }
+        ]
+      });
 
       return res.status(resStatus).json({
         message,
-        upvotes,
-        downvotes
+        upVote,
+        downVote
       });
     } catch (e) {
       /* istanbul ignore next */

@@ -4,6 +4,7 @@ logs
 .DS_Store
 package-lock.json
 npm-debug.log*
+.vscode/launch.json
 
 # Runtime data
 pids
