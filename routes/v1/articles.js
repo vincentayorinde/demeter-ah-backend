@@ -151,6 +151,7 @@ router.post(
 
 router.get(
   '/:slug/comments',
+  decodeUser,
   Validation.articleSlug,
   Comment.getComments,
 );

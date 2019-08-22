@@ -111,6 +111,12 @@ module.exports = (sequelize, DataTypes) => {
       cascade: true,
     });
 
+    User.hasMany(models.CommentVote, {
+      foreignKey: 'userId',
+      as: 'commentVote',
+      cascade: true,
+    });
+
     User.hasMany(models.Bookmark, {
       foreignKey: 'userId',
       as: 'bookmarks',

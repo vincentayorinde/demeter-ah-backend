@@ -930,7 +930,7 @@ describe('ARTICLES TEST', () => {
       const { token } = userResponse;
       userToken = token;
       articleData = await createArticle({ ...article, authorId: userResponse.id });
-      commentData = await createComment({ articleId: articleData.id, content: 'user comment' });
+      commentData = await createComment({ articleId: articleData.id, userId: userResponse.id, content: 'user comment' });
       commentId = parseInt(commentData.id, 10);
     });
 
