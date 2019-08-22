@@ -4,7 +4,7 @@ export default {
   getProfile: async (req, res) => {
     const { userId } = req.query;
     let isFollowed = null;
-    const include = userId ? [
+    const include = (userId && userId !== 'undefined') ? [
       {
         model: db.MemberShip,
         as: 'followers',
@@ -32,7 +32,7 @@ export default {
         });
       }
 
-      if (userId) {
+      if (userId && userId !== 'undefined') {
         isFollowed = (user.dataValues.followers.length > 0);
       }
 

@@ -52,7 +52,7 @@ export default {
       }
 
       const foundComment = await db.Comment.findOne({
-        where: { id: commentId }
+        where: { id: commentId, userId: req.user.id }
       });
       if (!foundComment) {
         return res.status(404).send({
@@ -183,6 +183,23 @@ export default {
 
   getComments: async (req, res) => {
     const { params: { slug } } = req;
+    const id = req.user && req.user.id;
+
+    const getInclude = (type) => {
+      const include = id
+        ? [
+          {
+            model: db.User,
+            as: type,
+            where: { id },
+            required: false,
+            attributes: ['id', 'username']
+          },
+        ]
+        : [];
+      return include;
+    };
+
     try {
       const article = await db.Article.findOne({
         where: { slug }
@@ -202,6 +219,7 @@ export default {
             required: false,
             as: 'upVote',
             attributes: ['status'],
+            include: getInclude('userUpVote')
           },
           {
             model: db.CommentVote,
@@ -209,6 +227,13 @@ export default {
             required: false,
             as: 'downVote',
             attributes: ['status'],
+            include: getInclude('userDownVote')
+          },
+          {
+            model: db.User,
+            required: false,
+            as: 'author',
+            attributes: ['firstName', 'lastName', 'id', 'username', 'image'],
           }
         ],
       });

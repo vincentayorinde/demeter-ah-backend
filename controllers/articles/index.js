@@ -132,7 +132,6 @@ export default {
       });
     } catch (e) {
       /* istanbul ignore next */
-      console.log(e);
       return res.status(500).json({
         message: 'Something went wrong',
         error: e.message,
@@ -209,8 +208,13 @@ export default {
           message: 'Article does not exist',
         });
       }
+
+      const commentNo = await db.Comment.count({
+        where: { articleId: article.id },
+      });
+
       return res.status(200).send({
-        article
+        article: { ...article.dataValues, commentNo }
       });
     } catch (e) {
       /* istanbul ignore next */
@@ -774,7 +778,6 @@ export default {
         articles: foundArticles
       });
     } catch (e) {
-      console.log('the error', e);
       return res.status(500).json({
         error: 'somthing went wrong'
       });

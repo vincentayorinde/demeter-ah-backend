@@ -79,7 +79,7 @@ export default {
   },
 
   getFollowingByUsername: async (req, res) => {
-    const { id } = req.user;
+    const id = req.user && req.user.id;
     const { username } = req.params;
     const include = id
       ? [
@@ -126,7 +126,7 @@ export default {
   },
 
   getFollowersByUsername: async (req, res) => {
-    const { id } = req.user;
+    const id = req.user && req.user.id;
     const { username } = req.params;
 
     const include = id
