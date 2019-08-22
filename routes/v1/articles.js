@@ -3,6 +3,7 @@ import Validation from '../../validators/articles';
 import Article from '../../controllers/articles';
 import Middleware from '../../middlewares';
 import Comment from '../../controllers/comments';
+import { decodeUser } from '../../utils';
 
 const router = express.Router();
 
@@ -23,9 +24,8 @@ router.post(
 );
 
 router.get(
-  '/user',
-  Middleware.authenticate,
-  Middleware.isblackListedToken,
+  '/user/:username?',
+  decodeUser,
   Validation.getUserArticles,
   Article.getUserArticles
 );
@@ -35,8 +35,10 @@ router.get(
   Validation.getArticles,
   Article.getArticles,
 );
+
 router.get(
   '/:slug',
+  decodeUser,
   Validation.articleSlug,
   Article.getArticle,
 );
