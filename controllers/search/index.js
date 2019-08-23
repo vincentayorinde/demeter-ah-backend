@@ -2,7 +2,11 @@ import Sequelize from 'sequelize';
 import db from '../../db/models';
 
 const { Op } = Sequelize;
-let include = [];
+let include = [{
+  model: db.Category,
+  as: 'category',
+  attributes: ['name']
+}];
 const setInclude = association => [...include, association];
 
 export const tagFilter = async (req, res, next) => {
@@ -52,6 +56,5 @@ export const end = async (req, res) => {
     }
   );
 
-  include = [];
   res.status(200).json({ search });
 };
