@@ -807,5 +807,35 @@ export default {
         error: 'somthing went wrong'
       });
     }
+  },
+
+  getUserArticleRating: async (req, res) => {
+    const { user, params: { slug } } = req;
+    try {
+      const foundArticle = await db.Article.findOne({
+        where: { slug }
+      });
+      if (!foundArticle) {
+        return res.status(404).json({
+          error: 'Article does not exist'
+        });
+      }
+      const fetchRating = await db.Ratings.findOne({
+        where: {
+          articleId: foundArticle.id,
+          userId: user.id
+        }
+      });
+      return res.status(200).json({
+        message: 'User rating for Article',
+        rating: fetchRating
+      });
+    } catch (e) {
+      /* istanbul ignore next */
+      return res.status(500).json({
+        message: 'Something went wrong',
+        error: e.message
+      });
+    }
   }
 };

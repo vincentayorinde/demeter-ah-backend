@@ -74,6 +74,13 @@ router.get(
   Article.getArticleRatings,
 );
 
+router.get(
+  '/rate/user/:slug',
+  Middleware.authenticate,
+  Middleware.isblackListedToken,
+  Article.getUserArticleRating,
+);
+
 router.post(
   '/:slug/comments',
   Middleware.authenticate,
