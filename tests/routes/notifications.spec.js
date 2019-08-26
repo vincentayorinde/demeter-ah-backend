@@ -35,7 +35,7 @@ describe('USER NOTIFICATIONS', () => {
       .patch('/api/v1/notifications/email-notify')
       .set('x-access-token', token);
     expect(res.statusCode).to.equal(200);
-    expect(res.body.user.emailNotify).to.equal(false);
+    expect(res.body.notificationStatus.emailNotify).to.equal(false);
   });
 
   it('should return 200 and true if user opt in to email notification', async () => {
@@ -54,7 +54,7 @@ describe('USER NOTIFICATIONS', () => {
       .patch('/api/v1/notifications/email-notify')
       .set('x-access-token', token);
     expect(res.statusCode).to.equal(200);
-    expect(res.body.user.emailNotify).to.equal(true);
+    expect(res.body.notificationStatus.emailNotify).to.equal(true);
   });
 
   it('should return all the users notifications if any', async () => {
@@ -152,7 +152,7 @@ describe('USER NOTIFICATIONS', () => {
       .patch('/api/v1/notifications/app-notify')
       .set('x-access-token', token);
     expect(res.statusCode).to.equal(200);
-    expect(res.body.user.inAppNotify).to.equal(false);
+    expect(res.body.notificationStatus.inAppNotify).to.equal(false);
   });
 
   it('should return 200 and true if user opt in to an app notification', async () => {
@@ -171,6 +171,6 @@ describe('USER NOTIFICATIONS', () => {
       .patch('/api/v1/notifications/app-notify')
       .set('x-access-token', token);
     expect(res.statusCode).to.equal(200);
-    expect(res.body.user.inAppNotify).to.equal(true);
+    expect(res.body.notificationStatus.inAppNotify).to.equal(true);
   });
 });

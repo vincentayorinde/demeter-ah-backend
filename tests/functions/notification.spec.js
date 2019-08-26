@@ -71,7 +71,14 @@ describe('Notification functions', () => {
       });
 
       const { message } = notificationContent.dataValues;
-      expect(message).to.equal(`${hamza.firstName} ${hamza.lastName} is following you`);
+      console.log(message);
+      const expectedMsg = {
+        name: `${hamza.firstName} ${hamza.lastName}`,
+        msg: 'is following you',
+        article: null,
+      };
+
+      expect((message)).to.equal(JSON.stringify(expectedMsg));
     });
 
     it('should create a new like notification message', async () => {
@@ -87,9 +94,13 @@ describe('Notification functions', () => {
           receiverId: hamza.id
         },
       });
-
+      const expectedMsg = {
+        name: `${vincent.firstName} ${vincent.lastName}`,
+        msg: 'likes your article',
+        article: hamzaArticle.title,
+      };
       const { message } = notificationContent.dataValues;
-      expect(message).to.equal(`${vincent.firstName} ${vincent.lastName} likes your article "${hamzaArticle.dataValues.title}"`);
+      expect((message)).to.equal(JSON.stringify(expectedMsg));
     });
 
     it('should create a new comment notification message', async () => {
@@ -106,8 +117,13 @@ describe('Notification functions', () => {
         }
       });
 
+      const expectedMsg = {
+        name: `${vincent.firstName} ${vincent.lastName}`,
+        msg: 'commented on your article',
+        article: hamzaArticle.title,
+      };
       const { message } = notificationContent.dataValues;
-      expect(message).to.equal(`${vincent.firstName} ${vincent.lastName} commented on your article "${hamzaArticle.dataValues.title}"`);
+      expect((message)).to.equal(JSON.stringify(expectedMsg));
     });
 
     it('should create a new dislike notification message', async () => {
@@ -125,8 +141,13 @@ describe('Notification functions', () => {
         }
       });
 
+      const expectedMsg = {
+        name: `${vincent.firstName} ${vincent.lastName}`,
+        msg: 'dislikes your article',
+        article: hamzaArticle.title,
+      };
       const { message } = notificationContent.dataValues;
-      expect(message).to.equal(`${vincent.firstName} ${vincent.lastName} dislikes your article "${hamzaArticle.dataValues.title}"`);
+      expect((message)).to.equal(JSON.stringify(expectedMsg));
     });
 
     it('should get a new publish notification message', async () => {
@@ -149,8 +170,13 @@ describe('Notification functions', () => {
         }
       });
 
+      const expectedMsg = {
+        name: `${hamza.firstName} ${hamza.lastName}`,
+        msg: 'published a new article titled',
+        article: hamzaArticle.title,
+      };
       const { message } = notificationContent.dataValues;
-      expect(message).to.equal(`${hamza.firstName} ${hamza.lastName} published a new article titled "${hamzaArticle.dataValues.title}"`);
+      expect((message)).to.equal(JSON.stringify(expectedMsg));
     });
   });
 });

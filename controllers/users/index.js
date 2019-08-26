@@ -226,15 +226,26 @@ export default {
     }
   },
 
+  getNotificationStatus: async (req, res) => {
+    const { user: { emailNotify, inAppNotify } } = req;
+    return res.status(200).send({
+      notificationStatus: {
+        emailNotify, inAppNotify
+      }
+    });
+  },
+
   changeEmailNotification: async (req, res) => {
     const { user } = req;
     const notifyMe = user.emailNotify;
     const result = await user.update({
       emailNotify: !notifyMe,
     });
-
+    const { emailNotify, inAppNotify } = result;
     return res.status(200).send({
-      user: result
+      notificationStatus: {
+        emailNotify, inAppNotify
+      }
     });
   },
 
@@ -245,8 +256,11 @@ export default {
       inAppNotify: !notifyMe,
     });
 
+    const { emailNotify, inAppNotify } = result;
     return res.status(200).send({
-      user: result
+      notificationStatus: {
+        emailNotify, inAppNotify
+      }
     });
   },
 
@@ -256,7 +270,10 @@ export default {
     const notifications = await db.Notification.findAll({
       where: {
         receiverId: id,
-      }
+      },
+      order: [
+        ['createdAt', 'DESC']
+      ]
     });
 
     return res.status(200).send({

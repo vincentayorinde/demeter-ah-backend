@@ -7,6 +7,7 @@ const router = express.Router();
 router.patch('/email-notify', Middleware.authenticate, Middleware.isblackListedToken, User.changeEmailNotification);
 router.patch('/app-notify', Middleware.authenticate, Middleware.isblackListedToken, User.changeInAppNotification);
 router.get('/', Middleware.authenticate, Middleware.isblackListedToken, User.getNotifications);
+router.get('/status', Middleware.authenticate, Middleware.isblackListedToken, User.getNotificationStatus);
 router.patch('/:id', Middleware.authenticate, Middleware.isblackListedToken, User.readNotification);
 
 export default router;

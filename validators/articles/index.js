@@ -14,7 +14,6 @@ export default {
     };
 
     const data = { ...req.body, ...req.files };
-
     try {
       await validatorInstance.validateAll(data, rules, messages);
       next();
