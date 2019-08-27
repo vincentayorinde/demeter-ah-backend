@@ -171,9 +171,12 @@ export const storeRating = async (foundArticleId) => {
   const getArticle = await db.Article.findOne({
     where: { id: foundArticleId },
   });
-  getArticle.update({
-    rating: parseFloat(articleAvg).toFixed(2),
-  });
+  if (getArticle) {
+    const updatedRate = await getArticle.update({
+      rating: articleAvg,
+    });
+    return updatedRate;
+  }
 };
 
 export const decodeUser = async (req, res, next) => {
