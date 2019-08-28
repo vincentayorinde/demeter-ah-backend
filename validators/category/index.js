@@ -4,10 +4,12 @@ import { messages, validatorInstance, sanitizeRules } from '../../utils';
 export default {
   category: async (req, res, next) => {
     const rules = {
-      name: 'required|string'
+      name: 'required|string',
+      description: 'required|string',
+      image: 'object'
     };
 
-    const data = req.body;
+    const data = { ...req.body, ...req.files };
 
     sanitize(data, sanitizeRules);
     try {

@@ -12,7 +12,27 @@ export default {
     try {
       const { query } = req;
       const queryParams = {};
-      if (query.author) queryParams.author = query.author;
+
+      const category = (query.category === '' || query.category === undefined) ? [] : [
+        {
+          model: db.Category,
+          as: 'category',
+          required: true,
+          where: { name: query.category },
+          attributes: ['name']
+        }];
+
+      const bookmark = query.userId === undefined ? [] : [
+        {
+          model: db.Bookmark,
+          as: 'bookmarks',
+          required: false,
+          where: {
+            userId: query.userId
+          }
+        }];
+
+      if (query.userId) queryParams.name = query.category;
 
       const offset = query.offset ? (query.offset * query.limit) : 0;
       const limit = query.limit || 20;
@@ -21,21 +41,18 @@ export default {
         {
           offset,
           limit,
-          where: queryParams,
           include: [
+            ...bookmark,
             {
               model: db.User,
               as: 'author',
               attributes: ['username', 'bio', 'image']
             },
-            {
-              model: db.Category,
-              as: 'category',
-              attributes: ['name']
-            }
+            ...category
           ]
         }
       );
+
       return res.status(200).json({
         articles: articles.rows,
         articlesCount: articles.count,

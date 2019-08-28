@@ -16,8 +16,6 @@ router.post(
 
 router.get(
   '/',
-  Middleware.authenticate,
-  Middleware.isblackListedToken,
   Category.getCategories
 );
 
