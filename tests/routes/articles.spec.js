@@ -28,7 +28,7 @@ describe('ARTICLES TEST', () => {
     mockPusher = sinon.stub(Notifications.pusher, 'trigger').resolves({});
   });
   beforeEach(async () => {
-    category = await createCategory({ name: 'comms' });
+    category = await createCategory({ name: 'comms', description: 'hello' });
     article = {
       title: 'React course by hamza',
       description: 'very good book',
@@ -74,7 +74,7 @@ describe('ARTICLES TEST', () => {
       const user = await createUser(register);
       const userResponse = user.response();
       const { token } = userResponse;
-      category = await createCategory({ name: 'tech' });
+      category = await createCategory({ name: 'tech', description: 'hello' });
       const res = await chai
         .request(app)
         .post('/api/v1/articles')
@@ -164,7 +164,7 @@ describe('ARTICLES TEST', () => {
       const user = await createUser(register);
       const userResponse = user.response();
       const { token } = userResponse;
-      category = await createCategory({ name: 'tech' });
+      category = await createCategory({ name: 'tech', description: 'hello' });
       const res = await chai
         .request(app)
         .post('/api/v1/articles')

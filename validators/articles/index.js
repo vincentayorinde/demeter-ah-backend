@@ -70,6 +70,7 @@ export default {
       offset: 'integer',
       tag: 'string',
       author: 'string',
+      category: 'string',
       favorited: 'string',
     };
 

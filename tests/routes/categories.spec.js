@@ -49,7 +49,8 @@ describe('CATEGORIES TEST', () => {
       .request(app)
       .post('/api/v1/category')
       .send({
-        name: 'tech'
+        name: 'tech',
+        description: 'power for all'
       })
       .set('x-access-token', token);
     expect(res.statusCode).to.equal(200);
@@ -66,7 +67,8 @@ describe('CATEGORIES TEST', () => {
       .request(app)
       .post('/api/v1/category')
       .send({
-        name: ''
+        name: '',
+        description: ''
       })
       .set('x-access-token', token);
     expect(res.statusCode).to.equal(400);
@@ -77,16 +79,16 @@ describe('CATEGORIES TEST', () => {
   it('category should be unique', async () => {
     const userResponse = admin.response();
     const { token } = userResponse;
-    await createCategory({ name: 'tech' });
+    await createCategory({ name: 'tech', description: 'hello' });
     const res = await chai
       .request(app)
       .post('/api/v1/category')
       .send({
-        name: 'tech'
+        name: 'tech', description: 'hello'
       })
       .set('x-access-token', token);
     expect(res.statusCode).to.equal(400);
-    expect(res.body.error).to.equal('Validation error');
+    expect(res.body.error).to.equal('Category Already exist');
     expect(res.body.error).to.be.a('string');
     expect(res.body).to.include.all
       .keys('error');
@@ -96,8 +98,8 @@ describe('CATEGORIES TEST', () => {
     const userResponse = user.response();
     const { token } = userResponse;
     await db.Category.bulkCreate([
-      { id: 1, name: 'tech' }, { id: 2, name: 'music' },
-      { id: 3, name: 'market' }, { id: 4, name: 'art' }
+      { id: 1, name: 'tech', description: 'power for all' }, { id: 2, name: 'music', description: 'power for all' },
+      { id: 3, name: 'market', description: 'power for all' }, { id: 4, name: 'art', description: 'power for all' }
     ]);
     const res = await chai
       .request(app)
