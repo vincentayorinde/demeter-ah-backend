@@ -3,8 +3,7 @@ import Notification from '../../utils/notifications';
 
 export default {
   addComment: async (req, res) => {
-    const { params: { slug }, body: { content }, user } = req;
-    let { highlightedTextObj } = req.body;
+    const { params: { slug }, body: { content, highlightedText }, user } = req;
     try {
       const foundArticle = await db.Article.findOne({
         where: { slug },
@@ -14,12 +13,12 @@ export default {
           error: 'Article does not exist'
         });
       }
-      highlightedTextObj = JSON.stringify(highlightedTextObj);
+
       const comment = await db.Comment.create({
         articleId: foundArticle.id,
         userId: user.id,
         content,
-        highlightedText: highlightedTextObj
+        highlightedText,
       });
 
       Notification.articleNotification({
