@@ -13,9 +13,9 @@ const pusher = new Pusher({
   useTLS: true
 });
 
-const pushNotification = (users) => {
-  users.forEach((user) => {
-    pusher.trigger('notifications', `event-${user.id}`, 'You have a notification');
+const pushNotification = (userIds) => {
+  userIds.forEach((id) => {
+    pusher.trigger('notifications', `event-${id}`, 'You have a new notification');
   });
 };
 
@@ -53,9 +53,13 @@ const followNotification = async ({ userId, followedUserId }) => {
   });
 
   const { emailNotify, inAppNotify, email } = followedUser;
-  const message = `${user.firstName} ${user.lastName} is following you`;
+  const message = JSON.stringify({
+    name: `${user.firstName} ${user.lastName}`,
+    msg: 'is following you',
+    article: null
+  });
   const emailMsg = `<strong>${user.firstName} ${user.lastName}</strong> is following you`;
-  const link = `/profile/${user.username}`;
+  const link = `/profile/${user.username}/articles`;
 
   if (emailNotify) await sendEmailNotification(email, emailMsg, link);
   if (inAppNotify) {
@@ -135,8 +139,12 @@ const articleNotification = async ({ userId, articleId, type }) => {
   const link = `/articles/${slug}`;
 
   if (type === 'publish') {
-    const publishMsg = `${author.firstName} ${author.lastName} published a new article titled "${title}"`;
-    const publishEmailMsg = `${author.firstName} ${author.lastName} published a new article titled <strong>${title}</strong>`;
+    const publishMsg = JSON.stringify({
+      name: `${author.firstName} ${author.lastName}`,
+      msg: 'published a new article titled',
+      article: title
+    });
+    const publishEmailMsg = `<strong>${author.firstName} ${author.lastName}</strong> published a new article titled <strong>${title}</strong>`;
     await bulkNotify({
       senderId: userId,
       message: publishMsg,
@@ -144,22 +152,29 @@ const articleNotification = async ({ userId, articleId, type }) => {
       link
     });
   } else {
+    if (user.id === author.id) {
+      return;
+    }
     let msgType;
     if (type === 'like') msgType = 'likes';
     else if (type === 'dislike') msgType = 'dislikes';
     else msgType = 'commented on';
 
-    const message = `${user.firstName} ${user.lastName} ${msgType} your article "${title}"`;
+    const message = JSON.stringify({
+      name: `${user.firstName} ${user.lastName}`,
+      msg: `${msgType} your article`,
+      article: title
+    });
     const emailMsg = `${user.firstName} ${user.lastName} ${msgType} your article <strong>${title}</strong>`;
 
-    if (emailNotify) await sendEmailNotification(email, emailMsg, link);
+    if (emailNotify) sendEmailNotification(email, emailMsg, link);
 
 
     if (inAppNotify) {
       await createNotificationMsg({
         senderId: userId, receiverId: authorId, message, link
       });
-      await pushNotification([userId]);
+      pushNotification([authorId]);
     }
   }
 };

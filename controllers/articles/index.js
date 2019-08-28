@@ -237,7 +237,6 @@ export default {
           id: categoryId
         }
       });
-
       if (!categoryExist) {
         return res.status(400).send({
           message: 'category does not Exist'
@@ -296,6 +295,7 @@ export default {
         articleId: article.id,
         type: 'publish'
       });
+
 
       return res.status(201).json({
         message: 'Article Created Successfully',
