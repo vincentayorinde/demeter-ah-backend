@@ -371,20 +371,20 @@ export default {
           message: 'Article does not exist'
         });
       }
-      const checkRating = await db.Ratings.findOne({
+      const foundExistingRate = await db.Ratings.findOne({
         where: {
           userId: user.id,
           articleId: foundArticle.id
         }
       });
-      if (checkRating) {
-        await storeRating(foundArticle.id);
-        checkRating.update({
+      if (foundExistingRate) {
+        const newUserRate = await foundExistingRate.update({
           stars: rate
         });
+        await storeRating(foundArticle.id);
         return res.status(200).json({
           message: 'Rating updated successfully',
-          rating: checkRating
+          rating: newUserRate
         });
       }
       const rating = await user.createRate({
@@ -805,6 +805,36 @@ export default {
     } catch (e) {
       return res.status(500).json({
         error: 'somthing went wrong'
+      });
+    }
+  },
+
+  getUserArticleRating: async (req, res) => {
+    const { user, params: { slug } } = req;
+    try {
+      const foundArticle = await db.Article.findOne({
+        where: { slug }
+      });
+      if (!foundArticle) {
+        return res.status(404).json({
+          error: 'Article does not exist'
+        });
+      }
+      const fetchRating = await db.Ratings.findOne({
+        where: {
+          articleId: foundArticle.id,
+          userId: user.id
+        }
+      });
+      return res.status(200).json({
+        message: 'User rating for Article',
+        rating: fetchRating
+      });
+    } catch (e) {
+      /* istanbul ignore next */
+      return res.status(500).json({
+        message: 'Something went wrong',
+        error: e.message
       });
     }
   }
