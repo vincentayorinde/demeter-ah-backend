@@ -110,7 +110,7 @@ export default {
         where: {
           commentId
         },
-        attributes: ['content', 'createdAt']
+        attributes: ['id', 'content', 'createdAt']
       });
 
       return res.status(200).send({
@@ -194,7 +194,7 @@ export default {
             where: { id },
             required: false,
             attributes: ['id', 'username']
-          },
+          }
         ]
         : [];
       return include;
@@ -234,8 +234,17 @@ export default {
             required: false,
             as: 'author',
             attributes: ['firstName', 'lastName', 'id', 'username', 'image'],
-          }
+          },
+          {
+            model: db.CommentHistory,
+            as: 'commentHistory',
+            required: false,
+            attributes: ['id', 'commentId']
+          },
         ],
+        order: [
+          ['createdAt', 'DESC']
+        ]
       });
       return res.status(200).send({
         message: 'Comments retrieved successfully',
