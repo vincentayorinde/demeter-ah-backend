@@ -68,9 +68,8 @@ export default {
       limit: 'integer|required_with_any:offset',
       offset: 'integer',
       tag: 'string',
-      author: 'string',
+      sort: 'string',
       category: 'string',
-      favorited: 'string',
     };
 
     const data = { ...req.query };
