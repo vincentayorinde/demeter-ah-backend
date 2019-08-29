@@ -34,14 +34,14 @@ export const authorFilter = async (req, res, next) => {
     model: db.User,
     as: 'author',
     where:
-     (author) ? {
-       [Op.or]: [
-         { firstName: { [Op.iLike]: `%${author}%` } },
-         { lastName: { [Op.iLike]: `%${author}%` } },
-         { username: { [Op.iLike]: `%${author}%` } }
-       ]
-     }
-       : {},
+      (author) ? {
+        [Op.or]: [
+          { firstName: { [Op.iLike]: `%${author}%` } },
+          { lastName: { [Op.iLike]: `%${author}%` } },
+          { username: { [Op.iLike]: `%${author}%` } }
+        ]
+      }
+        : {},
     attributes: ['username', 'firstName', 'lastName']
   });
   return next();
@@ -56,5 +56,6 @@ export const end = async (req, res) => {
     }
   );
 
+  include = [];
   res.status(200).json({ search });
 };
