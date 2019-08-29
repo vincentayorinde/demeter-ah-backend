@@ -1,6 +1,5 @@
 import { sanitize } from 'indicative';
 import { messages, validatorInstance, sanitizeRules } from '../../utils';
-import db from '../../db/models';
 
 export default {
   createArticle: async (req, res, next) => {
@@ -120,26 +119,10 @@ export default {
     const rules = {
       content: 'required|string',
       slug: 'required|string',
-      highlightedTextObj: 'object'
+      highlightedText: 'string'
     };
-    const { params: { slug }, body: { highlightedTextObj } } = req;
-    const data = { ...req.body, slug };
-
-    try {
-      if (highlightedTextObj) {
-        const { startPosition, endPosition, text } = highlightedTextObj;
-        const { body } = await db.Article.findOne({
-          where: { slug: req.params.slug }
-        });
-        if (text !== body.substring(startPosition, endPosition)) {
-          throw new Error('Invalid highlighted text');
-        }
-      }
-    } catch (e) {
-      return res.status(400).json({
-        error: e.message,
-      });
-    }
+    const { params: { slug }, body } = req;
+    const data = { ...body, slug };
 
     try {
       await validatorInstance.validateAll(data, rules, messages);
