@@ -11,16 +11,24 @@ export default {
   getArticles: async (req, res) => {
     try {
       const { query } = req;
-      const queryParams = {};
+      const sort = query.sort ? { order: [[`${query.sort}`, 'DESC']] } : {};
 
-      const category = (query.category === '' || query.category === undefined) ? [] : [
-        {
-          model: db.Category,
-          as: 'category',
-          required: true,
-          where: { name: query.category },
-          attributes: ['name']
-        }];
+      const category = (query.category === '' || query.category === undefined)
+        ? [
+          {
+            model: db.Category,
+            as: 'category',
+            attributes: ['name']
+          }
+        ]
+        : [
+          {
+            model: db.Category,
+            as: 'category',
+            required: true,
+            where: { name: query.category },
+            attributes: ['name']
+          }];
 
       const bookmark = query.userId === undefined ? [] : [
         {
@@ -32,13 +40,12 @@ export default {
           }
         }];
 
-      if (query.userId) queryParams.name = query.category;
-
       const offset = query.offset ? (query.offset * query.limit) : 0;
       const limit = query.limit || 20;
 
       const articles = await db.Article.findAndCountAll(
         {
+          ...sort,
           offset,
           limit,
           include: [
